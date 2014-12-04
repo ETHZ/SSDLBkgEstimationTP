@@ -2,7 +2,7 @@
 
  * File Name : FitBkg.C
 
- * Purpose : This file do a fit of the background.
+ * Purpose : This file do a fit of the background. The parameter of this fit are then returned in a vector to be used by FitIntMassBkg_v3.C function
 
  * Creation Date : 20-12-2008
 
@@ -20,10 +20,12 @@
 #include "RooDataHist.h"
 #include "RooDataSet.h"
 #include "RooChebychev.h"
+#include "RooNovosibirsk.h"
 #include "RooLandau.h"
 #include "RooGaussian.h"
 #include "RooFFTConvPdf.h"
 #include "RooNumConvPdf.h"
+#include "RooBinning.h"
 #include "RooPlot.h"
 #include "vector"
 #include "cmath"
@@ -36,9 +38,14 @@
 #include "TLegend.h"
 #include "TLorentzVector.h"
 
+
 using namespace RooFit;
 
-void FitBkg(TH1D* histo, TString _write, int I = 1){
+vector<double> FitBkg(TH1D* histo, TString _bkg = "Novo"){
+
+	setTDRStyle();
+
+	vector<double> vec;
 
 	int n = histo->GetEntries();
 	double w = histo->GetXaxis()->GetBinWidth(1);
@@ -53,7 +60,7 @@ void FitBkg(TH1D* histo, TString _write, int I = 1){
 
 	// Declare observable x
 	RooRealVar x("x","x",hmin0,hmax0) ;
-	RooDataHist dh("dh","dh",x,Import(*histo)) ;
+	RooDataHist dh("dh","dh",x,Import(*histo,kFALSE)) ;
 
 	frame = x.frame(Title(histo->GetName())) ;
 	dh.plotOn(frame,DataError(RooAbsData::SumW2), MarkerColor(1),MarkerSize(0.9),MarkerStyle(7)); 
@@ -62,64 +69,96 @@ void FitBkg(TH1D* histo, TString _write, int I = 1){
 	x.setRange("R0",0,200) ;
 
 	//Defining the fitting functions
+	if(_bkg == "Novo"){
+		//Novo
 
-	if(I == 1){
-		//This doesn't work because FFTW3 has be be installed and working with root
+		RooRealVar peak("peak","peak",45.,0.,100.);
+		RooRealVar width("width","width",20.,0.,40.) ;
+		RooRealVar tail("tail","tail",0.01,0.,1.) ;
 
+
+		RooNovosibirsk bkg("bkg","Background",x,peak,width,tail);
+
+		//Fitting
+		RooFitResult* filters = bkg.fitTo(dh/*,Range("R0"),"qr"*/);
+		bkg.plotOn(frame,LineColor(2));
+		bkg.paramOn(frame); 
+
+		vec.push_back(peak.getVal());
+		vec.push_back(width.getVal());
+		vec.push_back(tail.getVal());
+	}
+
+	if(_bkg == "Cheb"){
+		//Chebychev
+
+
+		RooRealVar a0("a0","a0",-1,-5.,0.) ;
+		RooRealVar a1("a1","a1",0,-2,1.2) ;
+		RooRealVar a2("a2","a2",0,-1.,1.) ;
+		RooRealVar a3("a3","a3",0,-2.5,0.) ;
+		RooRealVar a4("a4","a4",0,-1.,1.) ;
+		RooRealVar a5("a5","a5",0,-1.,1.) ;
+		RooRealVar a6("a6","a6",0,-1.,1.) ;
+
+		RooChebychev bkg("bkg","Background",x,RooArgSet(a0,a1,a2,a3,a4,a5,a6));
+
+		//Fitting
+		RooFitResult* filters = bkg.fitTo(dh,Range("R0"),"qr");
+		bkg.plotOn(frame,LineColor(2));
+		bkg.paramOn(frame); 
+
+		vec.push_back(a0.getVal());
+		vec.push_back(a1.getVal());
+		vec.push_back(a2.getVal());
+		vec.push_back(a3.getVal());
+		vec.push_back(a4.getVal());
+		vec.push_back(a5.getVal());
+		vec.push_back(a6.getVal());
+
+	}
+
+	if(_bkg == "Land"){
+		//Background fitting function
 		//Landau (X) Gauss
-		RooRealVar resp_mean("resp_mean","resp_mean",1,0,20) ;
-		RooRealVar resp_sigma("resp_sigma","resp_sigma",1,0,30) ;
-		RooGaussian resp("resp","gauss",x,resp_mean,resp_sigma) ;
+		RooRealVar resp_mean("resp_mean","resp_mean",1,0.,20) ;
+		RooRealVar resp_sigma("resp_sigma","resp_sigma",20,5,30) ;
+		RooGaussian resp_bkg("resp","gauss",x,resp_mean,resp_sigma) ;
 
-		RooRealVar mean("mean","mean",40,0,200) ;
-		RooRealVar sigma("sigma","sigma",5,0,50) ;
-		RooLandau Land("Land","Background",x,mean,sigma);
+		RooRealVar mean_bkg("mean_bkg","mean",40,30,70) ;
+		RooRealVar sigma_bkg("sigma_bkg","sigma",10,0,20) ;
+
+		RooLandau Land_bkg("Land","Background",x,mean_bkg,sigma_bkg);
+
+		sigma_bkg.setRange(30,50);
+		resp_sigma.setRange(5,10);
+
 		x.setBins(10000,"cache") ;
 
-		RooFFTConvPdf bkg("bkg","Background",x,Land,resp);
+		RooFFTConvPdf bkg("bkg","Background",x,Land_bkg,resp_bkg);
 
 		//Fitting
 		RooFitResult* filters = bkg.fitTo(dh,Range("R0"),"qr");
+	        frame->Draw();
 		bkg.plotOn(frame,LineColor(2));
 		bkg.paramOn(frame); 
+
+		vec.push_back(0);
+		vec.push_back(0);
+		vec.push_back(0);
+
 	}
 
-	else if(I == 2){
-		//Landau
-
-		RooRealVar mean("mean","mean",40,10,70) ;
-		RooRealVar sigma("sigma","sigma",10,0,20) ;
-
-		RooLandau bkg("bkg","Background",x,mean,sigma);
-
-		//Fitting
-		RooFitResult* filters = bkg.fitTo(dh,Range("R0"),"qr");
-		bkg.plotOn(frame,LineColor(2));
-		bkg.paramOn(frame);}
-
-	else if(I == 3){
-		//Chebychev
-		RooRealVar a0("a0","a0",1,-2,1) ;
-		RooRealVar a1("a1","a1",0.1,-1,1) ;
-		RooRealVar a2("a2","a2",-0.1,-1,1) ;
-
-		a0.setRange(-1.5,1.);
-		a1.setRange(-1.,1.);
-		a2.setRange(-1.,1.);
-
-		RooChebychev bkg("bkg","Background",x,RooArgSet(a0,a1));
-
-		//Fitting
-		RooFitResult* filters = bkg.fitTo(dh,Range("R0"),"qr");
-		bkg.plotOn(frame,LineColor(2));
-		bkg.paramOn(frame); 
-	}
 
 	frame->GetXaxis()->SetTitle("Z mass (in GeV/c^{2})");  
 	frame->GetXaxis()->SetTitleOffset(1.2);
 	float binsize = histo->GetBinWidth(1); 
 
 	//Store result in .root file
-	frame->Write(_write);
+	frame->Write(histo->GetName());
+
+	return vec;
 
 }
+
+

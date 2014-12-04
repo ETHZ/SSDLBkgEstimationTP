@@ -2,17 +2,49 @@
 
 * File Name :DrawInvMassBkg_v2.C 
 
-* Purpose : Improvement w.r.t. the previous file: Does now generated the plot for all the Pt range. No need to provide each range manually.
+* Purpose : This file plots the histograms for Z+bkg.
 
 * Creation Date : 20-12-2008
 
 * Last Modified : Sat 20 Dec 2008 09:37:30 AM PST
 
-* Created By :
+* Created By : Gaël L. Perrin
 
 _._._._._._._._._._._._._._._._._._._._._.*/
 
-int DrawInvMassBkg_v2(TTree* tree, int leptonId, int mother_Id, double Pt_low = 0, double Pt_upp = 9999,int nptbins =10, TString effcut = ""){
+int DrawInvMassBkgMain(TTree* tree, int leptonId, int mother_Id, double Pt_low = 0, double Pt_upp = 9999,int nptbins =10, TString effcut = ""){
+
+void DrawInvMassBkg_v2(TString _tree, int leptonId){
+
+	//Location of the .root file
+	TString location = "/Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/";
+
+	//Reading the tree 
+	//
+	TChain* tree = new TChain("treeProducerSusySSDL");
+
+	//DY events
+	//Inclusive
+	if(_tree.Contains("Inc")){tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");}
+	//From 100 to Inf HT
+	else if(_tree.Contains("NotInc")){tree->Add(location+"/DYJetsM50*.root");}
+			else{cout<<"Wrong _tree parameter!"<<endl; return 1;}
+	
+	//WJet events
+ 	tree->Add("/Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/WJets*.root");
+
+	//TTJets events
+	tree->Add("/Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/TTJets_MS*.root");
+
+	//Plot the result
+	//
+	DrawInvMassBkgMain();
+
+}
+
+int     DrawInvMassBkgMain(TTree* tree, int leptonId, int mother_Id, double Pt_low , double Pt_upp ,int nptbins , TString effcut ){
+
+	TString _path= "/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/";
 
 	setTDRStyle();
 
@@ -25,11 +57,11 @@ int DrawInvMassBkg_v2(TTree* tree, int leptonId, int mother_Id, double Pt_low = 
 	int nbins = 200;
 	double Dpt = (Pt_upp-Pt_low)/nptbins;
 
-	TString _fname = Form("InvM_Pt_DYnWnonInc_%0.f_Pt%0.f_",Pt_low,Pt_upp);
+	TString _fname = Form("InvM_Pt_DYnWnonInc_Pt%0.f_Pt%0.f_",Pt_low,Pt_upp);
 	_fname += effcut+"_"+pname; 
 
 	//Name of the output file
-	TFile* file_out = new TFile("/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/ZInvM/"+_fname+".root","recreate");
+	TFile* file_out = new TFile(_path+_fname+".root","recreate");
 
 	//Histograms
 	//Barrel
@@ -526,8 +558,8 @@ int DrawInvMassBkg_v2(TTree* tree, int leptonId, int mother_Id, double Pt_low = 
 						c4->Write(Form("Z_Pt%0.f_Pt%0.f_eta<1.2",Pt1,Pt2));
 
 						
-	 					mkdir("/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/ZInvM/"+_fname+"_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	                                        TString _cname = Form("/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/ZInvM/"+_fname+"_PDF/InvM_Pt%0.f_Pt%0.f",Pt1,Pt2);
+	 					mkdir(_path+_fname+"_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	                                        TString _cname = Form(_path+_fname+"_PDF/InvM_Pt%0.f_Pt%0.f",Pt1,Pt2);
 						_cname += "_"+effcut+"_"+pname;
 						TString _c1name = _cname+ "_Zbkg_bkg_eta<1.2.pdf";
 						TString _c2name = _cname+ "_Zbkg_bkg_eta<1.2.pdf";

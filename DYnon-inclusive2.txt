@@ -1,0 +1,10 @@
+#
+/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/ZInvM/DrawInvMassBkg_100toInf_tight_Pt_15_20_eta<1.2_e.root histo_M_DYJets_bkg histo_M_bkg
+/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/ZInvM/DrawInvMassBkg_100toInf_tight_Pt_15_20_eta<1.2_mu.root histo_M_DYJets_bkg histo_M_bkg
+/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/ZInvM/DrawInvMassBkg_100toInf_tight_Pt_15_20_eta>1.2_e.root histo_M_DYJets_bkg histo_M_bkg
+/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/ZInvM/DrawInvMassBkg_100toInf_tight_Pt_15_20_eta>1.2_mu.root histo_M_DYJets_bkg histo_M_bkg
+#                                                                           
+/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/ZInvM/DrawInvMassBkg_100toInf_tight_Pt_20_25_eta<1.2_e.root histo_M_DYJets_bkg histo_M_bkg
+/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/ZInvM/DrawInvMassBkg_100toInf_tight_Pt_20_25_eta<1.2_mu.root histo_M_DYJets_bkg histo_M_bkg
+/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/ZInvM/DrawInvMassBkg_100toInf_tight_Pt_20_25_eta>1.2_e.root histo_M_DYJets_bkg histo_M_bkg
+/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/plots_root/ZBkgInvM/ZInvM/DrawInvMassBkg_100toInf_tight_Pt_20_25_eta>1.2_mu.root histo_M_DYJets_bkg histo_M_bkg
