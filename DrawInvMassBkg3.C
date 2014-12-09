@@ -49,14 +49,6 @@ int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int np
 	TChain* tree = new TChain("treeProducerSusyMultilepton");
 
 	//DY events
-	//Inclusive
-	//if(_tree.Contains("Inc")){tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");}
-	//From 100 to Inf HT
-        //else if(_tree.Contains("NotInc")){tree->Add(location+"/DYJetsM50*.root");}
-	//Didn't get inclusive so far
-        //tree->Add(location+"DYJetsM50*.root");
-
-	//DY events
  	tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");
 	
 	//WJet events
