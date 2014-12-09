@@ -24,3 +24,14 @@
 #/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt1800_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt1800_PU_S14_POSTLS170.root  	  1.0	1.0 		0.1091	 	      116 
 #/Users/GLP/Desktop/CERN_data/TTree_C_and_M/TTJets_MSDecaysCKM_central_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/TTJets_MSDecaysCKM_central_PU_S14_POSTLS170.root  	  1.0	1.0 		800.0	 	      300 
 /Users/GLP/Desktop/CERN_data/TTree_C_and_M/DYJetsToLLM50_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/DYJetsToLLM50_PU_S14_POSTLS170.root  	  1.0	1.27 		2008.4	 	      701 
+#Here starts the tree n.3
+#DY
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/DYJetsM50_HT100to200_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/DYJetsM50_HT100to200_PU_S14_POSTLS170.root 1.0	1.27 		194.3 	      702 
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/DYJetsM50_HT200to400_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/DYJetsM50_HT200to400_PU_S14_POSTLS170.root 1.0 	1.27		52.24	      703
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/DYJetsM50_HT400to600_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/DYJetsM50_HT400to600_PU_S14_POSTLS170.root 1.0	1.27		6.546         704
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/DYJetsM50_HT600toInf_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/DYJetsM50_HT600toInf_PU_S14_POSTLS170.root 1.0      1.27            2.179         705
+##TTJets
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/TTJets_MSDecaysCKM_central_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/TTJets_MSDecaysCKM_central_PU_S14_POSTLS170.root 1.0      1.0              800        300 
+#WJets PUT HERE THE CROSS SECTION
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/WJetsToLNu_13TeV-madgraph-pythia8-tauola.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/WJetsToLNu_13TeV-madgraph-pythia8-tauola.root   1.0      1.0             61524       500 
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/DYJetsToLLM50_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/DYJetsToLLM50_PU_S14_POSTLS170.root  	  1.0	1.27 		2008.4	 	      701 

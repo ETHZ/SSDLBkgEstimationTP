@@ -1,4 +1,4 @@
-#include "/Users/GLP/Dropbox/Physique/Master_Thesis/analysis/DrawTools.h"
+#include "DrawTools.h"
 
 
 
@@ -11,7 +11,7 @@ TPaveText* DrawTools::getLabelTop( int beamEnergy ) {
 
 TPaveText* DrawTools::getLabelTop( const std::string& text ) {
 
-  TPaveText* label_top = new TPaveText(0.4,0.953,0.975,0.975, "NB");
+  TPaveText* label_top = new TPaveText(0.4,0.900,0.900,0.900, "brNDC");//(0.4,0.953,0.975,0.975, "brNDC");
   label_top->SetFillColor(kWhite);
   label_top->SetTextSize(0.038);
   label_top->SetTextAlign(31); // align right
@@ -137,39 +137,39 @@ TStyle* DrawTools::setStyle() {
   style->SetPadLeftMargin(0.15);//0.16);
   style->SetPadRightMargin(0.05);//0.02);
 
-  //// For the Global title:
+  // For the Global title:
 
-  //style->SetOptTitle(0);
-  //style->SetTitleFont(42);
-  //style->SetTitleColor(1);
-  //style->SetTitleTextColor(1);
-  //style->SetTitleFillColor(10);
-  //style->SetTitleFontSize(0.05);
+  style->SetOptTitle(0);
+  style->SetTitleFont(42);
+  style->SetTitleColor(1);
+  style->SetTitleTextColor(1);
+  style->SetTitleFillColor(10);
+  style->SetTitleFontSize(0.05);
 
-  //// For the axis titles:
+  // For the axis titles:
 
-  //style->SetTitleColor(1, "XYZ");
-  //style->SetTitleFont(42, "XYZ");
-  //style->SetTitleSize(0.05, "XYZ");
-  //style->SetTitleXOffset(1.15);//0.9);
-  //style->SetTitleYOffset(1.3); // => 1.15 if exponents
+  style->SetTitleColor(1, "XYZ");
+  style->SetTitleFont(42, "XYZ");
+  style->SetTitleSize(0.05, "XYZ");
+  style->SetTitleXOffset(1.15);//0.9);
+  style->SetTitleYOffset(1.3); // => 1.15 if exponents
 
-  //// For the axis labels:
+  // For the axis labels:
 
-  //style->SetLabelColor(1, "XYZ");
-  //style->SetLabelFont(42, "XYZ");
-  //style->SetLabelOffset(0.007, "XYZ");
-  //style->SetLabelSize(0.045, "XYZ");
+  style->SetLabelColor(1, "XYZ");
+  style->SetLabelFont(42, "XYZ");
+  style->SetLabelOffset(0.007, "XYZ");
+  style->SetLabelSize(0.045, "XYZ");
 
-  //// For the axis:
+  // For the axis:
 
-  //style->SetAxisColor(1, "XYZ");
-  //style->SetStripDecimals(kTRUE);
-  //style->SetTickLength(0.03, "XYZ");
-  //style->SetNdivisions(510, "XYZ");
-  //style->SetPadTickX(1); // To get tick marks on the opposite side of the frame
-  //style->SetPadTickY(1);
-  //style->cd();
+  style->SetAxisColor(1, "XYZ");
+  style->SetStripDecimals(kTRUE);
+  style->SetTickLength(0.03, "XYZ");
+  style->SetNdivisions(510, "XYZ");
+  style->SetPadTickX(1); // To get tick marks on the opposite side of the frame
+  style->SetPadTickY(1);
+  style->cd();
 
 //  const Int_t NRGBs = 2;
 //  const Int_t NCont = 300;

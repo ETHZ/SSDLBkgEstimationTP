@@ -1,8 +1,10 @@
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
 
-* File Name : eff_plots2_v3.C 
+* File Name : Efficiency_v3.C 
 
-* Purpose : Plot the efficiency for a given cut that is applied to reconstructed data. A matching between the gen. and rec. data is done. 
+* Purpose : Plot the efficiency for a given cut that is applied to reconstructed data. A matching between the gen. and rec. data is done.
+    Endcape and Barrel are separated here.
+ 
  
 * DataSet:  2
 
@@ -13,8 +15,29 @@
 * Created By : Gaël L. Perrin
 
 _._._._._._._._._._._._._._._._._._._._._.*/
-
 #include "cmath"
+#include "TChain.h"
+#include <sys/stat.h>
+#include "iostream"
+#include "fstream"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1.h"
+#include "TBranch.h"
+#include "TCanvas.h"
+#include "TStyle.h"
+#include "TROOT.h"
+#include "TString.h"
+#include "TLegend.h"
+#include "TGraphErrors.h"
+#include "TGraph.h"
+#include "TLorentzVector.h"
+#include "FitInvMass.C"
+#include "setTDRStyle.C"
+#include "setfreestyle.C"
+#include "InvMass.C"
+#include "DeltaR.C"
+#include "vector"
 #include <iostream>
 #include "TFile.h"
 #include "TTree.h"
@@ -28,7 +51,17 @@ _._._._._._._._._._._._._._._._._._._._._.*/
 #include "TLegend.h"
 #include "TObject.h"
 
-int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TString sel_num, TString par_x = "Pt", double cut_den = 0., double cut_num = 0.){
+
+int Efficiency(int leptonId, double par_low, double par_upp, int nbins, TString sel_den , TString sel_num, double cut_den = 0., double cut_num = 0., TString par_x = "Pt"){
+
+	///////////////
+	//Get the TTree
+	///////////////
+
+	TChain* tree = new TChain("treeProducerSusySSDL");
+	tree->Add("/Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/DYJetsToLLM50_PU_S14_POSTLS170.root");
+
+	//
 
 	setTDRStyle();
 
@@ -40,17 +73,6 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 	getline(file,str);
 	TString _path = str;
 
-	//Histogram parameter
-	int nbins = -10;
-	double par_low = -10;
-	double par_upp = -10;
-
-	//Set parameter range
-	if(par_x == "Pt"){nbins = 10;par_low = 0;par_upp = 250;}
-	else if(par_x == "eta"){nbins = 20;par_low = -3;par_upp = 3;}
-	else if(par_x == "phi"){nbins = 10;par_low = -3.5;par_upp = 3.5;}
-
-
 	//Name for storing and final plots
 	TString pname;
 	TString _pname;
@@ -60,15 +82,10 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 	TString _sel_den;
 	TString _cut_num;
 	TString _cut_den;
-	TString _mother_Id;
 
 	//Writing string
-	if(mother_Id == 23){_mother_Id = "Z";}
-	else if(mother_Id == 24){_mother_Id = "W";}
 	if (leptonId == 11) {pname = "e";_pname = "e";}
 	else if (leptonId == 13){pname = " #mu";_pname = "mu";}
-	if (mother_Id == 23){treename = "from Z";}
-	else if (mother_Id == 24){treename = "from W";}
 	if(par_x == "Pt"){_par = "P_{t}";}
 	else if(par_x == "eta"){_par = "#eta";}
 	else if(par_x == "phi"){_par = "#phi";}
@@ -76,7 +93,7 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 	if(sel_num == ""){_sel_num = "unsel";}
 	else if(sel_num == "tightId"){_sel_num = "tightId";}
 	else if(sel_num == "dz"){_sel_num = Form("IP dz < %0.3lf ",cut_num);}
-	else if(sel_num == "dxy"){_sel_num = Form("IP dz < %0.3lf ", cut_num) ;}
+	else if(sel_num == "dxy"){_sel_num = Form("IP dxy < %0.3lf ", cut_num) ;}
 	else{cout<<"ERROR: wrong numeretor selection name !";return 1;}
 	if(sel_den == ""){_sel_den = "unsel";}
 	else if(sel_den == "tightId"){_sel_den = "tight";}
@@ -87,16 +104,19 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 	else{_cut_num = Form("%0.3lf",cut_num);}
 
 	//Name of the output
-	TString _output = _path+"eff_"+_pname+"_"+treename+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+".root";
+	TString _output = _path+"eff3_"+_pname+"_"+treename+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+".root";
 
 	//Declaration of histogram
 	//
 	//efficiency of the isolation cut
 	TH1D *histo_num= new TH1D("histo_num","Pt",nbins,par_low,par_upp);
 	TH1D *histo_den= new TH1D("histo_den","Pt",nbins,par_low,par_upp);
+	TH1D *histo_numE= new TH1D("histo_num","Pt",nbins,par_low,par_upp);
+	TH1D *histo_denE= new TH1D("histo_den","Pt",nbins,par_low,par_upp);
 
 	//efficiency of the selection
 	TH1D* eff = new TH1D ("eff","Pt",nbins,par_low,par_upp);
+	TH1D* effE = new TH1D ("eff","Pt",nbins,par_low,par_upp);
 
 	//Event variables
 	//
@@ -187,7 +207,7 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 
 		tree->GetEntry(k);
 
-		if(leptonId == 11){
+		if(abs(leptonId) == 11){
 			for(int j=0; j<nrecel;++j){
 				//Cut on the denominator
 				if((sel_den != "thightId")||((sel_den == "thightId")&&(receltightid[j] == 1 ))){
@@ -206,7 +226,7 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 					//if(abs(recel_eta[j]) < 2.4){ 
 						//loop over all generated particles to do the matching
 						for (int i = 0; i < ngenPart; ++i) {
-							if((abs(Id[i]) == leptonId)&&(status[i]== 1)&&(abs(gen_eta[i]) < 2.4)&&(abs(source[i]) == mother_Id)){ 
+							if((abs(Id[i]) == leptonId)&&(status[i]== 1)&&(abs(gen_eta[i]) < 2.4)){ 
 
 								//Electrons selection
 								double R2 = DeltaR(gen_eta[i],recel_eta[j],gen_phi[i],recel_phi[j] );
@@ -230,13 +250,15 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 					//Fill Pt only for matched events
 					if((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5)){
 						//Filling the den
-						histo_den->Fill(par);
+						if(abs(recel_eta[j]) < 1.2)histo_den->Fill(par);
+						if(abs(recel_eta[j]) >= 1.2)histo_denE->Fill(par);
 
 						//Additional cut on the numerator
 						if((sel_num != "tightId")||((sel_num == "tightId")&&(receltightid[j] == 1 ))){
 							if((sel_num != "dxy")||((sel_num == "dxy")&&(abs(receldxy[j]) < cut_num ))){
 								if((sel_num != "dz")||((sel_num == "dz")&&(abs(receldz[j]) < cut_num ))){
-									histo_num->Fill(par);
+									if(abs(recel_eta[j]) < 1.2)histo_num->Fill(par);
+									if(abs(recel_eta[j]) >= 1.2)histo_numE->Fill(par);
 								}
 							}
 						}
@@ -245,8 +267,7 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 				}
 			}
 		}
-
-		if(leptonId == 13){
+		if(abs(leptonId) == 13){
 			for(int j=0; j<nrecmu;++j){
 				//Cut on the denominator
 				if((sel_den != "thightId")||((sel_den == "thightId")&&(recmutightid[j] == 1 ))){
@@ -262,10 +283,10 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 
 					double par;
 
-					//if(abs(recmu_eta[j]) < 2.4){ 
+					//if(abs(recel_eta[j]) < 2.4){ 
 						//loop over all generated particles to do the matching
 						for (int i = 0; i < ngenPart; ++i) {
-							if((abs(Id[i]) == leptonId)&&(status[i]== 1)&&(abs(gen_eta[i]) < 2.4)&&(abs(source[i]) == mother_Id)){ 
+							if((abs(Id[i]) == leptonId)&&(status[i]== 1)&&(abs(gen_eta[i]) < 2.4)){ 
 
 								//Electrons selection
 								double R2 = DeltaR(gen_eta[i],recmu_eta[j],gen_phi[i],recmu_phi[j] );
@@ -289,13 +310,15 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 					//Fill Pt only for matched events
 					if((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5)){
 						//Filling the den
-						histo_den->Fill(par);
+						if(abs(recmu_eta[j]) < 1.2)histo_den->Fill(par);
+						if(abs(recmu_eta[j]) >= 1.2)histo_denE->Fill(par);
 
 						//Additional cut on the numerator
 						if((sel_num != "tightId")||((sel_num == "tightId")&&(recmutightid[j] == 1 ))){
 							if((sel_num != "dxy")||((sel_num == "dxy")&&(abs(recmudxy[j]) < cut_num ))){
 								if((sel_num != "dz")||((sel_num == "dz")&&(abs(recmudz[j]) < cut_num ))){
-									histo_num->Fill(par);
+									if(abs(recmu_eta[j]) < 1.2)histo_num->Fill(par);
+									if(abs(recmu_eta[j]) >= 1.2)histo_numE->Fill(par);
 								}
 							}
 						}
@@ -304,14 +327,18 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 				}
 			}
 		}
+
 	}
 
 	histo_num->Sumw2();
+	histo_numE->Sumw2();
 	histo_den->Sumw2();
+	histo_denE->Sumw2();
 
 
 	//Divide histograms to get the efficiency
 	eff->Divide(histo_num,histo_den,1,1,"B"); 
+	effE->Divide(histo_numE,histo_denE,1,1,"B"); 
 
 	//Efficiency of the iso cut.
 	TCanvas* c1 = new TCanvas("c1","c1");
@@ -319,11 +346,23 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 	eff->GetYaxis()->SetRangeUser(0,1.1);
 	eff->GetYaxis()->SetTitle("#epsilon");
 	eff->GetXaxis()->SetTitle(_par);
+	eff->GetXaxis()->SetRangeUser(0,250);
 	eff->SetMarkerStyle(20);
 	eff->SetMarkerSize(1);
 	eff->SetMarkerColor(4);
 	eff->SetLineColor(4);
-	eff->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" "+treename);
+	eff->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" "+treename+" #||{#eta}<1.2");
+	TCanvas* c2 = new TCanvas("c2","c2");
+	effE->Draw();
+	effE->GetYaxis()->SetRangeUser(0,1.1);
+	effE->GetYaxis()->SetTitle("#epsilon");
+	effE->GetXaxis()->SetTitle(_par);
+	effE->GetXaxis()->SetRangeUser(0,250);
+	effE->SetMarkerStyle(20);
+	effE->SetMarkerSize(1);
+	effE->SetMarkerColor(4);
+	effE->SetLineColor(4);
+	effE->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" "+treename+" #||{#eta}>1.2");
 	//TLegend* leg2 = new TLegend(0.4, 0.2,0.9,0.4);
 	//leg2->SetBorderSize(0.);
 	//leg2->SetTextFont(43);
@@ -334,12 +373,15 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 	//leg2->Draw();
 	
 	//Define the name of the canvas
-	TString cname = "eff_"+_pname+"_"+treename+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x;
+	TString c1name = "eff_"+_pname+"_"+treename+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+"eta<1.2";
+	TString c2name = "eff_"+_pname+"_"+treename+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+"eta>1.2";
 	
-	c1->SaveAs(_path+"/PDF/"+cname+".pdf");
+	c1->SaveAs(_path+"PDF/"+c1name+".pdf");
+	c2->SaveAs(_path+"PDF/"+c2name+".pdf");
 
 	TFile* output = new TFile(_output,"recreate");
 	c1->Write();
+	c2->Write();
 	output->Close();
 
 }

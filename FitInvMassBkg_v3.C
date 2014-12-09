@@ -2,7 +2,10 @@
 
 * File Name : FitIncMassBkg.C
 
-* Purpose : Does the same thing as the FitInvMass, which means that it fit the invariant mass spectra of a lepton pair. The difference is that here the background is considered as well.
+* Purpose : Does a fit of the invariant mass+bkg. Returns the T&P efficiency of the "histo" bin.
+            Improvement w.r.t. v3: Fits the bkg separatly to use as starting parameters for the fit.
+ 
+* Used by:  FitData.C
 
 * Creation Date : 20-12-2008
 
@@ -41,7 +44,7 @@ _._._._._._._._._._._._._._._._._._._._._.*/
 
 using namespace RooFit;
 
-int FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TString _bkg = "Cheb"){
+double FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TString _bkg = "Cheb"){
 
 	//Set Style
 	setTDRStyle();
@@ -52,7 +55,7 @@ int FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 	getline(file,str);
 	TString _path = str;
 
-	Rebin(histo);
+//	Rebin(histo);
 
 	//Getting info about the histogram to fit
 	int n = histo->GetEntries();
@@ -64,7 +67,7 @@ int FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 
 	//Declare observable x
 	//Try to rebin using this. Doesn't work for now
-        RooBinning xbins = Rebin2(histo);
+        //RooBinning xbins = Rebin2(histo);
 	RooRealVar x("x","x",hmin0,hmax0) ;
 	RooDataHist dh("dh","dh",x,Import(*histo)) ;
 
@@ -75,6 +78,7 @@ int FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 
 	//x.setRange("R0",0,200) ;
 	x.setRange("R1",55,200) ;
+	x.setRange("D",50,120) ;
 
         /////////////////////
 	//Define fit function 
@@ -98,6 +102,9 @@ int FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 	RooRealVar cb_sigma("cb_sigma","response",1, 0.,5);
 	RooRealVar cb_alpha("cb_alpha","alpha",1.,0.,7);
 	RooRealVar cb_ncb("cb_ncb","ncb",2, 0, 10);
+	//Gauss used for convolution
+	RooRealVar gau_bias("gau_bias","alpha",0, -3., 3.);
+	RooRealVar gau_sigma("gau_sigma","bias",1, 0., 7.);
 
 	mean.setRange(88,94);
 	width.setRange(0,20);
@@ -105,23 +112,26 @@ int FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 	//fsig.setConstant(kTRUE);
 	//alpha.setConstant(kTRUE);
 
-	RooVoigtian sig_bwgau("sig_bwgau","BWxgauss",x,mean,width,sigma);
+	RooVoigtian sig_voigtian("sig_voigtian","Voigtian",x,mean,width,sigma);
 	RooBreitWigner sig_bw("sig_bw","BW",x,mean,width);
-	RooGaussian sig_gau("sig_gau","gauss",x,mean,sigma);
+	//RooGaussian sig_gau("sig_gau","gauss",x,mean,sigma);
 	RooCBShape sig_cb("sig_cb", "Crystal Ball",x,mean,sigma,alpha,ncb);
 	RooCBShape sig_cb_resp("sig_cb_resp", "Crystal Ball for conv.",x,cb_bias,cb_sigma,cb_alpha,cb_ncb);
+	RooGaussian sig_gau_resp("sig_gau_resp", "Gaussian for conv.",x,gau_bias,gau_sigma);
 
 	x.setBins(10000,"cache");
 	RooFFTConvPdf sig_cbbw("sig_cbbw","CBxBW",x,sig_cb_resp,sig_bw);
+	RooFFTConvPdf sig_bwgau("sig_bwgau","BWxGau",x,sig_bw,sig_gau_resp);
 
 	//NB: The CrystalBall shape is Gaussian that is 'connected' to an exponential taill at 'alpha' sigma of the Gaussian. The sign determines if it happens on the left or right side. The 'n' parameter control the slope of the exponential part. 
 
 	RooAbsPdf* sig;
-	if(signal == "BWxGau"){sig = &sig_bwgau;}
+	if(signal == "Vo"){sig = &sig_bwgau;}
 	else if(signal == "BW"){sig = &sig_bw;}
-	else if(signal == "Gau"){sig = &sig_gau;}
+	//else if(signal == "Gau"){sig = &sig_gau;}
 	else if(signal == "CB"){sig = &sig_cb;}
 	else if(signal == "CBxBW"){ sig = &sig_cbbw;}
+	else if(signal == "BWxGau"){ sig = &sig_bwgau;}
 	else{ cout<<"Wrong signal function name"<<endl;
 		return 1;
 	}
@@ -138,10 +148,10 @@ int FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 
 	//Chebychev
 	RooRealVar a0("a0","a0",vec[0],-5.,0.) ;
-	RooRealVar a1("a1","a1",vec[1],-2,1.2) ;
-	RooRealVar a2("a2","a2",vec[2],-1.,1.) ;
-	RooRealVar a3("a3","a3",vec[3],-2.5,0.) ;
-	RooRealVar a4("a4","a4",vec[4],-1.,1.) ;
+	RooRealVar a1("a1","a1",vec[1],-2.5,1.2) ;
+	RooRealVar a2("a2","a2",vec[2],-1.5,1.) ;
+	RooRealVar a3("a3","a3",vec[3],-3,1.) ;
+	RooRealVar a4("a4","a4",vec[4],-1.5,1.) ;
 	RooRealVar a5("a5","a5",vec[5],-1.,1.) ;
 	RooRealVar a6("a6","a6",vec[6],-1.,1.) ;
 
@@ -175,6 +185,7 @@ int FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 	fit_func->plotOn(frame);
 	fit_func->plotOn(frame,Components(*sig),LineStyle(kDashed),LineColor(kRed));
 	fit_func->plotOn(frame,Components(*bkg),LineStyle(kDashed),LineColor(kGreen));
+	frame->SetAxisRange(50,120);
 	frame->Draw();
 	fit_func->paramOn(frame); 
 	dh.statOn(frame);  //this will display hist stat on canvas
@@ -187,7 +198,24 @@ int FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 	//Store result in .root file
 	frame->SetName(histo->GetName());
 	frame->Write();
+
+	///////////////////////
+	//Plot the efficiency//
+	///////////////////////
 	
+	//Integral of sig+bkg
+	RooAbsReal* total = fit_func->createIntegral(x, NormSet(x), Range("D")) ;
+	//Integral of sig only
+	RooAbsReal* background = bkg->createIntegral(x, NormSet(x), Range("D"));
+
+	//cout<<"The total integral is"<<n*total->getVal();
+	//cout<<"The bkg integral is"<<n*bkg->getVal();
+	//cout<<"The bkg with the fsig is"<<fsig.getVal()*n*bkg->getVal();
+	//cout<<"The returned value is"<<n*(total->getVal()-fsig.getVal()*background->getVal());
+
+
+	return n*(total->getVal()-fsig.getVal()*background->getVal());
+
 	return 0;
 
 }

@@ -3,6 +3,8 @@
  * File Name : FitBkg.C
 
  * Purpose : This file do a fit of the background. The parameter of this fit are then returned in a vector to be used by FitIntMassBkg_v3.C function
+ 
+ * Used by: FitInvMassBkg
 
  * Creation Date : 20-12-2008
 
@@ -94,10 +96,10 @@ vector<double> FitBkg(TH1D* histo, TString _bkg = "Novo"){
 
 
 		RooRealVar a0("a0","a0",-1,-5.,0.) ;
-		RooRealVar a1("a1","a1",0,-2,1.2) ;
-		RooRealVar a2("a2","a2",0,-1.,1.) ;
-		RooRealVar a3("a3","a3",0,-2.5,0.) ;
-		RooRealVar a4("a4","a4",0,-1.,1.) ;
+		RooRealVar a1("a1","a1",0,-2.5,1.2); 
+		RooRealVar a2("a2","a2",0,-1.5,1.) ;
+		RooRealVar a3("a3","a3",0,-3,1.) ;
+		RooRealVar a4("a4","a4",0,-1.5,1.) ;
 		RooRealVar a5("a5","a5",0,-1.,1.) ;
 		RooRealVar a6("a6","a6",0,-1.,1.) ;
 

@@ -1,3 +1,5 @@
+//Side function to set the plotting environnment
+
 #include "TStyle.h"
 
 // tdrGrid: Turns the grid lines on (true) or off (false)
@@ -92,7 +94,7 @@ void setTDRStyle() {
     
     // Margins:
     gStyle->SetPadTopMargin(0.07);
-    gStyle->SetPadBottomMargin(0.13);//Set back to 0.13 if unique canvas. Set to 0.15 if 2 canvases.
+    gStyle->SetPadBottomMargin(0.15);//Set back to 0.13 if unique canvas. Set to 0.15 if 2 canvases.
     gStyle->SetPadLeftMargin(0.16);
     gStyle->SetPadRightMargin(0.05);
     

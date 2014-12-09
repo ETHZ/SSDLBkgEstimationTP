@@ -6,7 +6,7 @@
  Description of the funciton argument:
  
  _tree:         Name of the used TTree. Can take as parameter "DY", "DYInc", "WJ" and "TT".
- lepton_Id:     Pdg_Id of the corresponding lepton. put 11 for electron and 13 for muon.
+ lepton_iD:     Pdg_Id of the corresponding lepton. put 11 for electron and 13 for muon.
  sel_den:       Selection of the electron. can take as parameter "tightId", "reliso3", "reliso4", "chiso3",                  
                 "chiso4", "dz", "dxy".
  sel_num:       The cut that you want to study. Takes the same parameter as the sel_den

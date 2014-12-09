@@ -2,7 +2,7 @@
 
 * File Name : PlotMCTandP.C 
 
-* Purpose : The eff. for the rel. of the Z tree have been estimated using MC and TandP. The plots coming from both methods have been stored separately. The objective of this code is to put all the curve on the same canvas to do a comparison.
+* Purpose : The eff. for the rel. of the Z tree have been estimated using MC and TandP. The plots coming from both methods have been stored separately. This code is to put all the curve on the same canvas to do a comparison.
 
 * Creation Date : 20-12-2008
 
