@@ -1,12 +1,12 @@
 /*********************************************
-* Description - Plot the efficiency for a given cut that is applied to reconstructed data. A matching between the gen. and rec. data is done.
-  Upgrade w.r.t. previous version: Can now choose if barrel/endcape separation and includs the loose id as well
-  Final version
+ * Description - Plot the efficiency for a given cut that is applied to reconstructed data. A matching between the gen. and rec. data is done.
+ Upgrade w.r.t. previous version: Can now choose if barrel/endcape separation and includs the loose id as well
+ Final version
 
-* Author - Gaël L. Perrin
+ * Author - Gaël L. Perrin
 
-* Date - Jan 05 2015
-* *******************************************/
+ * Date - Jan 05 2015
+ * *******************************************/
 
 #include "cmath"
 #include "TChain.h"
@@ -25,8 +25,8 @@
 #include "TGraphErrors.h"
 #include "TGraph.h"
 #include "TLorentzVector.h"
-#include "InvMass.C"
-#include "DeltaR.C"
+#include "../InvMass.C"
+#include "../DeltaR.C"
 #include "vector"
 #include <iostream>
 #include "TFile.h"
@@ -41,7 +41,7 @@
 #include "TLegend.h"
 #include "TObject.h"
 
-#include "setTDRStyle.C"
+#include "../setTDRStyle.C"
 
 int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString sel_den , TString sel_num, double cut_den = 0., double cut_num = 0., TString par_x = "Pt", TString option = ""){
 
@@ -87,10 +87,10 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 	else if(par_x == "eta"){_par = "#eta";}
 	else if(par_x == "phi"){_par = "#phi";}
 	else{cout<<"ERROR: wrong parameter name !";return 1;}
+	if((sel_num == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
 	if(sel_num == ""){_sel_num = "unsel";}
 	else if(sel_num == "tightcut"){_sel_num = "tightcut";}
 	else if(sel_num == "tightmva"){_sel_num = "tightmva";}
-	if((sel_num == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
 	//else if(sel_num == "mvaid"){_sel_num = Form("tightmva%0.3lf",cut_num) ;}
 	else if(sel_num == "loose"){_sel_num = "loose";}
 	else if(sel_num == "reliso3"){_sel_num = Form("reliso3_%0.3lf",cut_num);}
@@ -101,10 +101,10 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 	else if(sel_num == "dz"){_sel_num = Form("dz_%0.3lf",cut_num);}
 	else{cout<<"ERROR: wrong numerator name !";return 1;}
 	//Selection on the denominator
+	if((sel_den == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
 	if(sel_den == ""){_sel_den = "unsel";}
 	else if(sel_den == "tightcut"){_sel_den = "tightcut";}
 	else if(sel_den == "tightmva"){_sel_den = "tightmva";}
-	if((sel_den == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
 	//else if(sel_den == "mvaid"){_sel_den = Form("tightmva%0.3lf",cut_den) ;}
 	else if(sel_den == "loose"){_sel_den = "loose";}
 	else{cout<<"ERROR: wrong denominator selection name !";return 1;}
@@ -119,10 +119,10 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 
 	//TString _fname = file_name("eff3",leptonId, par_low,par_upp,sel_den,sel_num,cut_den,cut_num,par_x,option);
 	//TString _output= _path+_fname + ".root";
-	TString _output = _path+"eff4"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+".root";
+	TString _output = _path+"eff4test"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+".root";
 
 	//Declaration of histogram
-	
+
 	//
 	//Preparation for general range in eta/pt
 	//TH1D **histo_num = new TH1D*[nrange];
@@ -138,8 +138,8 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 	//	eff[_i] = new TH1D("eff","Pt",nbins,min(par_low,0.),par_upp);
 	//	
 	//}
-	
-	
+
+
 	//efficiency of the isolation cut
 	TH1D *histo_numB= new TH1D("histo_numB","Pt",nbins,min(par_low,0.),par_upp);
 	TH1D *histo_denB= new TH1D("histo_denB","Pt",nbins,min(par_low,0.),par_upp);
@@ -155,7 +155,7 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 	TH1D* effE = new TH1D ("effE","Pt",nbins,min(par_low,0.),par_upp);
 
 	//efficiency all eta 
-	TH1D* eff = new TH1D ("eff","Pt",nbins,min(par_low,0.),par_upp);k
+	TH1D* eff = new TH1D ("eff","Pt",nbins,min(par_low,0.),par_upp);
 	//Event variables
 	Int_t evt_id;
 	Float_t scale;
@@ -269,160 +269,160 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 		tree->GetEntry(k);
 
 		//loop on loose 
-	if(sel_den != "loose"){
-		for(int j=0; j<On;++j){
-			if((!option.Contains(" ll "))||((option.Contains(" ll "))&&(On == 2)&&(Oid[0] == -Oid[1]))){
-				if(abs(Oid[j]) == leptonId){
-					if((sel_den != "tightcut")||(((abs(Oid[j]) == 13)&&(sel_den == "tightcut")&&(Otight[j] == 1 ))||((abs(Oid[j]) == 11)&&(sel_den == "tightcut")&&(Otighte[j] >= 3)))){
-					if((sel_den != "tightmva")||((abs(Oid[j]) == 11)&&(sel_den == "tightmva")&&(Otight[j] == 1))){
-					//if((sel_den != "mvaid")||((sel_den == "mvaid")&&(abs(Omvaid[j]) > cut_den))){
-						//Veto the EE-EB gape
+		if(sel_den != "loose"){
+			for(int j=0; j<On;++j){
+				if((!option.Contains(" ll "))||((option.Contains(" ll "))&&(On == 2)&&(Oid[0] == -Oid[1]))){
+					if(abs(Oid[j]) == leptonId){
+						if((sel_den != "tightcut")||(((abs(Oid[j]) == 13)&&(sel_den == "tightcut")&&(Otight[j] == 1 ))||((abs(Oid[j]) == 11)&&(sel_den == "tightcut")&&(Otighte[j] >= 3)))){
+							if((sel_den != "tightmva")||((abs(Oid[j]) == 11)&&(sel_den == "tightmva")&&(Otight[j] == 1))){
+								//Veto the EE-EB gape
 
-						//Variable for matching
-						double R = 999;
-						double delta_P = 999;
-						double delta_charge = 999;
+								//Variable for matching
+								double R = 999;
+								double delta_P = 999;
+								double delta_charge = 999;
 
-						//Parameter on the xaxis
+								//Parameter on the xaxis
 
-						double par;
+								double par;
 
-						//loop over all generated particles to do the matching
-						for (int i = 0; i < ngenPart; ++i) {
-							if((abs(Id[i]) == leptonId)&&(status[i]== 1)){ 
+								//loop over all generated particles to do the matching
+								for (int i = 0; i < ngenPart; ++i) {
+									if((abs(Id[i]) == leptonId)&&(status[i]== 1)){ 
 
-								//Electrons selection
-								double R2 = DeltaR(gen_eta[i],Oeta[j],gen_phi[i],Ophi[j] );
+										//Electrons selection
+										double R2 = DeltaR(gen_eta[i],Oeta[j],gen_phi[i],Ophi[j] );
 
-								//Minimise DeltaR and Fill the other variables
-								if (R > R2) {
+										//Minimise DeltaR and Fill the other variables
+										if (R > R2) {
 
-									R = R2;
-									delta_P = abs(Opt[j]-Pt[i])/Pt[i];
-									delta_charge = abs(Oq[j] - charge[i]);
+											R = R2;
+											delta_P = abs(Opt[j]-Pt[i])/Pt[i];
+											delta_charge = abs(Oq[j] - charge[i]);
+										}
+									}
 								}
-							}
-						}
 
-						//Choose the parameter to be filled for the eff.
-						if(par_x == "Pt"){par = Opt[j];}
-						else if(par_x == "eta"){par = Oeta[j];}
-						else if(par_x == "phi"){par = Ophi[j];}
+								//Choose the parameter to be filled for the eff.
+								if(par_x == "Pt"){par = Opt[j];}
+								else if(par_x == "eta"){par = Oeta[j];}
+								else if(par_x == "phi"){par = Ophi[j];}
 
-						//Fill Pt only for matched events
-						if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
-							//Filling the den
+								//Fill Pt only for matched events
+								if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
+									//Filling the den
 									if(option.Contains(" alleta ")){
-											histo_den->Fill(par);
+										histo_den->Fill(par);
+									}else{
+										if(abs(Oeta[j]) < 1.2){histo_denB->Fill(par);}
+										if(abs(Oeta[j]) >= 1.2){histo_denE->Fill(par);}
+									}
+
+									//Additional cut on the numerator
+									int a = 0;
+
+									if((sel_num == "tightcut")&&(abs(Oid[j] == 13))&&(Otight[j] == 1)){a = 1;}
+									if((sel_num == "tightcut")&&(abs(Oid[j] == 11))&&(Otighte[j] >= 3)){a = 1;}
+									if((sel_num == "reliso3")&&(Oiso3[j] <= cut_num)){a = 2;}
+									if((sel_num == "reliso4")&&(Oiso4[j] <= cut_num)){a = 3;}
+									if((sel_num == "chiso3")&&(Ochiso3[j] <= cut_num)){a = 4;}
+									if((sel_num == "chiso4")&&(Ochiso4[j] <= cut_num)){a = 5;}
+									if((sel_num == "dxy")&&(abs(Odxy[j]) <= cut_num)){a = 6;}
+									if((sel_num == "dz")&&(abs(Odz[j]) <= cut_num)){a = 7;}
+									if((sel_num == "tightmva")&&(abs(Oid[j] == 11))&&(Otight[j] == 1)){a = 9;}
+									//Never filled here
+									if(sel_num == "loose"){a = 8;}
+									//cout<<"again, the mva value is"<<abs(Omvaid[j])<<endl;
+									//if((sel_num == "mvaid")&&(abs(Omvaid[j]) >= cut_num)){a = 9;}
+
+
+									switch(a){
+
+										case 0:
+
+											break;
+
+										case 1:
+											if(option.Contains(" alleta ")){
+												histo_num->Fill(par);
 											}else{
-							if(abs(Oeta[j]) < 1.2){histo_denB->Fill(par);}
-							if(abs(Oeta[j]) >= 1.2){histo_denE->Fill(par);}
+												if(abs(Oeta[j]) < 1.2){histo_numB->Fill(par);}
+												if(abs(Oeta[j]) >= 1.2){histo_numE->Fill(par);};
 											}
+											break;
 
-							//Additional cut on the numerator
-							int a = 0;
-
-							if(sel_num == "tightcut"){
-							if((abs(Oid[j] == 13))&&(Otight[j] == 1)){a = 1;}
-							else if((abs(Oid[j] == 11))&&(Otighte[j] >= 3)){a = 1;}
-							}
-							if((sel_num == "reliso3")&&(Oiso3[j] <= cut_num)){a = 2;}
-							if((sel_num == "reliso4")&&(Oiso4[j] <= cut_num)){a = 3;}
-							if((sel_num == "chiso3")&&(Ochiso3[j] <= cut_num)){a = 4;}
-							if((sel_num == "chiso4")&&(Ochiso4[j] <= cut_num)){a = 5;}
-							if((sel_num == "dxy")&&(abs(Odxy[j]) <= cut_num)){a = 6;}
-							if((sel_num == "dz")&&(abs(Odz[j]) <= cut_num)){a = 7;}
-							//Never filled here
-							if(sel_num == "loose"){a = 8;}
-							//cout<<"again, the mva value is"<<abs(Omvaid[j])<<endl;
-							//if((sel_num == "mvaid")&&(abs(Omvaid[j]) >= cut_num)){a = 9;}
-			
-
-							switch(a){
-
-								case 0:
-
-									break;
-
-								case 1:
-									if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
+										case 2:
+											if(option.Contains(" alleta ")){
+												histo_num->Fill(par);
 											}else{
-											if(abs(Oeta[j]) < 1.2){histo_numB->Fill(par);}
-											if(abs(Oeta[j]) >= 1.2){histo_numE->Fill(par);};
+												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
+												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
 											}
-									break;
+											break;
+										case 3:
+											if(option.Contains(" alleta ")){
+												histo_num->Fill(par);
+											}else{
+												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
+												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
+											}
+											break;
+										case 4:
+											if(option.Contains(" alleta ")){
+												histo_num->Fill(par);
+											}else{
+												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
+												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
+											}
+											break;
+										case 5:
+											if(option.Contains(" alleta ")){
+												histo_num->Fill(par);
+											}else{
+												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
+												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
+											}
+											break;
+										case 6:
+											if(option.Contains(" alleta ")){
+												histo_num->Fill(par);
+											}else{
+												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
+												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
+											}
+											break;
 
-								case 2:
-									if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
+										case 7:
+											if(option.Contains(" alleta ")){
+												histo_num->Fill(par);
 											}else{
-									if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
+												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
+												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
 											}
-									break;
-								case 3:
-									if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-											}else{
-									if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
-								case 4:
-									if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-											}else{
-									if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
-								case 5:
-									if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-											}else{
-									if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
-								case 6:
-									if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-											}else{
-									if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
+											break;
 
-								case 7:
-									if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-											}else{
-									if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
+										case 8:
+											//Nothing to fill
+											break;
 
-								case 8:
-									//Nothing to fill
-									break;
-
-								case 9:
-									if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
+										case 9:
+											if(option.Contains(" alleta ")){
+												histo_num->Fill(par);
 											}else{
-									if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
+												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
+												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
 											}
-									break;
+											break;
+									}
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-	}
-	//}
+
+
 
 		//loop on tight 
 		for(int j=0; j<Gn;++j){
@@ -430,151 +430,150 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 				if(abs(Gid[j]) == leptonId){
 					//Cut on the denominator
 					if((sel_den != "tightcut")||(((abs(Gid[j]) == 13)&&(sel_den == "tightcut")&&(Gtight[j] == 1 ))||((abs(Gid[j]) == 11)&&(sel_den == "tightcut")&&(Gtighte[j] >= 3)))){
-					if((sel_den != "tightmva")||((abs(Gid[j]) == 11)&&(sel_den == "tightmva")&&(Gtight[j] == 1))){
-					//if((sel_den != "mvaid")||((sel_den == "mvaid")&&(abs(Gmvaid[j]) > cut_den))){
-						//Veto the EE-EB gape
+						if((sel_den != "tightmva")||((abs(Gid[j]) == 11)&&(sel_den == "tightmva")&&(Gtight[j] == 1))){
+							//Veto the EE-EB gape
 
-						//Variable for matching
-						double R = 999;
-						double delta_P = 999;
-						double delta_charge = 999;
+							//Variable for matching
+							double R = 999;
+							double delta_P = 999;
+							double delta_charge = 999;
 
-						//Parameter on the xaxis
+							//Parameter on the xaxis
 
-						double par;
+							double par;
 
-						//loop over all generated particles to do the matching
-						for (int i = 0; i < ngenPart; ++i) {
-							if((abs(Id[i]) == leptonId)&&(status[i]== 1)){ 
+							//loop over all generated particles to do the matching
+							for (int i = 0; i < ngenPart; ++i) {
+								if((abs(Id[i]) == leptonId)&&(status[i]== 1)){ 
 
-								//Electrons selection
-								double R2 = DeltaR(gen_eta[i],Geta[j],gen_phi[i],Gphi[j] );
+									//Electrons selection
+									double R2 = DeltaR(gen_eta[i],Geta[j],gen_phi[i],Gphi[j] );
 
-								//Minimise DeltaR and Fill the other variables
-								if (R > R2) {
+									//Minimise DeltaR and Fill the other variables
+									if (R > R2) {
 
-									R = R2;
-									delta_P = abs(Gpt[j]-Pt[i])/Pt[i];
-									delta_charge = abs(Gq[j] - charge[i]);
+										R = R2;
+										delta_P = abs(Gpt[j]-Pt[i])/Pt[i];
+										delta_charge = abs(Gq[j] - charge[i]);
+									}
 								}
 							}
-						}
 
-						//Choose the parameter to be filled for the eff.
-						if(par_x == "Pt"){par = Gpt[j];}
-						else if(par_x == "eta"){par = Geta[j];}
-						else if(par_x == "phi"){par = Gphi[j];}
+							//Choose the parameter to be filled for the eff.
+							if(par_x == "Pt"){par = Gpt[j];}
+							else if(par_x == "eta"){par = Geta[j];}
+							else if(par_x == "phi"){par = Gphi[j];}
 
-						//Fill Pt only for matched events
-						if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
-							//Filling the den
-									if(option.Contains(" alleta ")){
-											histo_den->Fill(par);
-											}else{
-							if(abs(Geta[j]) < 1.2){histo_denB->Fill(par);}
-							if(abs(Geta[j]) >= 1.2){histo_denE->Fill(par);}
-											}
+							//Fill Pt only for matched events
+							if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
+								//Filling the den
+								if(option.Contains(" alleta ")){
+									histo_den->Fill(par);
+								}else{
+									if(abs(Geta[j]) < 1.2){histo_denB->Fill(par);}
+									if(abs(Geta[j]) >= 1.2){histo_denE->Fill(par);}
+								}
 
-							//Additional cut on the numerator
-							int a = 0;
+								//Additional cut on the numerator
+								int a = 0;
 
-							if(sel_num == "tightcut"){
-							if((abs(Gid[j] == 13))&&(Gtight[j] == 1)){a = 1;}
-							else if((abs(Gid[j] == 11))&&(Gtighte[j] >= 3)){a = 1;}
-							}
-							if((sel_num == "reliso3")&&(Giso3[j] <= cut_num)){a = 2;}
-							if((sel_num == "reliso4")&&(Giso4[j] <= cut_num)){a = 3;}
-							if((sel_num == "chiso3")&&(Gchiso3[j] <= cut_num)){a = 4;}
-							if((sel_num == "chiso4")&&(Gchiso4[j] <= cut_num)){a = 5;}
-							if((sel_num == "dxy")&&(abs(Gdxy[j]) <= cut_num)){a = 6;}
-							if((sel_num == "dz")&&(abs(Gdz[j]) <= cut_num)){a = 7;}
-							//Only loose leptons here, so this is filled anyway
-							if((sel_num == "loose")){a = 8;}
-							//if((sel_num == "mvaid")&&(abs(Gmvaid[j]) >= cut_num)){a = 9;}
+								if((sel_num == "tightcut")&&(abs(Gid[j] == 13))&&(Gtight[j] == 1)){a = 1;}
+								if((sel_num == "tightcut")&&(abs(Gid[j] == 11))&&(Gtighte[j] >= 3)){a = 1;}
+								if((sel_num == "reliso3")&&(Giso3[j] <= cut_num)){a = 2;}
+								if((sel_num == "reliso4")&&(Giso4[j] <= cut_num)){a = 3;}
+								if((sel_num == "chiso3")&&(Gchiso3[j] <= cut_num)){a = 4;}
+								if((sel_num == "chiso4")&&(Gchiso4[j] <= cut_num)){a = 5;}
+								if((sel_num == "dxy")&&(abs(Gdxy[j]) <= cut_num)){a = 6;}
+								if((sel_num == "dz")&&(abs(Gdz[j]) <= cut_num)){a = 7;}
+								if((sel_num == "tightmva")&&(abs(Gid[j] == 11))&&(Gtight[j] == 1)){a = 9;}
+								//Only loose leptons here, so this is filled anyway
+								if((sel_num == "loose")){a = 8;}
+								//if((sel_num == "mvaid")&&(abs(Gmvaid[j]) >= cut_num)){a = 9;}
 
 
-							switch(a){
+								switch(a){
 
-								case 0:
+									case 0:
 
-									break;
+										break;
 
-								case 1:
-									if(option.Contains(" alleta ")){
+									case 1:
+										if(option.Contains(" alleta ")){
 											histo_num->Fill(par);
-											}else{
-									if(abs(Geta[j]) < 1.2){histo_numB->Fill(par);}
-									if(abs(Geta[j]) >= 1.2){histo_numE->Fill(par);}
-											}
-									break;
+										}else{
+											if(abs(Geta[j]) < 1.2){histo_numB->Fill(par);}
+											if(abs(Geta[j]) >= 1.2){histo_numE->Fill(par);}
+										}
+										break;
 
-								case 2:
-									if(option.Contains(" alleta ")){
+									case 2:
+										if(option.Contains(" alleta ")){
 											histo_num->Fill(par);
-											}else{
-									if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
-								case 3:
-									if(option.Contains(" alleta ")){
+										}else{
+											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
+											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
+										}
+										break;
+									case 3:
+										if(option.Contains(" alleta ")){
 											histo_num->Fill(par);
-											}else{
-									if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
-								case 4:
-									if(option.Contains(" alleta ")){
+										}else{
+											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
+											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
+										}
+										break;
+									case 4:
+										if(option.Contains(" alleta ")){
 											histo_num->Fill(par);
-											}else{
-									if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
-								case 5:
-									if(option.Contains(" alleta ")){
+										}else{
+											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
+											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
+										}
+										break;
+									case 5:
+										if(option.Contains(" alleta ")){
 											histo_num->Fill(par);
-											}else{
-									if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
-								case 6:
-									if(option.Contains(" alleta ")){
+										}else{
+											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
+											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
+										}
+										break;
+									case 6:
+										if(option.Contains(" alleta ")){
 											histo_num->Fill(par);
-											}else{
-									if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
+										}else{
+											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
+											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
+										}
+										break;
 
-								case 7:
-									if(option.Contains(" alleta ")){
+									case 7:
+										if(option.Contains(" alleta ")){
 											histo_num->Fill(par);
-											}else{
-									if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
+										}else{
+											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
+											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
+										}
+										break;
 
-								case 8:
-									if(option.Contains(" alleta ")){
+									case 8:
+										if(option.Contains(" alleta ")){
 											histo_num->Fill(par);
-											}else{
-									if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
+										}else{
+											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
+											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
+										}
+										break;
 
-								case 9:
-									if(option.Contains(" alleta ")){
+									case 9:
+										if(option.Contains(" alleta ")){
 											histo_num->Fill(par);
-											}else{
-									if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-									if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-											}
-									break;
+										}else{
+											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
+											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
+										}
+										break;
+								}
 							}
 						}
 					}
@@ -582,84 +581,82 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 			}
 		}
 	}
-	//}
 
 	if(option.Contains(" alleta ")){
-	histo_num->Sumw2();
-	histo_den->Sumw2();
+		histo_num->Sumw2();
+		histo_den->Sumw2();
 
-	//Divide histograms to get the efficiency
-	eff->Divide(histo_num,histo_den,1,1,"B"); 
+		//Divide histograms to get the efficiency
+		eff->Divide(histo_num,histo_den,1,1,"B"); 
 
-	//Efficiency of the iso cut.
-	TCanvas* c = new TCanvas("c","c");
-	eff->Draw();
-	eff->GetYaxis()->SetTitle("#epsilon");
-	eff->GetXaxis()->SetTitle(_par);
-	//eff->GetXaxis()->SetRangeUser(0,250);
-	eff->SetMarkerStyle(20);
-	eff->SetMarkerSize(1);
-	eff->SetMarkerColor(4);
-	eff->SetLineColor(4);
-	eff->SetTitle(_sel_num+" for "+_sel_den+" "+pname);
+		//Efficiency of the iso cut.
+		TCanvas* c = new TCanvas("c","c");
+		eff->Draw();
+		eff->GetYaxis()->SetTitle("#epsilon");
+		eff->GetXaxis()->SetTitle(_par);
+		//eff->GetXaxis()->SetRangeUser(0,250);
+		eff->SetMarkerStyle(20);
+		eff->SetMarkerSize(1);
+		eff->SetMarkerColor(4);
+		eff->SetLineColor(4);
+		eff->SetTitle(_sel_num+" for "+_sel_den+" "+pname);
 
-	//Define the name of the canvas
-	TString cname = "eff4"+option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x;
+		//Define the name of the canvas
+		TString cname = "eff4test"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x;
 
-	c->SaveAs(_path+"PDF/"+cname+".pdf");
+		c->SaveAs(_path+"PDF/"+cname+".pdf");
 
-	TFile* output = new TFile(_output,"recreate");
-	eff->Write("eff");
-	output->Close();
+		TFile* output = new TFile(_output,"recreate");
+		eff->Write("eff");
+		output->Close();
 
 	}else{
-		//cout<<"Problem"<<endl;
 
-	histo_numB->Sumw2();
-	histo_numE->Sumw2();
-	histo_denB->Sumw2();
-	histo_denE->Sumw2();
+		histo_numB->Sumw2();
+		histo_numE->Sumw2();
+		histo_denB->Sumw2();
+		histo_denE->Sumw2();
 
-	//Divide histograms to get the efficiency
-	effB->Divide(histo_numB,histo_denB,1,1,"B"); 
-	effE->Divide(histo_numE,histo_denE,1,1,"B"); 
+		//Divide histograms to get the efficiency
+		effB->Divide(histo_numB,histo_denB,1,1,"B"); 
+		effE->Divide(histo_numE,histo_denE,1,1,"B"); 
 
-	//Efficiency of the iso cut.
-	TCanvas* c1 = new TCanvas("c1","c1");
-	effB->Draw();
-	effB->GetYaxis()->SetTitle("#epsilon");
-	effB->GetXaxis()->SetTitle(_par);
-	//effB->GetXaxis()->SetRangeUser(0,250);
-	effB->SetMarkerStyle(20);
-	effB->SetMarkerSize(1);
-	effB->SetMarkerColor(4);
-	effB->SetLineColor(4);
-	effB->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" #||{#eta}<1.2");
-	TCanvas* c2 = new TCanvas("c2","c2");
-	effE->Draw();
-	effE->GetYaxis()->SetRangeUser(0,1.1);
-	effE->GetYaxis()->SetTitle("#epsilon");
-	effE->GetXaxis()->SetTitle(_par);
-	//effE->GetXaxis()->SetRangeUser(0,250);
-	effE->SetMarkerStyle(20);
-	effE->SetMarkerSize(1);
-	effE->SetMarkerColor(4);
-	effE->SetLineColor(4);
-	effE->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" #||{#eta}>1.2");
+		//Efficiency of the iso cut.
+		TCanvas* c1 = new TCanvas("c1","c1");
+		effB->Draw();
+		effB->GetYaxis()->SetTitle("#epsilon");
+		effB->GetXaxis()->SetTitle(_par);
+		//effB->GetXaxis()->SetRangeUser(0,250);
+		effB->SetMarkerStyle(20);
+		effB->SetMarkerSize(1);
+		effB->SetMarkerColor(4);
+		effB->SetLineColor(4);
+		effB->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" #||{#eta}<1.2");
+		TCanvas* c2 = new TCanvas("c2","c2");
+		effE->Draw();
+		effE->GetYaxis()->SetRangeUser(0,1.1);
+		effE->GetYaxis()->SetTitle("#epsilon");
+		effE->GetXaxis()->SetTitle(_par);
+		//effE->GetXaxis()->SetRangeUser(0,250);
+		effE->SetMarkerStyle(20);
+		effE->SetMarkerSize(1);
+		effE->SetMarkerColor(4);
+		effE->SetLineColor(4);
+		effE->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" #||{#eta}>1.2");
 
-	//Define the name of the canvas
-	TString c1name = "eff4"+option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+"_eta<1.2";
-	TString c2name = "eff4"+option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+"_eta>1.2";
+		//Define the name of the canvas
+		TString c1name = "eff4test"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+"_eta<1.2";
+		TString c2name = "eff4test"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+"_eta>1.2";
 
-	c1->SaveAs(_path+"PDF/"+c1name+".pdf");
-	c2->SaveAs(_path+"PDF/"+c2name+".pdf");
+		c1->SaveAs(_path+"PDF/"+c1name+".pdf");
+		c2->SaveAs(_path+"PDF/"+c2name+".pdf");
 
-	TFile* output = new TFile(_output,"recreate");
-	//c1->Write();
-	//c2->Write();
-	effB->Write("eff_eta<1.2");
-	effE->Write("eff_eta>1.2");
-	output->Close();
+		TFile* output = new TFile(_output,"recreate");
+		//c1->Write();
+		//c2->Write();
+		effB->Write("eff_eta<1.2");
+		effE->Write("eff_eta>1.2");
+		output->Close();
 
 	}
 
