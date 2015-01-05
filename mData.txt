@@ -1,0 +1,37 @@
+#input					output							filter	k-factor	xsec(pb)       sample ID
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/DYJetsM50_HT100to200_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/DYJetsM50_HT100to200_PU_S14_POSTLS170.root 	  1.0	1.27 		194.3 	      702 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/DYJetsM50_HT200to400_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/DYJetsM50_HT200to400_PU_S14_POSTLS170.root 	  1.0	1.27 		52.24 	      703 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/DYJetsM50_HT400to600_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/DYJetsM50_HT400to600_PU_S14_POSTLS170.root 	  1.0	1.27 		6.546 	      704 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/DYJetsM50_HT600toInf_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/DYJetsM50_HT600toInf_PU_S14_POSTLS170.root 	  1.0	1.27 		2.179 	      705 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/WJetsToLNu_HT100to200_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/WJetsToLNu_HT100to200_PU_S14_POSTLS170.root 	  1.0	1.23 		1827 	      502 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/WJetsToLNu_HT200to400_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/WJetsToLNu_HT200to400_PU_S14_POSTLS170.root 	  1.0	1.23 		471.6 	      503 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/WJetsToLNu_HT400to600_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/WJetsToLNu_HT400to600_PU_S14_POSTLS170.root 	  1.0	1.23 		55.61 	      504 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/WJetsToLNu_HT600toInf_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/WJetsToLNu_HT600toInf_PU_S14_POSTLS170.root 	  1.0	1.23 		18.81 	      505 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt5to10_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt5to10_PU_S14_POSTLS170.root  	  1.0	1.0 		80710000000 	      102 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt10to15_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt10to15_PU_S14_POSTLS170.root  	  1.0	1.0 		7528000000 	      103 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt15to30_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt15to30_PU_S14_POSTLS170.root  	  1.0	1.0 		2237000000		104 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt30to50_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt30to50_PU_S14_POSTLS170.root  	  1.0	1.0 		161500000 	      105 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt50to80_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt50to80_PU_S14_POSTLS170.root  	  1.0	1.0 		22110000 	      106 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt80to120_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt80to120_PU_S14_POSTLS170.root  	  1.0	1.0 		3000114.3 	      107 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt120to170_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt120to170_PU_S14_POSTLS170.root  	  1.0	1.0 		493200 	      108 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt170to300_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt170to300_PU_S14_POSTLS170.root  	  1.0	1.0 		120300 	      109 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt300to470_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt300to470_PU_S14_POSTLS170.root  	  1.0	1.0 		7475  	      110 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt470to600_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt470to600_PU_S14_POSTLS170.root  	  1.0	1.0 		587.1 	      111 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt600to800_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt600to800_PU_S14_POSTLS170.root  	  1.0	1.0 		167 	      112 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt800to1000_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt800to1000_PU_S14_POSTLS170.root  	  1.0	1.0 		28.25 	      113 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt1000to1400_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt1000to1400_PU_S14_POSTLS170.root  	  1.0	1.0 		8.195 	      114 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt1400to1800_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt1400to1800_PU_S14_POSTLS170.root  	  1.0	1.0 		0.7346 	      115 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/QCD_Pt1800_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/QCD_Pt1800_PU_S14_POSTLS170.root  	  1.0	1.0 		0.1091	 	      116 
+#/Users/GLP/Desktop/CERN_data/TTree_C_and_M/TTJets_MSDecaysCKM_central_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/TTJets_MSDecaysCKM_central_PU_S14_POSTLS170.root  	  1.0	1.0 		800.0	 	      300 
+/Users/GLP/Desktop/CERN_data/TTree_C_and_M/DYJetsToLLM50_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/TTree_C_and_M/postprocessed/DYJetsToLLM50_PU_S14_POSTLS170.root  	  1.0	1.27 		2008.4	 	      701 
+#Here starts the tree n.3
+#DY
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/DYJetsM50_HT100to200_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/DYJetsM50_HT100to200_PU_S14_POSTLS170.root 1.0	1.27 		194.3 	      702 
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/DYJetsM50_HT200to400_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/DYJetsM50_HT200to400_PU_S14_POSTLS170.root 1.0 	1.27		52.24	      703
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/DYJetsM50_HT400to600_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/DYJetsM50_HT400to600_PU_S14_POSTLS170.root 1.0	1.27		6.546         704
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/DYJetsM50_HT600toInf_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/DYJetsM50_HT600toInf_PU_S14_POSTLS170.root 1.0      1.27            2.179         705
+##TTJets
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/TTJets_MSDecaysCKM_central_PU_S14_POSTLS170.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/TTJets_MSDecaysCKM_central_PU_S14_POSTLS170.root 1.0      1.0              800        300 
+#WJets PUT HERE THE CROSS SECTION
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/WJetsToLNu_13TeV-madgraph-pythia8-tauola.root  /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/WJetsToLNu_13TeV-madgraph-pythia8-tauola.root   1.0      1.0             61524       500 
+#/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/DYJetsToLLM50_PU_S14_POSTLS170.root   /Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/DYJetsToLLM50_PU_S14_POSTLS170.root  	  1.0	1.27 		2008.4	 	      701 
