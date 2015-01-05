@@ -43,7 +43,21 @@
 
 #include "../setTDRStyle.C"
 
-int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString sel_den , TString sel_num, double cut_den = 0., double cut_num = 0., TString par_x = "Pt", TString option = ""){
+int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* par, int nrange, TString sel_den , TString sel_num, double cut_den = 0., double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = "");
+
+int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double par2_low, double par2_upp, int nbins2, TString sel_den , TString sel_num, double cut_den = 0., double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = ""){
+
+	double* par2 = new double[nbins2];
+	double Dpar2 = (double)(par2_upp - par2_low)/(double)nbins;
+	for(int i = 0; i < nbins; ++i){
+		par2[i] = par2_low + i*Dpar2;
+	}
+
+return MC_Ratio(leptonId, par_low, par_upp, nbins, par2, nbins2, sel_den, sel_num, cut_den, cut_num, par_x, par_y, option );
+
+}
+
+int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* par2, int nrange, TString sel_den , TString sel_num, double cut_den , double cut_num , TString par_x , TString par_y , TString option ){
 
 	setTDRStyle();
 
@@ -121,13 +135,18 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 	//TString _output= _path+_fname + ".root";
 	TString _output = _path+"eff4test"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+".root";
 
+	//Output file
+	TFile* output = new TFile(_output,"recreate");
+
 	//Declaration of histogram
 
 
 	//Preparation for general range in eta/pt
 
-	const int nrange = 3;
-	double par2[nrange] = {0,0.8,1.5};
+	//const int nrange = 3;
+	//double par2[nrange] = {0,0.8,1.5};
+	//const int nrange = 10;
+	//double par2[nrange] = {10,30,40,60,75,80,100,150,160,188};
 
 	TH1D **histo_num = new TH1D*[nrange];
 	TH1D **histo_den = new TH1D*[nrange];
@@ -271,6 +290,7 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 								//Parameter on the xaxis
 
 								double par;
+								double par_2;
 
 								//loop over all generated particles to do the matching
 								for (int i = 0; i < ngenPart; ++i) {
@@ -293,6 +313,9 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 								if(par_x == "Pt"){par = Opt[j];}
 								else if(par_x == "eta"){par = Oeta[j];}
 								else if(par_x == "phi"){par = Ophi[j];}
+								if(par_y == "Pt"){par_2 = Opt[j];}
+								else if(par_y == "eta"){par_2 = abs(Oeta[j]);}
+								else if(par_y == "phi"){par_2 = abs(Ophi[j]);}
 
 								//Fill Pt only for matched events
 								if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
@@ -301,8 +324,8 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 
 									for(int ii = 0; ii < nrange; ++ii){
 
-										if((ii < nrange-1)&&(abs(Oeta[j]) >= par2[ii])&&(abs(Oeta[j]) < par2[ii+1])){histo_den[ii]->Fill(par);}
-										else if((ii == nrange-1)&&(abs(Oeta[j]) >= par2[ii])){histo_den[ii]->Fill(par);}//Put large par2 into large bin
+										if((ii < nrange-1)&&(par_2 >= par2[ii])&&(par_2 < par2[ii+1])){histo_den[ii]->Fill(par);}
+										else if((ii == nrange-1)&&(par_2 >= par2[ii])){histo_den[ii]->Fill(par);}//Put large par2 into large bin
 										else{}
 
 									}
@@ -330,9 +353,10 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 									int ii = 0;
 									while(notfund){
 
-										if((ii < nrange-1)&&(abs(Oeta[j]) > par2[ii])&&(abs(Oeta[j]) <= par2[ii+1])){hist = histo_num[ii]; notfund = false;}
-										else if((ii == nrange-1)&&(abs(Oeta[j]) >= par2[ii])){hist = histo_num[ii]; notfund = false;}
-										if(ii == nrange){cout<<"Error!"; return 1;}
+										if((ii < nrange-1)&&(par_2 > par2[ii])&&(par_2 <= par2[ii+1])){hist = histo_num[ii]; notfund = false;}
+										else if((ii == nrange-1)&&(par_2 >= par2[ii])){hist = histo_num[ii]; notfund = false;}
+										//if(ii == nrange){cout<<"Error! The value of the parameter is "<<par_2<<endl; return 1;}
+										if(ii == nrange){a = 0; notfund = false;}//Doesn't match the binning
 										++ii;
 
 									}
@@ -402,6 +426,7 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 							//Parameter on the xaxis
 
 							double par;
+							double par_2;
 
 							//loop over all generated particles to do the matching
 							for (int i = 0; i < ngenPart; ++i) {
@@ -424,27 +449,17 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 							if(par_x == "Pt"){par = Gpt[j];}
 							else if(par_x == "eta"){par = Geta[j];}
 							else if(par_x == "phi"){par = Gphi[j];}
+							if(par_y == "Pt"){par_2 = Gpt[j];}
+							else if(par_y == "eta"){par_2 = abs(Geta[j]);}
+							else if(par_y == "phi"){par_2 = abs(Gphi[j]);}
 
 							//Fill Pt only for matched events
 							if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
-								//Filling the den
-								//
-								//Old Code
-								//////////
-								//if(option.Contains(" alleta ")){
-								//	histo_den->Fill(par);
-								//}else{
-								//	if(abs(Geta[j]) < 1.2){histo_denB->Fill(par);}
-								//	if(abs(Geta[j]) >= 1.2){histo_denE->Fill(par);}
-								//}
-
-								//New Code
-								//////////
 
 								for(int ii = 0; ii < nrange; ++ii){
 
-									if((ii < nrange-1)&&(abs(Geta[j]) >= par2[ii])&&(abs(Geta[j]) < par2[ii+1])){histo_den[ii]->Fill(par);}
-									else if((ii == nrange-1)&&(abs(Geta[j]) >= par2[ii])){histo_den[ii]->Fill(par);}//Put large par2 into large bin
+									if((ii < nrange-1)&&(par_2 >= par2[ii])&&(par_2 < par2[ii+1])){histo_den[ii]->Fill(par);}
+									else if((ii == nrange-1)&&(par_2 >= par2[ii])){histo_den[ii]->Fill(par);}//Put large par2 into large bin
 
 								}
 
@@ -471,9 +486,10 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 								int ii = 0;
 								while(notfund){
 
-									if((ii < nrange-1)&&(abs(Geta[j]) > par2[ii])&&(abs(Geta[j]) <= par2[ii+1])){hist = histo_num[ii]; notfund = false;}
-									else if((ii == nrange-1)&&(abs(Geta[j]) >= par2[ii])){hist = histo_num[ii]; notfund = false;}
-									if(ii == nrange){cout<<"Error!"; return 1;}
+									if((ii < nrange-1)&&(par_2 > par2[ii])&&(par_2  <= par2[ii+1])){hist = histo_num[ii]; notfund = false;}
+									else if((ii == nrange-1)&&(par_2  >= par2[ii])){hist = histo_num[ii]; notfund = false;}
+									//if(ii == nrange){cout<<"Error! The value of the parameter is "<<par_2<<endl; return 1;}
+									if(ii == nrange){a = 0; notfund = false;}//Doesn't match the binning
 									++ii;
 
 								}
@@ -546,8 +562,8 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 		//Name of the par2 range
 		TString _par2;
 
-		if(i < nrange-1){_par2 = Form("%0.3lf<",par2[i])+par_x+Form("<%0.3lf",par2[i+1]);}
-		else if(i == nrange-1){_par2 = Form("%0.3lf<",par2[i])+par_x;}
+		if(i < nrange-1){_par2 = Form("%0.3lf<",par2[i])+par_y+Form("<%0.3lf",par2[i+1]);}
+		else if(i == nrange-1){_par2 = Form("%0.3lf<",par2[i])+par_y;}
 
 		//Efficiency of the iso cut.
 		c[i]->cd();
@@ -566,12 +582,12 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 
 		c[i]->SaveAs(_path+"PDF/"+cname+".pdf");
 
-		TFile* output = new TFile(_output,"recreate");
-		eff[i]->Write("eff");
-		output->Close();
+		output->cd();
+		eff[i]->Write("eff"+_par2);
 
 	}
 
+	output->Close();
 
 	return 0;
 
