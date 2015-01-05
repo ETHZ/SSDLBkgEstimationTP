@@ -126,8 +126,8 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 
 	//Preparation for general range in eta/pt
 
-	const int nrange = 2;
-	double par2[nrange] = {0,1.2};
+	const int nrange = 3;
+	double par2[nrange] = {0,0.8,1.5};
 
 	TH1D **histo_num = new TH1D*[nrange];
 	TH1D **histo_den = new TH1D*[nrange];
@@ -311,8 +311,8 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 									//Additional cut on the numerator
 									int a = 0;
 
-									if((sel_num == "tightcut")&&(abs(Oid[j] == 13))&&(Otight[j] == 1)){a = 1;}
-									if((sel_num == "tightcut")&&(abs(Oid[j] == 11))&&(Otighte[j] >= 3)){a = 1;}
+									if((sel_num == "tightcut")&&(abs(Oid[j]) == 13)&&(Otight[j] == 1)){a = 1;}
+									if((sel_num == "tightcut")&&(abs(Oid[j]) == 11)&&(Otighte[j] >= 3)){a = 1;}
 									if((sel_num == "reliso3")&&(Oiso3[j] <= cut_num)){a = 2;}
 									if((sel_num == "reliso4")&&(Oiso4[j] <= cut_num)){a = 3;}
 									if((sel_num == "chiso3")&&(Ochiso3[j] <= cut_num)){a = 4;}
@@ -451,8 +451,8 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 								//Additional cut on the numerator
 								int a = 0;
 
-								if((sel_num == "tightcut")&&(abs(Gid[j] == 13))&&(Gtight[j] == 1)){a = 1;}
-								if((sel_num == "tightcut")&&(abs(Gid[j] == 11))&&(Gtighte[j] >= 3)){a = 1;}
+								if((sel_num == "tightcut")&&(abs(Gid[j]) == 13)&&(Gtight[j] == 1)){a = 1;}
+								if((sel_num == "tightcut")&&(abs(Gid[j]) == 11)&&(Gtighte[j] >= 3)){a = 1;}
 								if((sel_num == "reliso3")&&(Giso3[j] <= cut_num)){a = 2;}
 								if((sel_num == "reliso4")&&(Giso4[j] <= cut_num)){a = 3;}
 								if((sel_num == "chiso3")&&(Gchiso3[j] <= cut_num)){a = 4;}
