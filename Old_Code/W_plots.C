@@ -14,12 +14,13 @@
 #include "ReadHistoPDGId.C"
 #include <fstream>
 
-void LeptonAnalysis(TTree* tree, int leptonId, int mother_Id, Float_t Pt_cut = 10)
+void LeptonAnalysis(int leptonId, int mother_Id, Float_t Pt_cut = 10)
 {
 
 //Read Tree
-//bool all_data = false;
-//TChain* tree = new TChain("treeProducerSusyFullHad");
+bool all_data = false;
+TChain* tree = new TChain("treeProducerSusyFullHad");
+    tree->Add("/Users/GLP/Desktop/CERN_data/Older_File/xGael.root");
 //if (all_data == true){tree->Add("/Users/GLP/Desktop/CERN_data/treeProducerSusyFullHad_tree_*.root");}
 //else if (all_data == false) {
 //tree->Add("/Users/GLP/Desktop/CERN_data/treeProducerSusyFullHad_tree_0.root");
@@ -38,7 +39,7 @@ int statusmax = 25;
 int nbins = 25;
 int nbins2 = 500;
 //double Pt_cut = 10;
-//int mother_Id = 24;
+//mother_Id = 24;
 //Int_t leptonId = 13;
 TString pname;
 if (leptonId == 11) {pname = "e";}

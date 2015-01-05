@@ -39,21 +39,29 @@ _._._._._._._._._._._._._._._._._._._._._.*/
 #include "TString.h"
 #include "TLegend.h"
 #include "TLorentzVector.h"
-#include "setTDRStyle.C"
 #include "FitBkg.C"
+#include "DrawInvMassBkg3.C"
+#include <iostream>
+#include <fstream>
 
 using namespace RooFit;
 
-double FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TString _bkg = "Cheb"){
+double FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TString _bkg = "Cheb", TString option = ""){
+
 
 	//Set Style
 	setTDRStyle();
 
+	if(option.Contains("nentries")){return histo->GetEntries()-histo_bkg->GetEntries();}
+	else{
+
+	cout<<"Debug2"<<endl;
+
 	//Path for input and output file. Written in FitDataPath.txt
-	ifstream file("FitDataPath.txt");
-	string str;
-	getline(file,str);
-	TString _path = str;
+	//ifstream file("FitDataPath.txt");
+	//ustring str;
+	//ugetline(file,str);
+	//uTString _path = str;
 
 //	Rebin(histo);
 
@@ -78,14 +86,18 @@ double FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",T
 
 	//x.setRange("R0",0,200) ;
 	x.setRange("R1",55,200) ;
-	x.setRange("D",50,120) ;
+	x.setRange("D",55,120) ;
 
         /////////////////////
 	//Define fit function 
 	/////////////////////
+	cout<<"Debug4"<<endl;
 	
 	//fsig for adding two funciton i.e. F(x) = fsig*sig(x) + (1-fsig)*bkg(x)
-	RooRealVar fsig("fsig","sigal fraction",0.5, 0., 1.);//before 0.9
+	//RooRealVar fsig("fsig","sigal fraction",0.5, 0., 1.);
+	RooRealVar nsig("nsig","signal events",histo->GetEntries()/2., 1,histo->GetEntries());
+	RooRealVar nbkg("nbkg","background events",histo_bkg->GetEntries()/2.,1,histo_bkg->GetEntries());
+	RooArgList pdfval(nsig,nbkg);
 
 	//Various parameters
 	
@@ -105,6 +117,7 @@ double FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",T
 	//Gauss used for convolution
 	RooRealVar gau_bias("gau_bias","alpha",0, -3., 3.);
 	RooRealVar gau_sigma("gau_sigma","bias",1, 0., 7.);
+	cout<<"Debug5"<<endl;
 
 	mean.setRange(88,94);
 	width.setRange(0,20);
@@ -124,6 +137,7 @@ double FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",T
 	RooFFTConvPdf sig_bwgau("sig_bwgau","BWxGau",x,sig_bw,sig_gau_resp);
 
 	//NB: The CrystalBall shape is Gaussian that is 'connected' to an exponential taill at 'alpha' sigma of the Gaussian. The sign determines if it happens on the left or right side. The 'n' parameter control the slope of the exponential part. 
+	cout<<"Debug6"<<endl;
 
 	RooAbsPdf* sig;
 	if(signal == "Vo"){sig = &sig_bwgau;}
@@ -144,6 +158,7 @@ double FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",T
 	//
 
 
+	cout<<"Debug7"<<endl;
 	vector<double> vec = FitBkg(histo_bkg,_bkg);
 
 	//Chebychev
@@ -175,7 +190,8 @@ double FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",T
 	//Adding the two functions
 	//////////////////////////
 	
-	RooAddPdf model("model","Signal+Background", RooArgList(*sig,*bkg),fsig);
+	//RooAddPdf model("model","Signal+Background", RooArgList(*sig,*bkg),fsig);
+	RooAddPdf model("model","Signal+Background", RooArgList(*sig,*bkg),pdfval);
 	 
 	//Perform the fit
 	RooAbsPdf* fit_func;
@@ -203,20 +219,30 @@ double FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",T
 	//Plot the efficiency//
 	///////////////////////
 	
+	//Old stuff
+	
+	//ofstream myfile;
+	//myfile.open("/Users/GLP/Desktop/integrals.txt");
+	//This one doesn't take the normalisation into account !
+	//myfile<<"integral 1 "<<histo->GetName()<<endl;
+	////Integral of sig
+	//RooAbsReal* integral_sig = sig->createIntegral(x,x,"D") ;
+	//myfile<<fsig.getVal()*integral_sig->getVal()<<endl;
 	//Integral of sig+bkg
-	RooAbsReal* total = fit_func->createIntegral(x, NormSet(x), Range("D")) ;
+	//RooAbsReal* total = fit_func->createIntegral(x, NormSet(x), Range("D")) ;
 	//Integral of sig only
-	RooAbsReal* background = bkg->createIntegral(x, NormSet(x), Range("D"));
-
+	//RooAbsReal* background = bkg->createIntegral(x, NormSet(x), Range("D"));
 	//cout<<"The total integral is"<<n*total->getVal();
 	//cout<<"The bkg integral is"<<n*bkg->getVal();
 	//cout<<"The bkg with the fsig is"<<fsig.getVal()*n*bkg->getVal();
 	//cout<<"The returned value is"<<n*(total->getVal()-fsig.getVal()*background->getVal());
-
-
-	return n*(total->getVal()-fsig.getVal()*background->getVal());
-
-	return 0;
-
+	//myfile<<"integral 2 "<<endl;
+	//myfile<<n*(total->getVal()-(1-fsig.getVal())*background->getVal())<<endl;
+	//myfile.close();
+	//return n*(total->getVal()-(1-fsig.getVal())*background->getVal());
+	
+	return nsig.getVal();
+	
+	}
 }
 

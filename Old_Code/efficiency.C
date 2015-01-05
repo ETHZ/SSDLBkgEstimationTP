@@ -28,9 +28,25 @@ _._._._._._._._._._._._._._._._._._._._._.*/
 #include "TLegend.h"
 #include "TObject.h"
 
-int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TString sel_num, TString par_x = "Pt", double cut_den = 0., double cut_num = 0.){
+int Efficiency(int leptonId, int mother_Id, TString sel_den , TString sel_num, TString par_x = "Pt", double cut_den = 0., double cut_num = 0.){
 
 	setTDRStyle();
+
+	///////////////
+	//Get the TTree
+	///////////////
+
+	//Location of the .root file
+	TString location = "/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/";
+
+	//Reading the tree 
+	//
+	TChain* tree = new TChain("treeProducerSusyMultilepton");
+
+	//DY events
+	tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");
+
+	//Plot the result
 
 	Long64_t n = tree->GetEntries();
 
@@ -39,17 +55,6 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 	string str;
 	getline(file,str);
 	TString _path = str;
-
-	//Histogram parameter
-	int nbins = -10;
-	double par_low = -10;
-	double par_upp = -10;
-
-	//Set parameter range
-	if(par_x == "Pt"){nbins = 10;par_low = 0;par_upp = 250;}
-	else if(par_x == "eta"){nbins = 20;par_low = -3;par_upp = 3;}
-	else if(par_x == "phi"){nbins = 10;par_low = -3.5;par_upp = 3.5;}
-
 
 	//Name for storing and final plots
 	TString pname;
@@ -87,7 +92,7 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 	else{_cut_num = Form("%0.3lf",cut_num);}
 
 	//Name of the output
-	TString _output = _path+"eff_"+_pname+"_"+treename+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+".root";
+	TString _output = _path+"eff_alleta_"+_pname+"_"+treename+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+".root";
 
 	//Declaration of histogram
 	//
@@ -177,8 +182,6 @@ int Efficiency(TTree* tree, int leptonId, int mother_Id, TString sel_den , TStri
 	tree->SetBranchAddress("mu_charge", &recmucharge);
 	tree->SetBranchAddress("mu_relIso03", &recmuiso03);
 	tree->SetBranchAddress("mu_relIso04", &recmuiso04);
-	//tree->SetBranchAddress("mu_chargedHadRelIso03", &recmuiso03);
-	//tree->SetBranchAddress("mu_chargedHadRelIso04", &recmuiso04);
 	tree->SetBranchAddress("mu_dz",&recmudz);
 	tree->SetBranchAddress("mu_dxy",&recmudxy);
 	

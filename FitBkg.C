@@ -68,7 +68,7 @@ vector<double> FitBkg(TH1D* histo, TString _bkg = "Novo"){
 	dh.plotOn(frame,DataError(RooAbsData::SumW2), MarkerColor(1),MarkerSize(0.9),MarkerStyle(7)); 
 	dh.statOn(frame);  
 
-	x.setRange("R0",0,200) ;
+	x.setRange("R0",10,200) ;
 
 	//Defining the fitting functions
 	if(_bkg == "Novo"){
