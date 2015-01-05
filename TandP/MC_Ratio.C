@@ -123,39 +123,25 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 
 	//Declaration of histogram
 
-	//
+
 	//Preparation for general range in eta/pt
-	//TH1D **histo_num = new TH1D*[nrange];
-	//TH1D **histo_den = new TH1D*[nrange];
-	//TH1D **eff = new TH1D*[nrange];
-	//int nrange = 3;
-	//double par2[nrange] = {0,1.2,2.4};
-	//for(int _i = 0; _i < nrange; ++_i){ 
 
-	//	//Barrel
-	//	histo_num[_i] = new TH1D("histo_num","Pt",nbins,min(par_low,0.),par_upp);
-	//	histo_den[_i] = new TH1D("histo_den","Pt",nbins,min(par_low,0.),par_upp);
-	//	eff[_i] = new TH1D("eff","Pt",nbins,min(par_low,0.),par_upp);
-	//	
-	//}
+	const int nrange = 2;
+	double par2[nrange] = {0,1.2};
 
+	TH1D **histo_num = new TH1D*[nrange];
+	TH1D **histo_den = new TH1D*[nrange];
+	TH1D **eff = new TH1D*[nrange];
 
-	//efficiency of the isolation cut
-	TH1D *histo_numB= new TH1D("histo_numB","Pt",nbins,min(par_low,0.),par_upp);
-	TH1D *histo_denB= new TH1D("histo_denB","Pt",nbins,min(par_low,0.),par_upp);
-	TH1D *histo_numE= new TH1D("histo_numE","Pt",nbins,min(par_low,0.),par_upp);
-	TH1D *histo_denE= new TH1D("histo_denE","Pt",nbins,min(par_low,0.),par_upp);
+	for(int _i = 0; _i < nrange; ++_i){ 
 
-	//Histo in all eta region
-	TH1D *histo_num= new TH1D("histo_num","Pt",nbins,min(par_low,0.),par_upp);
-	TH1D *histo_den= new TH1D("histo_den","Pt",nbins,min(par_low,0.),par_upp);
+		//Barrel
+		histo_num[_i] = new TH1D("histo_num","Pt",nbins,min(par_low,0.),par_upp);
+		histo_den[_i] = new TH1D("histo_den","Pt",nbins,min(par_low,0.),par_upp);
+		eff[_i] = new TH1D("eff","Pt",nbins,min(par_low,0.),par_upp);
 
-	//efficiency of the selection
-	TH1D* effB = new TH1D ("effB","Pt",nbins,min(par_low,0.),par_upp);
-	TH1D* effE = new TH1D ("effE","Pt",nbins,min(par_low,0.),par_upp);
+	}
 
-	//efficiency all eta 
-	TH1D* eff = new TH1D ("eff","Pt",nbins,min(par_low,0.),par_upp);
 	//Event variables
 	Int_t evt_id;
 	Float_t scale;
@@ -268,14 +254,14 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 
 		tree->GetEntry(k);
 
-		//loop on loose 
+		//loop on other (not loose) 
+		//Selection on denominator
 		if(sel_den != "loose"){
 			for(int j=0; j<On;++j){
 				if((!option.Contains(" ll "))||((option.Contains(" ll "))&&(On == 2)&&(Oid[0] == -Oid[1]))){
 					if(abs(Oid[j]) == leptonId){
 						if((sel_den != "tightcut")||(((abs(Oid[j]) == 13)&&(sel_den == "tightcut")&&(Otight[j] == 1 ))||((abs(Oid[j]) == 11)&&(sel_den == "tightcut")&&(Otighte[j] >= 3)))){
 							if((sel_den != "tightmva")||((abs(Oid[j]) == 11)&&(sel_den == "tightmva")&&(Otight[j] == 1))){
-								//Veto the EE-EB gape
 
 								//Variable for matching
 								double R = 999;
@@ -311,12 +297,16 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 								//Fill Pt only for matched events
 								if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
 									//Filling the den
-									if(option.Contains(" alleta ")){
-										histo_den->Fill(par);
-									}else{
-										if(abs(Oeta[j]) < 1.2){histo_denB->Fill(par);}
-										if(abs(Oeta[j]) >= 1.2){histo_denE->Fill(par);}
+
+
+									for(int ii = 0; ii < nrange; ++ii){
+
+										if((ii < nrange-1)&&(abs(Oeta[j]) >= par2[ii])&&(abs(Oeta[j]) < par2[ii+1])){histo_den[ii]->Fill(par);}
+										else if((ii == nrange-1)&&(abs(Oeta[j]) >= par2[ii])){histo_den[ii]->Fill(par);}//Put large par2 into large bin
+										else{}
+
 									}
+
 
 									//Additional cut on the numerator
 									int a = 0;
@@ -332,9 +322,20 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 									if((sel_num == "tightmva")&&(abs(Oid[j] == 11))&&(Otight[j] == 1)){a = 9;}
 									//Never filled here
 									if(sel_num == "loose"){a = 8;}
-									//cout<<"again, the mva value is"<<abs(Omvaid[j])<<endl;
-									//if((sel_num == "mvaid")&&(abs(Omvaid[j]) >= cut_num)){a = 9;}
 
+
+									//Find the corresponding histogram for par2
+									TH1D* hist;
+									bool notfund = true;
+									int ii = 0;
+									while(notfund){
+
+										if((ii < nrange-1)&&(abs(Oeta[j]) > par2[ii])&&(abs(Oeta[j]) <= par2[ii+1])){hist = histo_num[ii]; notfund = false;}
+										else if((ii == nrange-1)&&(abs(Oeta[j]) >= par2[ii])){hist = histo_num[ii]; notfund = false;}
+										if(ii == nrange){cout<<"Error!"; return 1;}
+										++ii;
+
+									}
 
 									switch(a){
 
@@ -343,62 +344,27 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 											break;
 
 										case 1:
-											if(option.Contains(" alleta ")){
-												histo_num->Fill(par);
-											}else{
-												if(abs(Oeta[j]) < 1.2){histo_numB->Fill(par);}
-												if(abs(Oeta[j]) >= 1.2){histo_numE->Fill(par);};
-											}
+											hist->Fill(par);
 											break;
 
 										case 2:
-											if(option.Contains(" alleta ")){
-												histo_num->Fill(par);
-											}else{
-												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
+											hist->Fill(par);
 											break;
 										case 3:
-											if(option.Contains(" alleta ")){
-												histo_num->Fill(par);
-											}else{
-												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
+											hist->Fill(par);
 											break;
 										case 4:
-											if(option.Contains(" alleta ")){
-												histo_num->Fill(par);
-											}else{
-												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
+											hist->Fill(par);
 											break;
 										case 5:
-											if(option.Contains(" alleta ")){
-												histo_num->Fill(par);
-											}else{
-												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
+											hist->Fill(par);
 											break;
 										case 6:
-											if(option.Contains(" alleta ")){
-												histo_num->Fill(par);
-											}else{
-												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
+											hist->Fill(par);
 											break;
 
 										case 7:
-											if(option.Contains(" alleta ")){
-												histo_num->Fill(par);
-											}else{
-												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
+											hist->Fill(par);
 											break;
 
 										case 8:
@@ -406,13 +372,9 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 											break;
 
 										case 9:
-											if(option.Contains(" alleta ")){
-												histo_num->Fill(par);
-											}else{
-												if(abs(Oeta[j]) < 1.2)histo_numB->Fill(par);
-												if(abs(Oeta[j]) >= 1.2)histo_numE->Fill(par);
-											}
+											hist->Fill(par);
 											break;
+
 									}
 								}
 							}
@@ -421,7 +383,6 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 				}
 			}
 		}
-
 
 
 		//loop on tight 
@@ -467,11 +428,24 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 							//Fill Pt only for matched events
 							if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
 								//Filling the den
-								if(option.Contains(" alleta ")){
-									histo_den->Fill(par);
-								}else{
-									if(abs(Geta[j]) < 1.2){histo_denB->Fill(par);}
-									if(abs(Geta[j]) >= 1.2){histo_denE->Fill(par);}
+								//
+								//Old Code
+								//////////
+								//if(option.Contains(" alleta ")){
+								//	histo_den->Fill(par);
+								//}else{
+								//	if(abs(Geta[j]) < 1.2){histo_denB->Fill(par);}
+								//	if(abs(Geta[j]) >= 1.2){histo_denE->Fill(par);}
+								//}
+
+								//New Code
+								//////////
+
+								for(int ii = 0; ii < nrange; ++ii){
+
+									if((ii < nrange-1)&&(abs(Geta[j]) >= par2[ii])&&(abs(Geta[j]) < par2[ii+1])){histo_den[ii]->Fill(par);}
+									else if((ii == nrange-1)&&(abs(Geta[j]) >= par2[ii])){histo_den[ii]->Fill(par);}//Put large par2 into large bin
+
 								}
 
 								//Additional cut on the numerator
@@ -491,6 +465,19 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 								//if((sel_num == "mvaid")&&(abs(Gmvaid[j]) >= cut_num)){a = 9;}
 
 
+								//Find the corresponding histogram for par2
+								TH1D* hist;
+								bool notfund = true;
+								int ii = 0;
+								while(notfund){
+
+									if((ii < nrange-1)&&(abs(Geta[j]) > par2[ii])&&(abs(Geta[j]) <= par2[ii+1])){hist = histo_num[ii]; notfund = false;}
+									else if((ii == nrange-1)&&(abs(Geta[j]) >= par2[ii])){hist = histo_num[ii]; notfund = false;}
+									if(ii == nrange){cout<<"Error!"; return 1;}
+									++ii;
+
+								}
+
 								switch(a){
 
 									case 0:
@@ -498,80 +485,35 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 										break;
 
 									case 1:
-										if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-										}else{
-											if(abs(Geta[j]) < 1.2){histo_numB->Fill(par);}
-											if(abs(Geta[j]) >= 1.2){histo_numE->Fill(par);}
-										}
+										hist->Fill(par);
 										break;
 
 									case 2:
-										if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-										}else{
-											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-										}
+										hist->Fill(par);
 										break;
 									case 3:
-										if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-										}else{
-											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-										}
+										hist->Fill(par);
 										break;
 									case 4:
-										if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-										}else{
-											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-										}
+										hist->Fill(par);
 										break;
 									case 5:
-										if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-										}else{
-											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-										}
+										hist->Fill(par);
 										break;
 									case 6:
-										if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-										}else{
-											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-										}
+										hist->Fill(par);
 										break;
 
 									case 7:
-										if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-										}else{
-											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-										}
+										hist->Fill(par);
 										break;
 
 									case 8:
-										if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-										}else{
-											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-										}
+										hist->Fill(par);
 										break;
 
 									case 9:
-										if(option.Contains(" alleta ")){
-											histo_num->Fill(par);
-										}else{
-											if(abs(Geta[j]) < 1.2)histo_numB->Fill(par);
-											if(abs(Geta[j]) >= 1.2)histo_numE->Fill(par);
-										}
+										hist->Fill(par);
 										break;
 								}
 							}
@@ -582,83 +524,54 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 		}
 	}
 
-	if(option.Contains(" alleta ")){
-		histo_num->Sumw2();
-		histo_den->Sumw2();
 
-		//Divide histograms to get the efficiency
-		eff->Divide(histo_num,histo_den,1,1,"B"); 
+
+	//Canvas declaration
+
+	TCanvas** c = new TCanvas*[nrange];
+
+	for(int i = 0; i < nrange; ++i){
+
+		c[i] = new TCanvas(Form("c%i",i),"c");
+	}
+
+
+	for(int i = 0; i < nrange; ++i){
+
+		histo_num[i]->Sumw2();
+		histo_den[i]->Sumw2();
+
+		eff[i]->Divide(histo_num[i],histo_den[i],1,1,"B");
+
+		//Name of the par2 range
+		TString _par2;
+
+		if(i < nrange-1){_par2 = Form("%0.3lf<",par2[i])+par_x+Form("<%0.3lf",par2[i+1]);}
+		else if(i == nrange-1){_par2 = Form("%0.3lf<",par2[i])+par_x;}
 
 		//Efficiency of the iso cut.
-		TCanvas* c = new TCanvas("c","c");
-		eff->Draw();
-		eff->GetYaxis()->SetTitle("#epsilon");
-		eff->GetXaxis()->SetTitle(_par);
+		c[i]->cd();
+		eff[i]->Draw();
+		eff[i]->GetYaxis()->SetTitle("#epsilon");
+		eff[i]->GetXaxis()->SetTitle(_par);
 		//eff->GetXaxis()->SetRangeUser(0,250);
-		eff->SetMarkerStyle(20);
-		eff->SetMarkerSize(1);
-		eff->SetMarkerColor(4);
-		eff->SetLineColor(4);
-		eff->SetTitle(_sel_num+" for "+_sel_den+" "+pname);
+		eff[i]->SetMarkerStyle(20);
+		eff[i]->SetMarkerSize(1);
+		eff[i]->SetMarkerColor(4);
+		eff[i]->SetLineColor(4);
+		eff[i]->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" "+_par2);
 
 		//Define the name of the canvas
-		TString cname = "eff4test"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x;
+		TString cname = "eff4test"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+_par2;
 
-		c->SaveAs(_path+"PDF/"+cname+".pdf");
-
-		TFile* output = new TFile(_output,"recreate");
-		eff->Write("eff");
-		output->Close();
-
-	}else{
-
-		histo_numB->Sumw2();
-		histo_numE->Sumw2();
-		histo_denB->Sumw2();
-		histo_denE->Sumw2();
-
-		//Divide histograms to get the efficiency
-		effB->Divide(histo_numB,histo_denB,1,1,"B"); 
-		effE->Divide(histo_numE,histo_denE,1,1,"B"); 
-
-		//Efficiency of the iso cut.
-		TCanvas* c1 = new TCanvas("c1","c1");
-		effB->Draw();
-		effB->GetYaxis()->SetTitle("#epsilon");
-		effB->GetXaxis()->SetTitle(_par);
-		//effB->GetXaxis()->SetRangeUser(0,250);
-		effB->SetMarkerStyle(20);
-		effB->SetMarkerSize(1);
-		effB->SetMarkerColor(4);
-		effB->SetLineColor(4);
-		effB->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" #||{#eta}<1.2");
-		TCanvas* c2 = new TCanvas("c2","c2");
-		effE->Draw();
-		effE->GetYaxis()->SetRangeUser(0,1.1);
-		effE->GetYaxis()->SetTitle("#epsilon");
-		effE->GetXaxis()->SetTitle(_par);
-		//effE->GetXaxis()->SetRangeUser(0,250);
-		effE->SetMarkerStyle(20);
-		effE->SetMarkerSize(1);
-		effE->SetMarkerColor(4);
-		effE->SetLineColor(4);
-		effE->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" #||{#eta}>1.2");
-
-		//Define the name of the canvas
-		TString c1name = "eff4test"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+"_eta<1.2";
-		TString c2name = "eff4test"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+"_eta>1.2";
-
-		c1->SaveAs(_path+"PDF/"+c1name+".pdf");
-		c2->SaveAs(_path+"PDF/"+c2name+".pdf");
+		c[i]->SaveAs(_path+"PDF/"+cname+".pdf");
 
 		TFile* output = new TFile(_output,"recreate");
-		//c1->Write();
-		//c2->Write();
-		effB->Write("eff_eta<1.2");
-		effE->Write("eff_eta>1.2");
+		eff[i]->Write("eff");
 		output->Close();
 
 	}
+
 
 	return 0;
 
