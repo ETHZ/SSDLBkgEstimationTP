@@ -1,6 +1,7 @@
 /*********************************************
 * Description - Plot the efficiency for a given cut that is applied to reconstructed data. A matching between the gen. and rec. data is done.
   Upgrade w.r.t. previous version: Can now choose if barrel/endcape separation and includs the loose id as well
+  Final version
 
 * Author - Gaël L. Perrin
 
@@ -87,7 +88,7 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 	else if(par_x == "phi"){_par = "#phi";}
 	else{cout<<"ERROR: wrong parameter name !";return 1;}
 	if(sel_num == ""){_sel_num = "unsel";}
-	else if(sel_num == "tight"){_sel_num = "tight";}
+	else if(sel_num == "tightcut"){_sel_num = "tightcut";}
 	else if(sel_num == "tightmva"){_sel_num = "tightmva";}
 	if((sel_num == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
 	//else if(sel_num == "mvaid"){_sel_num = Form("tightmva%0.3lf",cut_num) ;}
@@ -101,7 +102,7 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 	else{cout<<"ERROR: wrong numerator name !";return 1;}
 	//Selection on the denominator
 	if(sel_den == ""){_sel_den = "unsel";}
-	else if(sel_den == "tight"){_sel_den = "tight";}
+	else if(sel_den == "tightcut"){_sel_den = "tightcut";}
 	else if(sel_den == "tightmva"){_sel_den = "tightmva";}
 	if((sel_den == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
 	//else if(sel_den == "mvaid"){_sel_den = Form("tightmva%0.3lf",cut_den) ;}
@@ -272,7 +273,8 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 		for(int j=0; j<On;++j){
 			if((!option.Contains(" ll "))||((option.Contains(" ll "))&&(On == 2)&&(Oid[0] == -Oid[1]))){
 				if(abs(Oid[j]) == leptonId){
-					if((sel_den != "tight")||((sel_den == "tight")&&(Otight[j] == 1 ))){
+					if((sel_den != "tightcut")||(((abs(Oid[j]) == 13)&&(sel_den == "tightcut")&&(Otight[j] == 1 ))||((abs(Oid[j]) == 11)&&(sel_den == "tightcut")&&(Otighte[j] >= 3)))){
+					if((sel_den != "tightmva")||((abs(Oid[j]) == 11)&&(sel_den == "tightmva")&&(Otight[j] == 1))){
 					//if((sel_den != "mvaid")||((sel_den == "mvaid")&&(abs(Omvaid[j]) > cut_den))){
 						//Veto the EE-EB gape
 
@@ -320,7 +322,10 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 							//Additional cut on the numerator
 							int a = 0;
 
-							if((sel_num == "tight")&&(Otight[j] == 1)){a = 1;}
+							if(sel_num == "tightcut"){
+							if((abs(Oid[j] == 13))&&(Otight[j] == 1)){a = 1;}
+							else if((abs(Oid[j] == 11))&&(Otighte[j] >= 3)){a = 1;}
+							}
 							if((sel_num == "reliso3")&&(Oiso3[j] <= cut_num)){a = 2;}
 							if((sel_num == "reliso4")&&(Oiso4[j] <= cut_num)){a = 3;}
 							if((sel_num == "chiso3")&&(Ochiso3[j] <= cut_num)){a = 4;}
@@ -424,7 +429,8 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 			if((!option.Contains(" ll "))||((option.Contains(" ll "))&&(Gn == 2)&&(Gid[0] == -Gid[1]))){
 				if(abs(Gid[j]) == leptonId){
 					//Cut on the denominator
-					if((sel_den != "tight")||((sel_den == "tight")&&(Gtight[j] == 1 ))){
+					if((sel_den != "tightcut")||(((abs(Gid[j]) == 13)&&(sel_den == "tightcut")&&(Gtight[j] == 1 ))||((abs(Gid[j]) == 11)&&(sel_den == "tightcut")&&(Gtighte[j] >= 3)))){
+					if((sel_den != "tightmva")||((abs(Gid[j]) == 11)&&(sel_den == "tightmva")&&(Gtight[j] == 1))){
 					//if((sel_den != "mvaid")||((sel_den == "mvaid")&&(abs(Gmvaid[j]) > cut_den))){
 						//Veto the EE-EB gape
 
@@ -472,7 +478,10 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 							//Additional cut on the numerator
 							int a = 0;
 
-							if((sel_num == "tight")&&(Gtight[j] == 1)){a = 1;}
+							if(sel_num == "tightcut"){
+							if((abs(Gid[j] == 13))&&(Gtight[j] == 1)){a = 1;}
+							else if((abs(Gid[j] == 11))&&(Gtighte[j] >= 3)){a = 1;}
+							}
 							if((sel_num == "reliso3")&&(Giso3[j] <= cut_num)){a = 2;}
 							if((sel_num == "reliso4")&&(Giso4[j] <= cut_num)){a = 3;}
 							if((sel_num == "chiso3")&&(Gchiso3[j] <= cut_num)){a = 4;}
