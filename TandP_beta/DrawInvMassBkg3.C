@@ -33,8 +33,9 @@
 #include "TGraph.h"
 #include "TLorentzVector.h"
 //#include "FitInvMass.C"
-//#include "InvMass.C"
-//#include "DeltaR.C"
+#include "../InvMass.C"
+#include "../DeltaR.C"
+#include "../setTDRStyle.C"
 
 int DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low = 10, double Pt_upp = 50,int nptbins = 10, TString select = "tight", TString effcut = "reliso3", double cut = 0.2, TString option ="");
 
@@ -187,7 +188,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	Float_t Odz[200];
 	//loose
 	Int_t Gn;
-	Int_t matched[200];
+	//Int_t matched[200];
 	Int_t Gid[200];
 	Float_t Gpt[200];
 	Float_t Gm[200];
@@ -224,7 +225,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	tree->SetBranchAddress("LepOther_dz",&Odz);
 	//Loose
 	tree->SetBranchAddress("nLepGood",&Gn);
-	tree->SetBranchAddress("LepGood_matched",&matched);
+	//tree->SetBranchAddress("LepGood_matched",&matched);
 	tree->SetBranchAddress("LepGood_pdgId",&Gid);
 	tree->SetBranchAddress("LepGood_pt",&Gpt);
 	tree->SetBranchAddress("LepGood_mass",&Gm);
@@ -271,8 +272,6 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 			//Prob selection cut
 			if(abs(Gid[i]) == leptonId){
 				if((select != "tight")||((select == "tight")&&(Gtight[i] == 1))){ 
-					if((!option.Contains("matching"))||((option.Contains("matching"))&&(matched[i] == 1))){ 
-
 						//Prob1
 						if(prob[0] == 9999){prob[0] = i;}
 						//Prob2
@@ -283,8 +282,6 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 
 							if(prob[0] == i){tag[0] = i; }
 							if(prob[1] == i){tag[1] = i; }
-
-						}
 					}
 				}
 			}
