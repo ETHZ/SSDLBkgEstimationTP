@@ -1,20 +1,13 @@
-/* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
-
- * File Name :DrawInvMassBkg4.C 
-
- * Purpose : This file plots the histograms for Z+bkg. THis used the files contained in 2014-11-13_skim2ll-mva-softbtag. 
- Update w.r.t. previous code: all lepton are now considered (loose and tight). 
+/*********************************************
+* Description - This file plots the histograms for Z+bkg. THis used the files contained in 2014-11-13_skim2ll-mva-softbtag. 
+ 		Update w.r.t. previous code: all lepton are now considered (loose and tight). 
 
 
- * DataSet:  3
+* Author - Gaël L. Perrin
 
- * Creation Date : 20-12-2008
+* Date - Jan 06 2015
 
- * Last Modified : Sat 20 Dec 2008 09:37:30 AM PST
-
- * Created By : Gaël L. Perrin
-
- _._._._._._._._._._._._._._._._._._._._._.*/
+* *******************************************/
 
 #include "cmath"
 #include "TChain.h"
@@ -38,9 +31,21 @@
 //#include "InvMass.C"
 //#include "DeltaR.C"
 
-int DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low = 10, double Pt_upp = 50,int nptbins = 10, TString select = "tight", TString effcut = "reliso3", double cut = 0.2, TString option ="");
+////////////////////////
+//Variable description//
+////////////////////////
 
-int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int nptbins = 10,TString select = "tight", TString effcut = "reliso3", double cut = 0.2, TString option = ""){
+//tree:		TTree to be analysed
+//leptonId:	pdgId of the lepton
+//Pt_low	low boundary of Pt bins
+//Pt_upp	high boundary of Pt bins
+//nptbins	number of Pt bins
+//select	selection of Tag AND Probe. Can take parameters such as: "loose", "tightcut", "tightmva" (for electron only).
+//effcut	additional requirement on Tag (the selection on tag is select + effcut). Can take the parameter: "loose", "tightcut...TO BE CONTINUED
+
+int DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low = 10, double Pt_upp = 50,int nptbins = 10, TString select = "tightcut", TString effcut = "reliso3", double cut = 0.2, TString option ="");
+
+int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int nptbins = 10,TString select = "tightcut", TString effcut = "reliso3", double cut = 0.2, TString option = ""){
 
 	//Location of the .root file
 	TString location = "/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/matched/";
@@ -89,14 +94,18 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	//selection string
 	TString _sel;
 
-	if(select == "tight"){_sel = "tight";}
+	if((select == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
+	if(select == "tightcut"){_sel = "tightcut";}
+	else if(select == "tightmva"){_sel = "tightmva";}
 	else if(select == "loose"){_sel = "loose";}
 	else if(select == ""){_sel = "";}
 	else{cout<<"ERROR: wrong selection !";return 1;}
 
 	//cut string
 	TString _effcut;
-	if(effcut == "tight"){_effcut = "tight";}
+	if((effcut == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
+	if(effcut == "tightcut"){_effcut = "tightcut";}
+	else if(effcut == "tightmva"){_effcut = "tightmva";}
 	else if(effcut == ""){_effcut = "";}
 	else if(effcut == "loose"){_effcut = "loose";}
 	else if(effcut == "reliso3"){_effcut = Form("reliso3_%0.3lf",cut);}
@@ -178,6 +187,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	Float_t Ophi[200];
 	Int_t   Oq[200];
 	Int_t Otight[200];
+	Int_t Otighte[200];
 	Int_t Oloose[200];
 	Float_t Oiso3[200];
 	Float_t Oiso4[200];
@@ -195,6 +205,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	Float_t Gphi[200];
 	Int_t   Gq[200];
 	Int_t Gtight[200];
+	Int_t Gtighte[200];
 	Int_t Gloose[200];
 	Float_t Giso3[200];
 	Float_t Giso4[200];
@@ -215,7 +226,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	tree->SetBranchAddress("LepOther_phi",&Ophi);
 	tree->SetBranchAddress("LepOther_charge",&Oq);
 	tree->SetBranchAddress("LepOther_tightId",&Otight);
-	tree->SetBranchAddress("LepOther_looseIdSusy",Oloose);
+	tree->SetBranchAddress("LepGood_eleCutIdCSA14_50ns_v1",&Otighte);
 	tree->SetBranchAddress("LepOther_relIso03",&Oiso3);
 	tree->SetBranchAddress("LepOther_relIso04",&Oiso4);
 	tree->SetBranchAddress("LepOther_chargedHadRelIso03",&Ochiso3);
@@ -232,7 +243,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	tree->SetBranchAddress("LepGood_phi",&Gphi);
 	tree->SetBranchAddress("LepGood_charge",&Gq);
 	tree->SetBranchAddress("LepGood_tightId",&Gtight);
-	tree->SetBranchAddress("LepGood_looseIdSusy",&Gloose);
+	tree->SetBranchAddress("LepGood_eleCutIdCSA14_50ns_v1",&Gtighte);
 	tree->SetBranchAddress("LepGood_relIso03",&Giso3);
 	tree->SetBranchAddress("LepGood_relIso04",&Giso4);
 	tree->SetBranchAddress("LepGood_chargedHadRelIso03",&Gchiso3);
@@ -258,34 +269,36 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 			for (int i = 0; i < On; ++i) {
 
 				//define selections using bools
-
 				bool reliso3((effcut != "reliso3")||((effcut == "reliso3")&&(Oiso3[i] < cut )));
 				bool reliso4((effcut != "reliso4")||((effcut == "reliso4")&&(Oiso4[i] < cut )));
 				bool chiso3((effcut != "chiso3")||((effcut == "chiso3")&&(Ochiso3[i] < cut )));
 				bool chiso4((effcut != "chiso4")||((effcut == "chiso4")&&(Ochiso4[i] < cut )));
 				bool dxy((effcut != "dxy")||((effcut == "dxy")&&(abs(Odxy[i])< cut )));
 				bool dz((effcut != "dz")||((effcut == "dz")&&(abs(Odz[i])< cut )));
-				bool tight((effcut != "tight")||((effcut == "tight")&&(Otight[i] == 1)));
+				bool tight((effcut != "tightcut")||(((abs(Oid[i]) == 13)&&(effcut == "tightcut")&&(Otight[i] == 1))||((abs(Oid[i]) == 11)&&(effcut == "tightcut")&&(Otighte[i] >= 3))));
+				bool tightmva((effcut != "tightmva")||((abs(Oid[i]) == 11)&&(effcut == "tightmva")&&(Otight[i] == 1)));
 
 
 				//Store the values from both the loose and tight in the same variable
 
 				//Prob selection cut
 				if(abs(Oid[i]) == leptonId){
-					if((select != "tight")||((select == "tight")&&(Otight[i] == 1))){ 
-						if((!option.Contains("matching"))||((option.Contains("matching"))&&(matched[i] == 1))){ 
+					if((select != "tightcut")||(((abs(Oid[i]) == 13)&&(select == "tightcut")&&(Otight[i] == 1))||((abs(Oid[i]) == 11)&&(select == "tightcut")&&(Otighte[i] >= 3)))){ 
+						if((select != "tightmva")||((abs(Oid[i]) == 11)&&(select == "tightmva")&&(Otight[i] == 1))){ 
+							if((!option.Contains("matching"))||((option.Contains("matching"))&&(matched[i] == 1))){ 
 
-							//Prob1
-							if(prob[0] == 9999){prob[0] = i;}
-							//Prob2
-							if((prob[0] != 9999)&&(prob[0] != i)&&(prob[1] == 9999)){prob[1] = i;}
+								//Prob1
+								if(prob[0] == 9999){prob[0] = i;}
+								//Prob2
+								if((prob[0] != 9999)&&(prob[0] != i)&&(prob[1] == 9999)){prob[1] = i;}
 
-							//Selection cut for Tag only
-							if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight){
+								//Selection cut for Tag only
+								if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
 
-								if(prob[0] == i){tag[0] = i; }
-								if(prob[1] == i){tag[1] = i; }
+									if(prob[0] == i){tag[0] = i; }
+									if(prob[1] == i){tag[1] = i; }
 
+								}
 							}
 						}
 					}
@@ -320,10 +333,11 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 							bool chiso4((effcut != "chiso4")||((effcut == "chiso4")&&(Ochiso4[l1] < cut )));
 							bool dxy((effcut != "dxy")||((effcut == "dxy")&&(abs(Odxy[l1])< cut )));
 							bool dz((effcut != "dz")||((effcut == "dz")&&(abs(Odz[l1])< cut )));
-							bool tight((effcut != "tight")||((effcut == "tight")&&(Otight[l1] == 1)));
+				                        bool tight((effcut != "tightcut")||(((abs(Oid[l1]) == 13)&&(effcut == "tightcut")&&(Otight[l1] == 1))||((abs(Oid[l1]) == 11)&&(effcut == "tightcut")&&(Otighte[l1] >= 3))));
+							bool tightmva((effcut != "tightmva")||((abs(Oid[l1]) == 11)&&(effcut == "tightmva")&&(Otight[l1] == 1)));
 
 							//Efficiency cut
-							if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight){
+							if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
 
 								if(abs(Oeta[l1]) < 1.2){histo_M_DYJets_bkg_loweta[ii]->Fill(M,scale);}
 								if(abs(Oeta[l1]) >= 1.2){histo_M_DYJets_bkg_higheta[ii]->Fill(M,scale);}
@@ -351,9 +365,10 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 							chiso4 = ((effcut != "chiso4")||((effcut == "chiso4")&&(Ochiso4[l1] >= cut )));
 							dxy = ((effcut != "dxy")||((effcut == "dxy")&&(abs(Odxy[l1]) >= cut )));
 							dz = ((effcut != "dz")||((effcut == "dz")&&(abs(Odz[l1]) >= cut )));
-							tight = ((effcut != "tight")||((effcut == "tight")&&(Otight[l1] != 1)));
+				                        tight((effcut != "tightcut")||(((abs(Oid[l1]) == 13)&&(effcut == "tightcut")&&(Otight[l1] != 1))||((abs(Oid[l1]) == 11)&&(effcut == "tightcut")&&(Otighte[l1] < 3))));
+							tightmva((effcut != "tightmva")||((abs(Oid[l1]) == 11)&&(effcut == "tightmva")&&(Otight[l1] != 1)));
 
-							if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight){
+							if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
 
 								if(abs(Oeta[l1]) < 1.2)histo_M_DYJets_bkg_fail_loweta[ii]->Fill(M,scale);
 								if(abs(Oeta[l1]) >= 1.2)histo_M_DYJets_bkg_fail_higheta[ii]->Fill(M,scale);
@@ -380,7 +395,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 			}
 		}
 
-		//Tightid leptons
+		//loose identified
 		for (int i = 0; i < Gn; ++i) {
 
 			//define selections using bools
@@ -391,27 +406,30 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 			bool chiso4((effcut != "chiso4")||((effcut == "chiso4")&&(Gchiso4[i] < cut )));
 			bool dxy((effcut != "dxy")||((effcut == "dxy")&&(abs(Gdxy[i])< cut )));
 			bool dz((effcut != "dz")||((effcut == "dz")&&(abs(Gdz[i])< cut )));
-			bool tight((effcut != "tight")||((effcut == "tight")&&(Gtight[i] == 1)));
+			bool tight((effcut != "tightcut")||(((abs(Gid[i]) == 13)&&(effcut == "tightcut")&&(Gtight[i] == 1))||((abs(Gid[i]) == 11)&&(effcut == "tightcut")&&(Gtighte[i] >= 3))));
+			bool tightmva((effcut != "tightmva")||((abs(Gid[i]) == 11)&&(effcut == "tightmva")&&(Gtight[i] == 1)));
 
 
 			//Store the values from both the loose and tight in the same variable
 
 			//Prob selection cut
 			if(abs(Gid[i]) == leptonId){
-				if((select != "tight")||((select == "tight")&&(Gtight[i] == 1))){ 
-					if((!option.Contains("matching"))||((option.Contains("matching"))&&(matched[i] == 1))){ 
+				if((select != "tightcut")||(((abs(Gid[i]) == 13)&&(select == "tightcut")&&(Gtight[i] == 1))||((abs(Gid[i]) == 11)&&(select == "tightcut")&&(Gtighte[i] >= 3)))){ 
+					if((select != "tightmva")||((abs(Gid[i]) == 11)&&(select == "tightmva")&&(Gtight[i] == 1))){ 
+						if((!option.Contains("matching"))||((option.Contains("matching"))&&(matched[i] == 1))){ 
 
-						//Prob1
-						if(prob[0] == 9999){prob[0] = i;}
-						//Prob2
-						if((prob[0] != 9999)&&(prob[0] != i)&&(prob[1] == 9999)){prob[1] = i;}
+							//Prob1
+							if(prob[0] == 9999){prob[0] = i;}
+							//Prob2
+							if((prob[0] != 9999)&&(prob[0] != i)&&(prob[1] == 9999)){prob[1] = i;}
 
-						//Selection cut for Tag only
-						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight){
+							//Selection cut for Tag only
+							if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
 
-							if(prob[0] == i){tag[0] = i; }
-							if(prob[1] == i){tag[1] = i; }
+								if(prob[0] == i){tag[0] = i; }
+								if(prob[1] == i){tag[1] = i; }
 
+							}
 						}
 					}
 				}
@@ -446,10 +464,11 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 						bool chiso4((effcut != "chiso4")||((effcut == "chiso4")&&(Gchiso4[l1] < cut )));
 						bool dxy((effcut != "dxy")||((effcut == "dxy")&&(abs(Gdxy[l1])< cut )));
 						bool dz((effcut != "dz")||((effcut == "dz")&&(abs(Gdz[l1])< cut )));
-						bool tight((effcut != "tight")||((effcut == "tight")&&(Gtight[l1] == 1)));
+				                bool tight((effcut != "tightcut")||(((abs(Gid[l1]) == 13)&&(effcut == "tightcut")&&(Gtight[l1] == 1))||((abs(Gid[l1]) == 11)&&(effcut == "tightcut")&&(Gtighte[l1] >= 3))));
+						bool tightmva((effcut != "tightmva")||((abs(Gid[l1]) == 11)&&(effcut == "tightmva")&&(Gtight[l1] == 1)));
 
 						//Efficiency cut
-						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight){
+						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
 
 							if(abs(Geta[l1]) < 1.2){histo_M_DYJets_bkg_loweta[ii]->Fill(M,scale);}
 							if(abs(Geta[l1]) >= 1.2){histo_M_DYJets_bkg_higheta[ii]->Fill(M,scale);}
@@ -477,9 +496,10 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 						chiso4 = ((effcut != "chiso4")||((effcut == "chiso4")&&(Gchiso4[l1] >= cut )));
 						dxy = ((effcut != "dxy")||((effcut == "dxy")&&(abs(Gdxy[l1]) >= cut )));
 						dz = ((effcut != "dz")||((effcut == "dz")&&(abs(Gdz[l1]) >= cut )));
-						tight = ((effcut != "tight")||((effcut == "tight")&&(Gtight[l1] != 1)));
+				                tight((effcut != "tightcut")||(((abs(Gid[l1]) == 13)&&(effcut == "tightcut")&&(Gtight[l1] != 1))||((abs(Gid[l1]) == 11)&&(effcut == "tightcut")&&(Gtighte[l1] < 3))));
+						tightmva((effcut != "tightmva")||((abs(Gid[l1]) == 11)&&(effcut == "tightmva")&&(Gtight[l1] != 1)));
 
-						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight){
+						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
 
 							if(abs(Geta[l1]) < 1.2)histo_M_DYJets_bkg_fail_loweta[ii]->Fill(M,scale);
 							if(abs(Geta[l1]) >= 1.2)histo_M_DYJets_bkg_fail_higheta[ii]->Fill(M,scale);
