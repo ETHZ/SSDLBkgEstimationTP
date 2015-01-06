@@ -1,13 +1,13 @@
 /*********************************************
-* Description - This file plots the histograms for Z+bkg. THis used the files contained in 2014-11-13_skim2ll-mva-softbtag. 
- 		Update w.r.t. previous code: all lepton are now considered (loose and tight). 
+ * Description - This file plots the histograms for Z+bkg. THis used the files contained in 2014-11-13_skim2ll-mva-softbtag. 
+ Update w.r.t. previous code: all lepton are now considered (loose and tight). 
 
 
-* Author - Gaël L. Perrin
+ * Author - Gaël L. Perrin
 
-* Date - Jan 06 2015
+ * Date - Jan 06 2015
 
-* *******************************************/
+ * *******************************************/
 
 #include "cmath"
 #include "TChain.h"
@@ -27,9 +27,9 @@
 #include "TGraphErrors.h"
 #include "TGraph.h"
 #include "TLorentzVector.h"
-//#include "setTDRStyle.C"
-//#include "InvMass.C"
-//#include "DeltaR.C"
+#include "../setTDRStyle.C"
+#include "../InvMass.C"
+#include "../DeltaR.C"
 
 ////////////////////////
 //Variable description//
@@ -37,17 +37,17 @@
 
 //tree:		TTree to be analysed
 //leptonId:	pdgId of the lepton
-//Pt_low	low boundary of Pt bins
-//Pt_upp	high boundary of Pt bins
-//nptbins	number of Pt bins
+//par_low	low boundary of Pt bins
+//par_upp	high boundary of Pt bins
+//nparbins	number of Pt bins
 //select	selection of Tag AND Probe. Can take parameters such as: "loose", "tightcut", "tightmva" (for electron only).
 //effcut	additional requirement on Tag (the selection on tag is select + effcut). Can take the parameter: "loose", "tightcut", "tightmva", "dxy", "dz", "reliso3", "reliso4", "chiso3", "chiso4".
 //cut		cut parameter of effcut is possible.
 //option	can take: matching (a matching between the Tag and Probe is required).
 
-int DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low = 10, double Pt_upp = 50,int nptbins = 10, TString select = "tightcut", TString effcut = "reliso3", double cut = 0.2, TString option ="");
+int DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low = 10, double par_upp = 50,int nparbins = 10, TString select = "tightcut", TString effcut = "reliso3", double cut = 0.2,TString par_x = "Pt", TString par_y = "eta", TString option ="");
 
-int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int nptbins = 10,TString select = "tightcut", TString effcut = "reliso3", double cut = 0.2, TString option = ""){
+int DrawInvMassBkg(int leptonId, double par_low = 10 , double par_upp = 50 ,int nparbins = 10,TString select = "tightcut", TString effcut = "reliso3", double cut = 0.2, TString par_x = "Pt", TString par_y = "eta", TString option = ""){
 
 	//Location of the .root file
 	TString location = "/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/matched/";
@@ -67,13 +67,13 @@ int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int np
 
 	//Plot the result
 	//
-	DrawInvMassBkgMain(tree,leptonId ,Pt_low ,Pt_upp ,nptbins,select,effcut, cut, option);
+	DrawInvMassBkgMain(tree,leptonId ,par_low ,par_upp ,nparbins,select,effcut, cut,par_x, option);
 
 	return 0;
 
 }
 
-int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_upp ,int nptbins , TString select, TString effcut , double cut, TString par_x = "Pt", TString option){
+int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double par_upp ,int nparbins , TString select, TString effcut , double cut, TString par_x, TString par_y, TString option){
 
 	TString _path= "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/ZBkgInvM/";
 
@@ -82,7 +82,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	//Some variables
 	Long64_t n = tree->GetEntries();
 	int nbins = 200;
-	double Dpt = (Pt_upp-Pt_low)/nptbins;
+	double Dpar = (par_upp-par_low)/nparbins;
 
 	/////////////////////////
 	//Name of the output file
@@ -94,11 +94,14 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	if(abs(leptonId) == 13){pname = "mu";}
 
 	//Parameter string
-
 	TString _par;
+	TString _par_2;
 	if(par_x == "Pt"){_par = "P_{t}";}
 	else if(par_x == "eta"){_par = "#eta";}
 	else if(par_x == "phi"){_par = "#phi";}
+	if(par_y == "Pt"){_par_2 = "P_{t}";}
+	else if(par_y == "eta"){_par_2 = "#eta";}
+	else if(par_y == "phi"){_par_2 = "#phi";}
 
 	//selection string
 	TString _sel;
@@ -125,11 +128,11 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	else if(effcut == "dz"){_effcut = Form("dz_%0.3lf",cut);}
 	else{cout<<"ERROR: wrong numerator name !";return 1;}
 
-	TString _fname = "InvM4";
+	TString _fname = "InvM4test";
 	if(option.Contains("matching")){_fname += "_Matched";}
 
 	TString _ptrange;
-	_ptrange = Form("Pt%0.f_Pt%0.f",Pt_low,Pt_upp);
+	_ptrange = Form("Pt%0.f_Pt%0.f",par_low,par_upp);
 	_fname += "_"+_ptrange;
 	_fname += "_"+_effcut+"_for_"+_sel+"_"+pname; 
 
@@ -139,76 +142,84 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 
 	const int nrange = 2;
 	double par2[nrange] = {0,1.2};
-	
-	//Old code
 
-	////Histograms
-	////Barrel
-	//TH1D** histo_M_DYJets_bkg_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_bkg_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_WJets_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_bkg_fail_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_fail_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_bkg_fail_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_WJets_fail_loweta = new TH1D*[nptbins+1];
-	////Endcape
-	//TH1D** histo_M_DYJets_bkg_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_bkg_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_WJets_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_bkg_fail_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_fail_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_bkg_fail_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_WJets_fail_higheta = new TH1D*[nptbins+1];
-	
-	//New Code
-	/
-	//TH1D** histo_M_DYJets_bkg_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_bkg_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_WJets_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_bkg_fail_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_fail_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_bkg_fail_loweta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_WJets_fail_loweta = new TH1D*[nptbins+1];
-	////Endcape
-	//TH1D** histo_M_DYJets_bkg_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_bkg_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_WJets_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_bkg_fail_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_DYJets_fail_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_bkg_fail_higheta = new TH1D*[nptbins+1];
-	//TH1D** histo_M_WJets_fail_higheta = new TH1D*[nptbins+1];
+	//cout<<"debug0"<<endl;
 
-	for(int _i = 0; _i < nptbins+1; ++_i){ 
+	TH1D*** histo_M_DYJets_bkg  = new TH1D**[nrange];
+	TH1D*** histo_M_DYJets  = new TH1D**[nrange];
+	TH1D*** histo_M_bkg  = new TH1D**[nrange];
+	TH1D*** histo_M_WJets  = new TH1D**[nrange];
+	TH1D*** histo_M_TTJets  = new TH1D**[nrange];
+	TH1D*** histo_M_DYJets_bkg_fail  = new TH1D**[nrange];
+	TH1D*** histo_M_DYJets_fail  = new TH1D**[nrange];
+	TH1D*** histo_M_bkg_fail  = new TH1D**[nrange];
+	TH1D*** histo_M_WJets_fail  = new TH1D**[nrange];
+	TH1D*** histo_M_TTJets_fail  = new TH1D**[nrange];
 
-		double Pt1;
-		double Pt2;
-		if(_i*Dpt+Pt_low < Pt_upp){Pt1 = _i*Dpt+Pt_low; Pt2 = (_i+1)*Dpt;}
-		else if (_i*Dpt+Pt_low >= Pt_upp){Pt1 = _i*Dpt+Pt_low; Pt2 = 10000;}
+	for(int i = 0; i < nrange; ++i){ 
 
-		//Barrel
-		histo_M_DYJets_bkg_loweta[_i] = new TH1D("histo_M_DYJets_bkg_loweta","M",nbins,0,250);
-		histo_M_DYJets_loweta[_i] = new TH1D("histo_M_DYJets_loweta","M",nbins,0,250);
-		histo_M_bkg_loweta[_i] = new TH1D("histo_M_bkg_loweta","M",nbins,0,250);
-		histo_M_WJets_loweta[_i] = new TH1D("histo_M_WYJets_loweta","M",nbins,0,250);
-		histo_M_DYJets_bkg_fail_loweta[_i] = new TH1D("histo_M_DYJets_bkg_fail_loweta","M",nbins,0,250);
-		histo_M_DYJets_fail_loweta[_i] = new TH1D("histo_M_DYJets_fail_loweta","M",nbins,0,250);
-		histo_M_bkg_fail_loweta[_i] = new TH1D("histo_M_bkg_fail_loweta","M",nbins,0,250);
-		histo_M_WJets_fail_loweta[_i] = new TH1D("histo_M_WJets_fail_loweta","M",nbins,0,250);
-		//Endcape
-		histo_M_DYJets_bkg_higheta[_i] = new TH1D("histo_M_DYJets_bkg_higheta","M",nbins,0,250);
-		histo_M_DYJets_higheta[_i] = new TH1D("histo_M_DYJets_higheta","M",nbins,0,250);
-		histo_M_bkg_higheta[_i] = new TH1D("histo_M_bkg_higheta","M",nbins,0,250);
-		histo_M_WJets_higheta[_i] = new TH1D("histo_M_WYJets_higheta","M",nbins,0,250);
-		histo_M_DYJets_bkg_fail_higheta[_i] = new TH1D("histo_M_DYJets_bkg_fail_higheta","M",nbins,0,250);
-		histo_M_DYJets_fail_higheta[_i] = new TH1D("histo_M_DYJets_fail_higheta","M",nbins,0,250);
-		histo_M_bkg_fail_higheta[_i] = new TH1D("histo_M_bkg_fail_higheta","M",nbins,0,250);
-		histo_M_WJets_fail_higheta[_i] = new TH1D("histo_M_WJets_fail_higheta","M",nbins,0,250);
+		histo_M_DYJets_bkg[i]  		= new TH1D*[nparbins+1];
+		histo_M_DYJets[i]  		= new TH1D*[nparbins+1];
+		histo_M_bkg[i]  		= new TH1D*[nparbins+1];
+		histo_M_WJets[i]  		= new TH1D*[nparbins+1];
+		histo_M_TTJets[i]  		= new TH1D*[nparbins+1];
+		histo_M_DYJets_bkg_fail[i] 	= new TH1D*[nparbins+1];
+		histo_M_DYJets_fail[i]     	= new TH1D*[nparbins+1];
+		histo_M_bkg_fail[i]  		= new TH1D*[nparbins+1];
+		histo_M_WJets_fail[i]  		= new TH1D*[nparbins+1];
+		histo_M_TTJets_fail[i]  	= new TH1D*[nparbins+1];
+
+		for(int j = 0; j < nparbins+1; ++j){ 
+
+			histo_M_DYJets_bkg[i][j]  		=  new TH1D("histo_M_DYJets_bkg","M",nbins,0,250);
+			histo_M_DYJets[i][j]  			=  new TH1D("histo_M_DYJets","M",nbins,0,250);
+			histo_M_bkg[i][j]  			=  new TH1D("histo_M_bkg","M",nbins,0,250);
+			histo_M_WJets[i][j]  			=  new TH1D("histo_M_WYJets","M",nbins,0,250);
+			histo_M_TTJets[i][j]  			=  new TH1D("histo_M_TTJets","M",nbins,0,250);
+			histo_M_DYJets_bkg_fail[i][j]	 	=  new TH1D("histo_M_DYJets_bkg_fail","M",nbins,0,250);
+			histo_M_DYJets_fail[i][j]     		=  new TH1D("histo_M_DYJets_fail","M",nbins,0,250);
+			histo_M_bkg_fail[i][j]  		=  new TH1D("histo_M_bkg_fail","M",nbins,0,250);
+			histo_M_WJets_fail[i][j]  		=  new TH1D("histo_M_WJets_fail","M",nbins,0,250);
+			histo_M_TTJets_fail[i][j]  		=  new TH1D("histo_M_TTJets_fail","M",nbins,0,250);
+
+
+		}
 
 	}
+
+	//cout<<"debug1"<<endl;
+
+	//Old
+
+	//for(int _i = 0; _i < nparbins+1; ++_i){ 
+
+	//	double _par1;
+	//	double _par2;
+	//	if(_i*Dpar+par_low < par_upp){_par1 = _i*Dpar+par_low; _par2 = (_i+1)*Dpar;}
+	//	else if (_i*Dpar+par_low >= par_upp){_par1 = _i*Dpar+par_low; _par2 = 10000;}
+
+	//	//Barrel
+	//	histo_M_DYJets_bkg[_i] 		= new TH1D("histo_M_DYJets_bkg","M",nbins,0,250);
+	//	histo_M_DYJets[_i] 		= new TH1D("histo_M_DYJets","M",nbins,0,250);
+	//	histo_M_bkg[_i] 			= new TH1D("histo_M_bkg","M",nbins,0,250);
+	//	histo_M_WJets[_i] 		= new TH1D("histo_M_WYJets","M",nbins,0,250);
+	//	histo_M_DYJets_bkg_fail[_i] 	= new TH1D("histo_M_DYJets_bkg_fail","M",nbins,0,250);
+	//	histo_M_DYJets_fail[_i] 		= new TH1D("histo_M_DYJets_fail","M",nbins,0,250);
+	//	histo_M_bkg_fail[_i] 		= new TH1D("histo_M_bkg_fail","M",nbins,0,250);
+	//	histo_M_WJets_fail[_i] 		= new TH1D("histo_M_WJets_fail","M",nbins,0,250);
+	//	//Endcape
+	//	histo_M_DYJets_bkg_higheta[_i] 		= new TH1D("histo_M_DYJets_bkg_higheta","M",nbins,0,250);
+	//	histo_M_DYJets_higheta[_i] 		= new TH1D("histo_M_DYJets_higheta","M",nbins,0,250);
+	//	histo_M_bkg_higheta[_i] 		= new TH1D("histo_M_bkg_higheta","M",nbins,0,250);
+	//	histo_M_WJets_higheta[_i] 		= new TH1D("histo_M_WYJets_higheta","M",nbins,0,250);
+	//	histo_M_DYJets_bkg_fail_higheta[_i] 	= new TH1D("histo_M_DYJets_bkg_fail_higheta","M",nbins,0,250);
+	//	histo_M_DYJets_fail_higheta[_i] 	= new TH1D("histo_M_DYJets_fail_higheta","M",nbins,0,250);
+	//	histo_M_bkg_fail_higheta[_i] 		= new TH1D("histo_M_bkg_fail_higheta","M",nbins,0,250);
+	//	histo_M_WJets_fail_higheta[_i] = new TH1D("histo_M_WJets_fail_higheta","M",nbins,0,250);
+
+	//}
+
+	//End Old
 
 	//Event variables
 	////Generated
@@ -287,8 +298,14 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	tree->SetBranchAddress("LepGood_dxy",&Gdxy);
 	tree->SetBranchAddress("LepGood_dz",&Gdz);
 
+	int count = 0;
+
 	//Start loop over all events
 	for (int k = 0; k < n; ++k) {
+
+	if( 100*(double)k/n> count){cout<<count<<endl;++count;}
+
+	//cout<<"debug2"<<endl;
 
 		//Definitions to use T&P
 		int tag[2];
@@ -303,6 +320,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 		//looseId leptons
 		if(select != "loose"){
 			for (int i = 0; i < On; ++i) {
+	//cout<<"debug3"<<endl;
 
 				//define selections using bools
 				bool reliso3((effcut != "reliso3")||((effcut == "reliso3")&&(Oiso3[i] < cut )));
@@ -355,13 +373,28 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 
 				if(l1 != 9999){
 
-					for(int ii = 0; ii < nptbins+1; ++ii){
+					//Parameter on the xaxis
+
+					double par;
+					double par_2;
+
+					//Choose the parameter to be filled for the eff.
+					if(par_x == "Pt"){par = Opt[l1];}
+					else if(par_x == "eta"){par = Oeta[l1];}
+					else if(par_x == "phi"){par = Ophi[l1];}
+					if(par_y == "Pt"){par_2 = Opt[l1];}
+					else if(par_y == "eta"){par_2 = abs(Oeta[l1]);}
+					else if(par_y == "phi"){par_2 = abs(Ophi[l1]);}
+
+					for(int ii = 0; ii < nparbins+1; ++ii){
+
+
 						//Add all the signal to the Z
-						double Pt1 = 0;
-						double Pt2 = 0;
-						if(ii*Dpt+Pt_low < Pt_upp){Pt1 = ii*Dpt+Pt_low; Pt2 = (ii+1)*Dpt+Pt_low;}
-						else if (ii*Dpt+Pt_low >= Pt_upp){Pt1 = ii*Dpt+Pt_low; Pt2 = 10000;}
-						if((Opt[l1] > Pt1)&&(Opt[l1]< Pt2)){
+						double _par1 = 0;
+						double _par2 = 0;
+						if(ii*Dpar+par_low < par_upp){_par1 = ii*Dpar+par_low; _par2 = (ii+1)*Dpar+par_low;}
+						else if (ii*Dpar+par_low >= par_upp){_par1 = ii*Dpar+par_low; _par2 = 10000;}
+						if((par > _par1)&&(par< _par2)){
 
 							bool reliso3((effcut != "reliso3")||((effcut == "reliso3")&&(Oiso3[l1] < cut )));
 							bool reliso4((effcut != "reliso4")||((effcut == "reliso4")&&(Oiso4[l1] < cut )));
@@ -369,30 +402,42 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 							bool chiso4((effcut != "chiso4")||((effcut == "chiso4")&&(Ochiso4[l1] < cut )));
 							bool dxy((effcut != "dxy")||((effcut == "dxy")&&(abs(Odxy[l1])< cut )));
 							bool dz((effcut != "dz")||((effcut == "dz")&&(abs(Odz[l1])< cut )));
-				                        bool tight((effcut != "tightcut")||(((abs(Oid[l1]) == 13)&&(effcut == "tightcut")&&(Otight[l1] == 1))||((abs(Oid[l1]) == 11)&&(effcut == "tightcut")&&(Otighte[l1] >= 3))));
+							bool tight((effcut != "tightcut")||(((abs(Oid[l1]) == 13)&&(effcut == "tightcut")&&(Otight[l1] == 1))||((abs(Oid[l1]) == 11)&&(effcut == "tightcut")&&(Otighte[l1] >= 3))));
 							bool tightmva((effcut != "tightmva")||((abs(Oid[l1]) == 11)&&(effcut == "tightmva")&&(Otight[l1] == 1)));
 
-							//Efficiency cut
-							if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
+							//Find the corresponding histogram for par2
+							bool notfund = true;
+							int kk = 0;
+							while(notfund){
 
-								if(abs(Oeta[l1]) < 1.2){histo_M_DYJets_bkg_loweta[ii]->Fill(M,scale);}
-								if(abs(Oeta[l1]) >= 1.2){histo_M_DYJets_bkg_higheta[ii]->Fill(M,scale);}
+								if((kk < nrange-1)&&(par_2 > par2[kk])&&(par_2 <= par2[kk+1])){notfund = false;}
+								else if((kk == nrange-1)&&(par_2 >= par2[kk])){notfund = false;}
+								++kk;
+								if(kk == nrange){notfund = false; kk = -1;}//Doesn't match the binning. Don't fill histogram
+							}
+
+							//Efficiency cut
+							if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva && (kk!= -1)){
+
+								histo_M_DYJets_bkg[kk][ii]->Fill(M,scale);
 
 								if ((evt_id == 500)||(evt_id == 502)||(evt_id == 503)||(evt_id == 504)||(evt_id == 505)||(evt_id == 300)){
-									if(abs(Oeta[l1]) < 1.2){histo_M_bkg_loweta[ii]->Fill(M,scale);}
-									if(abs(Oeta[l1]) >= 1.2){histo_M_bkg_higheta[ii]->Fill(M,scale);}
+									histo_M_bkg[kk][ii]->Fill(M,scale);
 
 									//Just the Wjets bkg
 									if ((evt_id == 500)||(evt_id == 502)||(evt_id == 503)||(evt_id == 504)||(evt_id == 505)){
-										if(abs(Oeta[l1]) < 1.2){histo_M_WJets_loweta[ii]->Fill(M,scale);}
-										if(abs(Oeta[l1]) >= 1.2){histo_M_WJets_higheta[ii]->Fill(M,scale);}
+										histo_M_WJets[kk][ii]->Fill(M,scale);
+									}else if (evt_id == 300){
+
+										histo_M_TTJets[kk][ii]->Fill(M,scale);
+
+									}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
+
+										histo_M_DYJets[kk][ii]->Fill(M,scale);
+
 									}
-								}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
-
-									if(abs(Oeta[l1]) < 1.2){histo_M_DYJets_loweta[ii]->Fill(M,scale);}
-									if(abs(Oeta[l1]) >= 1.2){histo_M_DYJets_higheta[ii]->Fill(M,scale);}
-
 								}
+
 							}
 
 							reliso3 = ((effcut != "reliso3")||((effcut == "reliso3")&&(Oiso3[l1] >= cut )));
@@ -401,28 +446,29 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 							chiso4 = ((effcut != "chiso4")||((effcut == "chiso4")&&(Ochiso4[l1] >= cut )));
 							dxy = ((effcut != "dxy")||((effcut == "dxy")&&(abs(Odxy[l1]) >= cut )));
 							dz = ((effcut != "dz")||((effcut == "dz")&&(abs(Odz[l1]) >= cut )));
-				                        tight = ((effcut != "tightcut")||(((abs(Oid[l1]) == 13)&&(effcut == "tightcut")&&(Otight[l1] != 1))||((abs(Oid[l1]) == 11)&&(effcut == "tightcut")&&(Otighte[l1] < 3))));
+							tight = ((effcut != "tightcut")||(((abs(Oid[l1]) == 13)&&(effcut == "tightcut")&&(Otight[l1] != 1))||((abs(Oid[l1]) == 11)&&(effcut == "tightcut")&&(Otighte[l1] < 3))));
 							tightmva = ((effcut != "tightmva")||((abs(Oid[l1]) == 11)&&(effcut == "tightmva")&&(Otight[l1] != 1)));
 
-							if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
+							if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva && (kk!= -1)){
 
-								if(abs(Oeta[l1]) < 1.2)histo_M_DYJets_bkg_fail_loweta[ii]->Fill(M,scale);
-								if(abs(Oeta[l1]) >= 1.2)histo_M_DYJets_bkg_fail_higheta[ii]->Fill(M,scale);
+								histo_M_DYJets_bkg_fail[kk][ii]->Fill(M,scale);
 
 								if ((evt_id == 500)||(evt_id == 502)||(evt_id == 503)||(evt_id == 504)||(evt_id == 505)||(evt_id == 300)){
-									if(abs(Oeta[l1]) < 1.2)histo_M_bkg_fail_loweta[ii]->Fill(M,scale);
-									if(abs(Oeta[l1]) >= 1.2)histo_M_bkg_fail_higheta[ii]->Fill(M,scale);
+									histo_M_bkg_fail[kk][ii]->Fill(M,scale);
 
 									if ((evt_id == 500)||(evt_id == 502)||(evt_id == 503)||(evt_id == 504)||(evt_id == 505)){
-										if(abs(Oeta[l1]) < 1.2)histo_M_WJets_fail_loweta[ii]->Fill(M,scale);
-										if(abs(Oeta[l1]) >= 1.2)histo_M_WJets_fail_higheta[ii]->Fill(M,scale);
+
+										histo_M_WJets_fail[kk][ii]->Fill(M,scale);
+
+									}else if (evt_id == 300){
+
+										histo_M_TTJets_fail[kk][ii]->Fill(M,scale);
+
+									}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
+
+										histo_M_DYJets_fail[kk][ii]->Fill(M,scale);
+
 									}
-
-								}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
-
-									if(abs(Oeta[l1]) < 1.2)histo_M_DYJets_fail_loweta[ii]->Fill(M,scale);
-									if(abs(Oeta[l1]) >= 1.2)histo_M_DYJets_fail_higheta[ii]->Fill(M,scale);
-
 								}
 							}
 						}
@@ -431,8 +477,11 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 			}
 		}
 
-		//loose identified
+
 		for (int i = 0; i < Gn; ++i) {
+
+	//cout<<"debug4"<<endl;
+
 
 			//define selections using bools
 
@@ -486,13 +535,27 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 
 			if(l1 != 9999){
 
-				for(int ii = 0; ii < nptbins+1; ++ii){
+				//Parameter on the xaxis
+
+				double par;
+				double par_2;
+
+				//Choose the parameter to be filled for the eff.
+				if(par_x == "Pt"){par = Gpt[l1];}
+				else if(par_x == "eta"){par = Geta[l1];}
+				else if(par_x == "phi"){par = Gphi[l1];}
+				if(par_y == "Pt"){par_2 = Gpt[l1];}
+				else if(par_y == "eta"){par_2 = abs(Geta[l1]);}
+				else if(par_y == "phi"){par_2 = abs(Gphi[l1]);}
+
+				for(int ii = 0; ii < nparbins+1; ++ii){
 					//Add all the signal to the Z
-					double Pt1 = 0;
-					double Pt2 = 0;
-					if(ii*Dpt+Pt_low < Pt_upp){Pt1 = ii*Dpt+Pt_low; Pt2 = (ii+1)*Dpt+Pt_low;}
-					else if (ii*Dpt+Pt_low >= Pt_upp){Pt1 = ii*Dpt+Pt_low; Pt2 = 10000;}
-					if((Gpt[l1] > Pt1)&&(Gpt[l1]< Pt2)){
+					double _par1 = 0;
+					double _par2 = 0;
+					if(ii*Dpar+par_low < par_upp){_par1 = ii*Dpar+par_low; _par2 = (ii+1)*Dpar+par_low;}
+					else if (ii*Dpar+par_low >= par_upp){_par1 = ii*Dpar+par_low; _par2 = 10000;}
+					if((Gpt[l1] > _par1)&&(Gpt[l1]< _par2)){
+
 
 						bool reliso3((effcut != "reliso3")||((effcut == "reliso3")&&(Giso3[l1] < cut )));
 						bool reliso4((effcut != "reliso4")||((effcut == "reliso4")&&(Giso4[l1] < cut )));
@@ -500,31 +563,48 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 						bool chiso4((effcut != "chiso4")||((effcut == "chiso4")&&(Gchiso4[l1] < cut )));
 						bool dxy((effcut != "dxy")||((effcut == "dxy")&&(abs(Gdxy[l1])< cut )));
 						bool dz((effcut != "dz")||((effcut == "dz")&&(abs(Gdz[l1])< cut )));
-				                bool tight((effcut != "tightcut")||(((abs(Gid[l1]) == 13)&&(effcut == "tightcut")&&(Gtight[l1] == 1))||((abs(Gid[l1]) == 11)&&(effcut == "tightcut")&&(Gtighte[l1] >= 3))));
+						bool tight((effcut != "tightcut")||(((abs(Gid[l1]) == 13)&&(effcut == "tightcut")&&(Gtight[l1] == 1))||((abs(Gid[l1]) == 11)&&(effcut == "tightcut")&&(Gtighte[l1] >= 3))));
 						bool tightmva((effcut != "tightmva")||((abs(Gid[l1]) == 11)&&(effcut == "tightmva")&&(Gtight[l1] == 1)));
 
-						//Efficiency cut
-						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
+						//Find the corresponding histogram for par2
+						bool notfund = true;
+						int kk = 0;
+						while(notfund){
 
-							if(abs(Geta[l1]) < 1.2){histo_M_DYJets_bkg_loweta[ii]->Fill(M,scale);}
-							if(abs(Geta[l1]) >= 1.2){histo_M_DYJets_bkg_higheta[ii]->Fill(M,scale);}
+							if((kk < nrange-1)&&(par_2 > par2[kk])&&(par_2 <= par2[kk+1])){notfund = false;}
+							else if((kk == nrange-1)&&(par_2 >= par2[kk])){notfund = false;}
+							++kk;
+							if(kk == nrange){notfund = false; kk = -1;}//Doesn't match the binning. Don't fill histogram
+						}
+
+
+						//Efficiency cut
+						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva && (kk != -1)){
+
+							histo_M_DYJets_bkg[kk][ii]->Fill(M,scale);
 
 							if ((evt_id == 500)||(evt_id == 502)||(evt_id == 503)||(evt_id == 504)||(evt_id == 505)||(evt_id == 300)){
-								if(abs(Geta[l1]) < 1.2){histo_M_bkg_loweta[ii]->Fill(M,scale);}
-								if(abs(Geta[l1]) >= 1.2){histo_M_bkg_higheta[ii]->Fill(M,scale);}
+
+								histo_M_bkg[kk][ii]->Fill(M,scale);
 
 								//Just the Wjets bkg
 								if ((evt_id == 500)||(evt_id == 502)||(evt_id == 503)||(evt_id == 504)||(evt_id == 505)){
-									if(abs(Geta[l1]) < 1.2){histo_M_WJets_loweta[ii]->Fill(M,scale);}
-									if(abs(Geta[l1]) >= 1.2){histo_M_WJets_higheta[ii]->Fill(M,scale);}
+
+									histo_M_WJets[kk][ii]->Fill(M,scale);
+
+								}else if (evt_id == 300){
+
+									histo_M_TTJets[kk][ii]->Fill(M,scale);
+
+
+								}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
+
+									histo_M_DYJets[kk][ii]->Fill(M,scale);
+
 								}
-							}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
-
-								if(abs(Geta[l1]) < 1.2){histo_M_DYJets_loweta[ii]->Fill(M,scale);}
-								if(abs(Geta[l1]) >= 1.2){histo_M_DYJets_higheta[ii]->Fill(M,scale);}
-
 							}
 						}
+
 
 						reliso3 = ((effcut != "reliso3")||((effcut == "reliso3")&&(Giso3[l1] >= cut )));
 						reliso4 = ((effcut != "reliso4")||((effcut == "reliso4")&&(Giso4[l1] >= cut )));
@@ -532,27 +612,30 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 						chiso4 = ((effcut != "chiso4")||((effcut == "chiso4")&&(Gchiso4[l1] >= cut )));
 						dxy = ((effcut != "dxy")||((effcut == "dxy")&&(abs(Gdxy[l1]) >= cut )));
 						dz = ((effcut != "dz")||((effcut == "dz")&&(abs(Gdz[l1]) >= cut )));
-				                tight = ((effcut != "tightcut")||(((abs(Gid[l1]) == 13)&&(effcut == "tightcut")&&(Gtight[l1] != 1))||((abs(Gid[l1]) == 11)&&(effcut == "tightcut")&&(Gtighte[l1] < 3))));
+						tight = ((effcut != "tightcut")||(((abs(Gid[l1]) == 13)&&(effcut == "tightcut")&&(Gtight[l1] != 1))||((abs(Gid[l1]) == 11)&&(effcut == "tightcut")&&(Gtighte[l1] < 3))));
 						tightmva = ((effcut != "tightmva")||((abs(Gid[l1]) == 11)&&(effcut == "tightmva")&&(Gtight[l1] != 1)));
 
-						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
+						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva && (kk != -1)){
 
-							if(abs(Geta[l1]) < 1.2)histo_M_DYJets_bkg_fail_loweta[ii]->Fill(M,scale);
-							if(abs(Geta[l1]) >= 1.2)histo_M_DYJets_bkg_fail_higheta[ii]->Fill(M,scale);
+							histo_M_DYJets_bkg_fail[kk][ii]->Fill(M,scale);
 
 							if ((evt_id == 500)||(evt_id == 502)||(evt_id == 503)||(evt_id == 504)||(evt_id == 505)||(evt_id == 300)){
-								if(abs(Geta[l1]) < 1.2)histo_M_bkg_fail_loweta[ii]->Fill(M,scale);
-								if(abs(Geta[l1]) >= 1.2)histo_M_bkg_fail_higheta[ii]->Fill(M,scale);
+
+								histo_M_bkg_fail[kk][ii]->Fill(M,scale);
 
 								if ((evt_id == 500)||(evt_id == 502)||(evt_id == 503)||(evt_id == 504)||(evt_id == 505)){
-									if(abs(Geta[l1]) < 1.2)histo_M_WJets_fail_loweta[ii]->Fill(M,scale);
-									if(abs(Geta[l1]) >= 1.2)histo_M_WJets_fail_higheta[ii]->Fill(M,scale);
+
+									histo_M_WJets_fail[kk][ii]->Fill(M,scale);
+
+								}else if (evt_id == 300){
+
+									histo_M_TTJets_fail[kk][ii]->Fill(M,scale);
+
+
+								}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
+
+									histo_M_DYJets_fail[kk][ii]->Fill(M,scale);
 								}
-
-							}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
-
-								if(abs(Geta[l1]) < 1.2)histo_M_DYJets_fail_loweta[ii]->Fill(M,scale);
-								if(abs(Geta[l1]) >= 1.2)histo_M_DYJets_fail_higheta[ii]->Fill(M,scale);
 							}
 						}
 					}
@@ -561,206 +644,147 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 		}
 	}
 
-	for(int i = 0; i < nptbins+1; ++i){
+	//cout<<"debug5"<<endl;
+
+	TCanvas** c1 = new TCanvas*[nrange];
+	TCanvas** c2 = new TCanvas*[nrange];
+
+	for(int i = 0; i < nrange; ++i){ 
+
+		c1[i] = new TCanvas(Form("c1_%i",i),Form("c1_%i",i));
+		c1[i]->Divide(1,2);
+		c2[i] = new TCanvas(Form("c2_%i",i),Form("c2_%i",i));
+		c2[i]->Divide(1,2);
+
+		for(int j = 0; j < nparbins+1; ++j){ 
 
 		//Plot the canvas
-		double Pt1;
-		double Pt2;
-		if(i*Dpt+Pt_low < Pt_upp){Pt1 = i*Dpt+Pt_low; Pt2 = (i+1)*Dpt+Pt_low;}
-		else if (i*Dpt+Pt_low >= Pt_upp){Pt1 = i*Dpt+Pt_low; Pt2 = 10000;}
+		double _par1;
+		double _par2;
+		if(i*Dpar+par_low < par_upp){_par1 = i*Dpar+par_low; _par2 = (i+1)*Dpar+par_low;}
+		else if (i*Dpar+par_low >= par_upp){_par1 = i*Dpar+par_low; _par2 = 10000;}
 
-		TCanvas* c1 = new TCanvas("c1","c1");
-		c1->Divide(1,2);
-		TCanvas* c2 = new TCanvas("c2","c2");
-		c2->Divide(1,2);
-		TCanvas* c3 = new TCanvas("c3","c3");
-		c3->Divide(1,2);
-		TCanvas* c4 = new TCanvas("c4","c4");
-		c4->Divide(1,2);
-
-		//Zbkg pass eta<1.2
-		c1->cd(1);
-		histo_M_DYJets_bkg_loweta[i]->Draw();
+		c1[i]->cd(1);
 
 		TString _title; 
-		_title = Form(", %0.f #leq P_{t} #leq %0.f",Pt1,Pt2);
-		if(Pt2==10000)_title = Form(", %0.f  #leq P_{t}",Pt1);
+		_title = Form(", %0.f #leq P_{t} #leq %0.f",_par1,_par2);
+		if(_par2==10000)_title = Form(", %0.f  #leq P_{t}",_par1);
 		TString _stitle = (TString)"Invariant mass for "+pname+_title+", #||{#eta}<1.2, "+effcut+" pass";
 		TString _stitlefail = (TString)"Invariant mass for "+pname+_title+", #||{#eta}<1.2, "+effcut+" fail";
 		TString _stitle2 = (TString)"Invariant mass for "+pname+_title+", #||{#eta}>1.2, "+effcut+" pass";
 		TString _stitle2fail = (TString)"Invariant mass for "+pname+_title+", #||{#eta}>1.2, "+effcut+" fail";
 
-		histo_M_DYJets_bkg_loweta[i]->SetTitle(_stitle);
-		histo_M_DYJets_bkg_loweta[i]->GetXaxis()->SetTitle("m [GeV]");
-		histo_M_DYJets_bkg_loweta[i]->SetLineWidth(2);
-		histo_M_DYJets_bkg_loweta[i]->SetLineColor(4);
-		histo_M_DYJets_bkg_loweta[i]->SetMarkerColor(4);
-		histo_M_bkg_loweta[i]->Draw("same");
-		histo_M_bkg_loweta[i]->SetLineWidth(2);
-		histo_M_bkg_loweta[i]->SetMarkerColor(2);
-		histo_M_bkg_loweta[i]->SetLineColor(2);
-		histo_M_WJets_loweta[i]->Draw("same");
-		histo_M_WJets_loweta[i]->SetLineWidth(3);
-		histo_M_WJets_loweta[i]->SetLineColor(3);
-		histo_M_WJets_loweta[i]->SetMarkerColor(3);
+		histo_M_DYJets_bkg[i][j]->Draw();
+		histo_M_DYJets_bkg[i][j]->SetTitle(_stitle);
+		histo_M_DYJets_bkg[i][j]->GetXaxis()->SetTitle("m [GeV]");
+		histo_M_DYJets_bkg[i][j]->SetLineWidth(2);
+		histo_M_DYJets_bkg[i][j]->SetLineColor(4);
+		histo_M_DYJets_bkg[i][j]->SetMarkerColor(4);
+		histo_M_bkg[i][j]->Draw("same");
+		histo_M_bkg[i][j]->SetLineWidth(2);
+		histo_M_bkg[i][j]->SetMarkerColor(2);
+		histo_M_bkg[i][j]->SetLineColor(2);
+		histo_M_WJets[i][j]->Draw("same");
+		histo_M_WJets[i][j]->SetLineWidth(3);
+		histo_M_WJets[i][j]->SetLineColor(3);
+		histo_M_WJets[i][j]->SetMarkerColor(3);
 		TLegend* leg = new TLegend(0.6, 0.7,0.89,0.89);
-		leg->AddEntry(histo_M_DYJets_bkg_loweta[i], "Z + bkg");
+		leg->AddEntry(histo_M_DYJets_bkg[i][j], "Z + bkg");
 		leg->SetTextFont(43);
 		leg->SetTextSize(25);
-		leg->AddEntry(histo_M_bkg_loweta[i], "TTJets + WJets");
-		leg->AddEntry(histo_M_WJets_loweta[i], "WJets");
+		leg->AddEntry(histo_M_bkg[i][j], "TTJets + WJets");
+		leg->AddEntry(histo_M_WJets[i][j], "WJets");
 		leg->SetBorderSize(0);
 		leg->Draw();
 
-		//Zbkg fail eta<1.2
-		c1->cd(2);
-		histo_M_DYJets_bkg_fail_loweta[i]->Draw();
-		histo_M_DYJets_bkg_fail_loweta[i]->SetTitle(_stitlefail);
-		histo_M_DYJets_bkg_fail_loweta[i]->GetXaxis()->SetTitle("m [GeV]");
-		histo_M_DYJets_bkg_fail_loweta[i]->SetLineWidth(2);
-		histo_M_DYJets_bkg_fail_loweta[i]->SetLineColor(4);
-		histo_M_DYJets_bkg_fail_loweta[i]->SetMarkerColor(4);
-		histo_M_bkg_fail_loweta[i]->Draw("same");
-		histo_M_bkg_fail_loweta[i]->SetLineWidth(2);
-		histo_M_bkg_fail_loweta[i]->SetMarkerColor(2);
-		histo_M_bkg_fail_loweta[i]->SetLineColor(2);
-		histo_M_WJets_fail_loweta[i]->Draw("same");
-		histo_M_WJets_fail_loweta[i]->SetLineWidth(3);
-		histo_M_WJets_fail_loweta[i]->SetLineColor(3);
-		histo_M_WJets_fail_loweta[i]->SetMarkerColor(3);
+		//Zbkg fail
+		c1[i]->cd(2);
+		histo_M_DYJets_bkg_fail[i][j]->Draw();
+		histo_M_DYJets_bkg_fail[i][j]->SetTitle(_stitlefail);
+		histo_M_DYJets_bkg_fail[i][j]->GetXaxis()->SetTitle("m [GeV]");
+		histo_M_DYJets_bkg_fail[i][j]->SetLineWidth(2);
+		histo_M_DYJets_bkg_fail[i][j]->SetLineColor(4);
+		histo_M_DYJets_bkg_fail[i][j]->SetMarkerColor(4);
+		histo_M_bkg_fail[i][j]->Draw("same");
+		histo_M_bkg_fail[i][j]->SetLineWidth(2);
+		histo_M_bkg_fail[i][j]->SetMarkerColor(2);
+		histo_M_bkg_fail[i][j]->SetLineColor(2);
+		histo_M_WJets_fail[i][j]->Draw("same");
+		histo_M_WJets_fail[i][j]->SetLineWidth(3);
+		histo_M_WJets_fail[i][j]->SetLineColor(3);
+		histo_M_WJets_fail[i][j]->SetMarkerColor(3);
+
 
 		//Z pass eta<1.2
-		c2->cd(1);
-		histo_M_DYJets_loweta[i]->Draw();
-		histo_M_DYJets_loweta[i]->SetTitle(_stitle);
-		histo_M_DYJets_loweta[i]->GetXaxis()->SetTitle("m [GeV]");
-		histo_M_DYJets_loweta[i]->SetLineWidth(2);
-		histo_M_DYJets_loweta[i]->SetLineColor(4);
-		histo_M_DYJets_loweta[i]->SetMarkerColor(4);
-		histo_M_bkg_loweta[i]->Draw("same");
-		histo_M_bkg_loweta[i]->SetLineWidth(2);
-		histo_M_bkg_loweta[i]->SetMarkerColor(2);
-		histo_M_bkg_loweta[i]->SetLineColor(2);
+		c2[i]->cd(1);
+		histo_M_DYJets[i][j]->Draw();
+		histo_M_DYJets[i][j]->SetTitle(_stitle);
+		histo_M_DYJets[i][j]->GetXaxis()->SetTitle("m [GeV]");
+		histo_M_DYJets[i][j]->SetLineWidth(2);
+		histo_M_DYJets[i][j]->SetLineColor(4);
+		histo_M_DYJets[i][j]->SetMarkerColor(4);
+		histo_M_bkg[i][j]->Draw("same");
+		histo_M_bkg[i][j]->SetLineWidth(2);
+		histo_M_bkg[i][j]->SetMarkerColor(2);
+		histo_M_bkg[i][j]->SetLineColor(2);
 		TLegend* leg2 = new TLegend(0.6, 0.7,0.89,0.89);
 		leg2->SetTextFont(43);
 		leg2->SetTextSize(25);
-		leg2->AddEntry(histo_M_DYJets_loweta[i], "Z");
-		leg2->AddEntry(histo_M_bkg_loweta[i], "TTJets + WJets");
+		leg2->AddEntry(histo_M_DYJets[i][j], "Z");
+		leg2->AddEntry(histo_M_bkg[i][j], "TTJets + WJets");
 		leg2->SetBorderSize(0);
 		leg2->Draw();
 
 		//Z fail eta<1.2
-		c2->cd(2);
-		histo_M_DYJets_fail_loweta[i]->Draw();
-		histo_M_DYJets_fail_loweta[i]->SetTitle(_stitlefail);
-		histo_M_DYJets_fail_loweta[i]->GetXaxis()->SetTitle("m [GeV]");
-		histo_M_DYJets_fail_loweta[i]->SetLineWidth(2);
-		histo_M_DYJets_fail_loweta[i]->SetLineColor(4);
-		histo_M_DYJets_fail_loweta[i]->SetMarkerColor(4);
-		histo_M_bkg_fail_loweta[i]->Draw("same");
-		histo_M_bkg_fail_loweta[i]->SetLineWidth(2);
-		histo_M_bkg_fail_loweta[i]->SetMarkerColor(2);
-		histo_M_bkg_fail_loweta[i]->SetLineColor(2);
+		c2[i]->cd(2);
+		histo_M_DYJets_fail[i][j]->Draw();
+		histo_M_DYJets_fail[i][j]->SetTitle(_stitlefail);
+		histo_M_DYJets_fail[i][j]->GetXaxis()->SetTitle("m [GeV]");
+		histo_M_DYJets_fail[i][j]->SetLineWidth(2);
+		histo_M_DYJets_fail[i][j]->SetLineColor(4);
+		histo_M_DYJets_fail[i][j]->SetMarkerColor(4);
+		histo_M_bkg_fail[i][j]->Draw("same");
+		histo_M_bkg_fail[i][j]->SetLineWidth(2);
+		histo_M_bkg_fail[i][j]->SetMarkerColor(2);
+		histo_M_bkg_fail[i][j]->SetLineColor(2);
 
-		//Zbkg pass eta>1.2
-		c3->cd(1);
-		histo_M_DYJets_bkg_higheta[i]->Draw();
-		histo_M_DYJets_bkg_higheta[i]->SetTitle(_stitle2);
-		histo_M_DYJets_bkg_higheta[i]->GetXaxis()->SetTitle("m [GeV]");
-		histo_M_DYJets_bkg_higheta[i]->SetLineWidth(2);
-		histo_M_DYJets_bkg_higheta[i]->SetLineColor(4);
-		histo_M_DYJets_bkg_higheta[i]->SetMarkerColor(4);
-		histo_M_bkg_higheta[i]->Draw("same");
-		histo_M_bkg_higheta[i]->SetLineWidth(2);
-		histo_M_bkg_higheta[i]->SetMarkerColor(2);
-		histo_M_bkg_higheta[i]->SetLineColor(2);
-		histo_M_WJets_higheta[i]->Draw("same");
-		histo_M_WJets_higheta[i]->SetLineWidth(3);
-		histo_M_WJets_higheta[i]->SetLineColor(3);
-		histo_M_WJets_higheta[i]->SetMarkerColor(3);
-		leg->Draw();
+		TString _parxbin;
+		TString _parybin;
 
-		//Zbkg fail eta>1.2
-		c3->cd(2);
-		histo_M_DYJets_bkg_fail_higheta[i]->Draw();
-		histo_M_DYJets_bkg_fail_higheta[i]->SetTitle(_stitle2fail);
-		histo_M_DYJets_bkg_fail_higheta[i]->SetLineWidth(2);
-		histo_M_DYJets_bkg_fail_higheta[i]->SetLineColor(4);
-		histo_M_DYJets_bkg_fail_higheta[i]->SetMarkerColor(4);
-		histo_M_bkg_fail_higheta[i]->Draw("same");
-		histo_M_bkg_fail_higheta[i]->SetLineWidth(2);
-		histo_M_bkg_fail_higheta[i]->SetMarkerColor(2);
-		histo_M_bkg_fail_higheta[i]->SetLineColor(2);
-		histo_M_WJets_fail_higheta[i]->Draw("same");
-		histo_M_WJets_fail_higheta[i]->SetLineWidth(3);
-		histo_M_WJets_fail_higheta[i]->SetLineColor(3);
-		histo_M_WJets_fail_higheta[i]->SetMarkerColor(3);
+		//Parameter string
+		TString _par;
+		if(par_x == "Pt"){_parxbin = Form("%0.f_Pt%0.f_",_par1,_par2);}
+		else if(par_x == "eta"){_parxbin = Form("%0.f_eta%0.f_",_par1,_par2);}
+		else if(par_x == "phi"){_parxbin = Form("%0.f_phi%0.f_",_par1,_par2);}
+		if(par_y == "Pt"){_parybin = Form("%0.f_Pt%0.f_",_par1,_par2);}
+		else if(par_y == "eta"){_parybin = Form("%0.f_eta%0.f_",_par1,_par2);}
+		else if(par_y == "phi"){_parybin = Form("%0.f_phi%0.f_",_par1,_par2);}
 
-		//Z pass eta >1.2
-		TCanvas* c7 = new TCanvas("c7","c7");
-		c4->cd(1);
-		histo_M_DYJets_higheta[i]->Draw();
-		histo_M_DYJets_higheta[i]->SetTitle(_stitle2);
-		histo_M_DYJets_higheta[i]->SetLineWidth(2);
-		histo_M_DYJets_higheta[i]->SetLineColor(4);
-		histo_M_DYJets_higheta[i]->SetMarkerColor(4);
-		histo_M_bkg_higheta[i]->Draw("same");
-		histo_M_bkg_higheta[i]->SetLineWidth(2);
-		histo_M_bkg_higheta[i]->SetMarkerColor(2);
-		histo_M_bkg_higheta[i]->SetLineColor(2);
-		leg2->Draw();
-
-		//Z fail eta >1.2
-		c4->cd(2);
-		histo_M_DYJets_fail_higheta[i]->Draw();
-		histo_M_DYJets_fail_higheta[i]->SetTitle(_stitle2fail);
-		histo_M_DYJets_fail_higheta[i]->SetLineWidth(2);
-		histo_M_DYJets_fail_higheta[i]->SetLineColor(4);
-		histo_M_DYJets_fail_higheta[i]->SetMarkerColor(4);
-		histo_M_bkg_fail_higheta[i]->Draw("same");
-		histo_M_bkg_fail_higheta[i]->SetLineWidth(2);
-		histo_M_bkg_fail_higheta[i]->SetMarkerColor(2);
-		histo_M_bkg_fail_higheta[i]->SetLineColor(2);
-
-		c1->Write(Form("Zbkg_Pt%0.f_Pt%0.f_eta<1.2",Pt1,Pt2));
-		c2->Write(Form("Z_Pt%0.f_Pt%0.f_eta<1.2",Pt1,Pt2));
-		c3->Write(Form("Zbkg_Pt%0.f_Pt%0.f_eta>1.2",Pt1,Pt2));
-		c4->Write(Form("Z_Pt%0.f_Pt%0.f_eta>1.2",Pt1,Pt2));
-
+		c1[i]->Write("Zbkg_"+_parxbin+"_"+_parybin);
+		c2[i]->Write("Z_"+_parxbin+"_"+_parybin);
 
 		mkdir(_path+_fname+"_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		TString _cname = Form(_path+_fname+"_PDF/InvM4_Pt%0.f_Pt%0.f",Pt1,Pt2);
+		TString _cname = _path+_fname+"_PDF/InvM4test_"+_parxbin;
 		_cname += "_"+_effcut+"_"+pname;
-		TString _c1name = _cname+ "_Zbkg_bkg_eta<1.2.pdf";
-		TString _c2name = _cname+ "_Z_bkg_eta<1.2.pdf";
-		TString _c3name = _cname+ "_Zbkg_bkg_eta>1.2.pdf";
-		TString _c4name = _cname+ "_Z_bkg_eta>1.2.pdf";
 
-		c1->SaveAs(_c1name);
-		c2->SaveAs(_c2name);
-		c3->SaveAs(_c3name);
-		c4->SaveAs(_c4name);
+		TString _c1name = _cname+ "_Zbkg_bkg_"+_parybin;
+		TString _c2name = _cname+ "_Z_bkg_"+_parybin;
 
-		histo_M_DYJets_bkg_loweta[i]->Write(Form("histo_M_DYJets_bkg_loweta_Pt%0.f_Pt%0.f",Pt1,Pt2));
-		histo_M_DYJets_loweta[i]->Write(Form("histo_M_DYJets_loweta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
-		histo_M_bkg_loweta[i]->Write(Form("histo_M_bkg_loweta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
-		histo_M_WJets_loweta[i]->Write(Form("histo_M_WJets_loweta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
-		histo_M_DYJets_bkg_fail_loweta[i]->Write(Form("histo_M_DYJets_bkg_fail_loweta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
-		histo_M_DYJets_fail_loweta[i]->Write(Form("histo_M_DYJets_fail_loweta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
-		histo_M_bkg_fail_loweta[i]->Write(Form("histo_M_bkg_fail_loweta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
-		histo_M_WJets_fail_loweta[i]->Write(Form("histo_M_WJets_fail_loweta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
+		c1[i]->SaveAs(_c1name);
+		c2[i]->SaveAs(_c2name);
 
-		//Endcape
-		histo_M_DYJets_bkg_higheta[i]->Write(Form("histo_M_DYJets_bkg_higheta_Pt%0.f_Pt%0.f",Pt1,Pt2));
-		histo_M_DYJets_higheta[i]->Write(Form("histo_M_DYJets_higheta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
-		histo_M_bkg_higheta[i]->Write(Form("histo_M_bkg_higheta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
-		histo_M_WJets_higheta[i]->Write(Form("histo_M_WJets_higheta_Pt%0.f_Pt%0.f",Pt1,Pt2));
-		histo_M_DYJets_bkg_fail_higheta[i]->Write(Form("histo_M_DYJets_bkg_fail_higheta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
-		histo_M_DYJets_fail_higheta[i]->Write(Form("histo_M_DYJets_fail_higheta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
-		histo_M_bkg_fail_higheta[i]->Write(Form("histo_M_bkg_fail_higheta_Pt%0.f_Pt%0.f",Pt1,Pt2)); 
-		histo_M_WJets_fail_higheta[i]->Write(Form("histo_M_WJets_fail_higheta_Pt%0.f_Pt%0.f",Pt1,Pt2));
-
-
+		histo_M_DYJets_bkg[i][j]->Write("histo_M_DYJets_bkg_Pt"+_parxbin+"_"+_parybin);
+		histo_M_DYJets[i][j]->Write("histo_M_DYJets_Pt"+_parxbin+"_"+_parybin); 
+		histo_M_bkg[i][j]->Write("histo_M_bkg_Pt"+_parxbin+"_"+_parybin); 
+		histo_M_WJets[i][j]->Write("histo_M_WJets_Pt"+_parxbin+"_"+_parybin); 
+		histo_M_TTJets[i][j]->Write("histo_M_TTJets_Pt"+_parxbin+"_"+_parybin); 
+		histo_M_DYJets_bkg_fail[i][j]->Write("histo_M_DYJets_bkg_fail_Pt"+_parxbin+"_"+_parybin); 
+		histo_M_DYJets_fail[i][j]->Write("histo_M_DYJets_fail_Pt"+_parxbin+"_"+_parybin); 
+		histo_M_bkg_fail[i][j]->Write("histo_M_bkg_fail_Pt"+_parxbin+"_"+_parybin); 
+		histo_M_WJets_fail[i][j]->Write("histo_M_WJets_fail_Pt"+_parxbin+"_"+_parybin); 
+		histo_M_TTJets_fail[i][j]->Write("histo_M_TTJets_fail_Pt"+_parxbin+"_"+_parybin); 
+                                     
+		}                    
 
 	}
 
