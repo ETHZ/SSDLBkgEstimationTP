@@ -73,7 +73,7 @@ int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int np
 
 }
 
-int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_upp ,int nptbins , TString select, TString effcut , double cut, TString option){
+int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_upp ,int nptbins , TString select, TString effcut , double cut, TString par_x = "Pt", TString option){
 
 	TString _path= "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/ZBkgInvM/";
 
@@ -92,6 +92,13 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	TString pname;
 	if(abs(leptonId) == 11){pname = "e";}
 	if(abs(leptonId) == 13){pname = "mu";}
+
+	//Parameter string
+
+	TString _par;
+	if(par_x == "Pt"){_par = "P_{t}";}
+	else if(par_x == "eta"){_par = "#eta";}
+	else if(par_x == "phi"){_par = "#phi";}
 
 	//selection string
 	TString _sel;
@@ -128,25 +135,52 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 
 	TFile* file_out = new TFile(_path+_fname+".root","recreate");
 
-	//Histograms
-	//Barrel
-	TH1D** histo_M_DYJets_bkg_loweta = new TH1D*[nptbins+1];
-	TH1D** histo_M_DYJets_loweta = new TH1D*[nptbins+1];
-	TH1D** histo_M_bkg_loweta = new TH1D*[nptbins+1];
-	TH1D** histo_M_WJets_loweta = new TH1D*[nptbins+1];
-	TH1D** histo_M_DYJets_bkg_fail_loweta = new TH1D*[nptbins+1];
-	TH1D** histo_M_DYJets_fail_loweta = new TH1D*[nptbins+1];
-	TH1D** histo_M_bkg_fail_loweta = new TH1D*[nptbins+1];
-	TH1D** histo_M_WJets_fail_loweta = new TH1D*[nptbins+1];
-	//Endcape
-	TH1D** histo_M_DYJets_bkg_higheta = new TH1D*[nptbins+1];
-	TH1D** histo_M_DYJets_higheta = new TH1D*[nptbins+1];
-	TH1D** histo_M_bkg_higheta = new TH1D*[nptbins+1];
-	TH1D** histo_M_WJets_higheta = new TH1D*[nptbins+1];
-	TH1D** histo_M_DYJets_bkg_fail_higheta = new TH1D*[nptbins+1];
-	TH1D** histo_M_DYJets_fail_higheta = new TH1D*[nptbins+1];
-	TH1D** histo_M_bkg_fail_higheta = new TH1D*[nptbins+1];
-	TH1D** histo_M_WJets_fail_higheta = new TH1D*[nptbins+1];
+	//Parameter 2
+
+	const int nrange = 2;
+	double par2[nrange] = {0,1.2};
+	
+	//Old code
+
+	////Histograms
+	////Barrel
+	//TH1D** histo_M_DYJets_bkg_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_bkg_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_WJets_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_bkg_fail_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_fail_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_bkg_fail_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_WJets_fail_loweta = new TH1D*[nptbins+1];
+	////Endcape
+	//TH1D** histo_M_DYJets_bkg_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_bkg_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_WJets_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_bkg_fail_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_fail_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_bkg_fail_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_WJets_fail_higheta = new TH1D*[nptbins+1];
+	
+	//New Code
+	/
+	//TH1D** histo_M_DYJets_bkg_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_bkg_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_WJets_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_bkg_fail_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_fail_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_bkg_fail_loweta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_WJets_fail_loweta = new TH1D*[nptbins+1];
+	////Endcape
+	//TH1D** histo_M_DYJets_bkg_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_bkg_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_WJets_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_bkg_fail_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_DYJets_fail_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_bkg_fail_higheta = new TH1D*[nptbins+1];
+	//TH1D** histo_M_WJets_fail_higheta = new TH1D*[nptbins+1];
 
 	for(int _i = 0; _i < nptbins+1; ++_i){ 
 
