@@ -41,7 +41,9 @@
 //Pt_upp	high boundary of Pt bins
 //nptbins	number of Pt bins
 //select	selection of Tag AND Probe. Can take parameters such as: "loose", "tightcut", "tightmva" (for electron only).
-//effcut	additional requirement on Tag (the selection on tag is select + effcut). Can take the parameter: "loose", "tightcut...TO BE CONTINUED
+//effcut	additional requirement on Tag (the selection on tag is select + effcut). Can take the parameter: "loose", "tightcut", "tightmva", "dxy", "dz", "reliso3", "reliso4", "chiso3", "chiso4".
+//cut		cut parameter of effcut is possible.
+//option	can take: matching (a matching between the Tag and Probe is required).
 
 int DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low = 10, double Pt_upp = 50,int nptbins = 10, TString select = "tightcut", TString effcut = "reliso3", double cut = 0.2, TString option ="");
 
@@ -365,8 +367,8 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 							chiso4 = ((effcut != "chiso4")||((effcut == "chiso4")&&(Ochiso4[l1] >= cut )));
 							dxy = ((effcut != "dxy")||((effcut == "dxy")&&(abs(Odxy[l1]) >= cut )));
 							dz = ((effcut != "dz")||((effcut == "dz")&&(abs(Odz[l1]) >= cut )));
-				                        tight((effcut != "tightcut")||(((abs(Oid[l1]) == 13)&&(effcut == "tightcut")&&(Otight[l1] != 1))||((abs(Oid[l1]) == 11)&&(effcut == "tightcut")&&(Otighte[l1] < 3))));
-							tightmva((effcut != "tightmva")||((abs(Oid[l1]) == 11)&&(effcut == "tightmva")&&(Otight[l1] != 1)));
+				                        tight = ((effcut != "tightcut")||(((abs(Oid[l1]) == 13)&&(effcut == "tightcut")&&(Otight[l1] != 1))||((abs(Oid[l1]) == 11)&&(effcut == "tightcut")&&(Otighte[l1] < 3))));
+							tightmva = ((effcut != "tightmva")||((abs(Oid[l1]) == 11)&&(effcut == "tightmva")&&(Otight[l1] != 1)));
 
 							if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
 
@@ -496,8 +498,8 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 						chiso4 = ((effcut != "chiso4")||((effcut == "chiso4")&&(Gchiso4[l1] >= cut )));
 						dxy = ((effcut != "dxy")||((effcut == "dxy")&&(abs(Gdxy[l1]) >= cut )));
 						dz = ((effcut != "dz")||((effcut == "dz")&&(abs(Gdz[l1]) >= cut )));
-				                tight((effcut != "tightcut")||(((abs(Gid[l1]) == 13)&&(effcut == "tightcut")&&(Gtight[l1] != 1))||((abs(Gid[l1]) == 11)&&(effcut == "tightcut")&&(Gtighte[l1] < 3))));
-						tightmva((effcut != "tightmva")||((abs(Gid[l1]) == 11)&&(effcut == "tightmva")&&(Gtight[l1] != 1)));
+				                tight = ((effcut != "tightcut")||(((abs(Gid[l1]) == 13)&&(effcut == "tightcut")&&(Gtight[l1] != 1))||((abs(Gid[l1]) == 11)&&(effcut == "tightcut")&&(Gtighte[l1] < 3))));
+						tightmva = ((effcut != "tightmva")||((abs(Gid[l1]) == 11)&&(effcut == "tightmva")&&(Gtight[l1] != 1)));
 
 						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
 
