@@ -42,13 +42,15 @@ int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int np
 
 	//Location of the .root file
 	TString location = "/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/matched/";
+	TString locationdy = "/Users/GLP/Desktop/CERN_data/dyjetsnew/postprocessed/";
 
 	//Reading the tree 
 	//
 	TChain* tree = new TChain("treeProducerSusyMultilepton");
 
 	//DY events
-	tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");
+	//tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");
+	tree->Add(locationdy+"dyjetsnew.root");
 
 	//WJet events
 	tree->Add(location+"WJetsToLNu_13TeV-madgraph-pythia8-tauola.root");
