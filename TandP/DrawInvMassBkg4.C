@@ -67,7 +67,7 @@ int DrawInvMassBkg(int leptonId, double par_low = 10 , double par_upp = 50 ,int 
 
 	//Plot the result
 	//
-	DrawInvMassBkgMain(tree,leptonId ,par_low ,par_upp ,nparbins,select,effcut, cut,par_x, option);
+	DrawInvMassBkgMain(tree,leptonId ,par_low ,par_upp ,nparbins,select,effcut, cut,par_x, par_y, option);
 
 	return 0;
 
@@ -82,7 +82,20 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 	//Some variables
 	Long64_t n = tree->GetEntries();
 	int nbins = 200;
-	double Dpar = (par_upp-par_low)/nparbins;
+
+	//Parameter 1
+	double* par1 = new double[nparbins+1];
+	double Dpar = (double)(par_upp - par_low)/(double)nparbins;
+
+	for(int i = 0; i < nparbins+1; ++i){
+		par1[i] = par_low + i*Dpar;
+	}
+
+	//Parameter 2
+	const int nrange = 2;
+	double par2[nrange+1] = {0,1.2,2.5};
+
+	//Ok
 
 	/////////////////////////
 	//Name of the output file
@@ -132,16 +145,13 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 	if(option.Contains("matching")){_fname += "_Matched";}
 
 	TString _ptrange;
-	_ptrange = Form("Pt%0.f_Pt%0.f",par_low,par_upp);
+	_ptrange = Form("%0.3f_"+par_x+"%0.3f",par_low,par_upp);
 	_fname += "_"+_ptrange;
 	_fname += "_"+_effcut+"_for_"+_sel+"_"+pname; 
 
 	TFile* file_out = new TFile(_path+_fname+".root","recreate");
 
-	//Parameter 2
-
-	const int nrange = 2;
-	double par2[nrange] = {0,1.2};
+	//ok
 
 	//cout<<"debug0"<<endl;
 
@@ -158,18 +168,18 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 
 	for(int i = 0; i < nrange; ++i){ 
 
-		histo_M_DYJets_bkg[i]  		= new TH1D*[nparbins+1];
-		histo_M_DYJets[i]  		= new TH1D*[nparbins+1];
-		histo_M_bkg[i]  		= new TH1D*[nparbins+1];
-		histo_M_WJets[i]  		= new TH1D*[nparbins+1];
-		histo_M_TTJets[i]  		= new TH1D*[nparbins+1];
-		histo_M_DYJets_bkg_fail[i] 	= new TH1D*[nparbins+1];
-		histo_M_DYJets_fail[i]     	= new TH1D*[nparbins+1];
-		histo_M_bkg_fail[i]  		= new TH1D*[nparbins+1];
-		histo_M_WJets_fail[i]  		= new TH1D*[nparbins+1];
-		histo_M_TTJets_fail[i]  	= new TH1D*[nparbins+1];
+		histo_M_DYJets_bkg[i]  		= new TH1D*[nparbins];
+		histo_M_DYJets[i]  		= new TH1D*[nparbins];
+		histo_M_bkg[i]  		= new TH1D*[nparbins];
+		histo_M_WJets[i]  		= new TH1D*[nparbins];
+		histo_M_TTJets[i]  		= new TH1D*[nparbins];
+		histo_M_DYJets_bkg_fail[i] 	= new TH1D*[nparbins];
+		histo_M_DYJets_fail[i]     	= new TH1D*[nparbins];
+		histo_M_bkg_fail[i]  		= new TH1D*[nparbins];
+		histo_M_WJets_fail[i]  		= new TH1D*[nparbins];
+		histo_M_TTJets_fail[i]  	= new TH1D*[nparbins];
 
-		for(int j = 0; j < nparbins+1; ++j){ 
+		for(int j = 0; j < nparbins; ++j){ 
 
 			histo_M_DYJets_bkg[i][j]  		=  new TH1D("histo_M_DYJets_bkg","M",nbins,0,250);
 			histo_M_DYJets[i][j]  			=  new TH1D("histo_M_DYJets","M",nbins,0,250);
@@ -186,40 +196,6 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 		}
 
 	}
-
-	//cout<<"debug1"<<endl;
-
-	//Old
-
-	//for(int _i = 0; _i < nparbins+1; ++_i){ 
-
-	//	double _par1;
-	//	double _par2;
-	//	if(_i*Dpar+par_low < par_upp){_par1 = _i*Dpar+par_low; _par2 = (_i+1)*Dpar;}
-	//	else if (_i*Dpar+par_low >= par_upp){_par1 = _i*Dpar+par_low; _par2 = 10000;}
-
-	//	//Barrel
-	//	histo_M_DYJets_bkg[_i] 		= new TH1D("histo_M_DYJets_bkg","M",nbins,0,250);
-	//	histo_M_DYJets[_i] 		= new TH1D("histo_M_DYJets","M",nbins,0,250);
-	//	histo_M_bkg[_i] 			= new TH1D("histo_M_bkg","M",nbins,0,250);
-	//	histo_M_WJets[_i] 		= new TH1D("histo_M_WYJets","M",nbins,0,250);
-	//	histo_M_DYJets_bkg_fail[_i] 	= new TH1D("histo_M_DYJets_bkg_fail","M",nbins,0,250);
-	//	histo_M_DYJets_fail[_i] 		= new TH1D("histo_M_DYJets_fail","M",nbins,0,250);
-	//	histo_M_bkg_fail[_i] 		= new TH1D("histo_M_bkg_fail","M",nbins,0,250);
-	//	histo_M_WJets_fail[_i] 		= new TH1D("histo_M_WJets_fail","M",nbins,0,250);
-	//	//Endcape
-	//	histo_M_DYJets_bkg_higheta[_i] 		= new TH1D("histo_M_DYJets_bkg_higheta","M",nbins,0,250);
-	//	histo_M_DYJets_higheta[_i] 		= new TH1D("histo_M_DYJets_higheta","M",nbins,0,250);
-	//	histo_M_bkg_higheta[_i] 		= new TH1D("histo_M_bkg_higheta","M",nbins,0,250);
-	//	histo_M_WJets_higheta[_i] 		= new TH1D("histo_M_WYJets_higheta","M",nbins,0,250);
-	//	histo_M_DYJets_bkg_fail_higheta[_i] 	= new TH1D("histo_M_DYJets_bkg_fail_higheta","M",nbins,0,250);
-	//	histo_M_DYJets_fail_higheta[_i] 	= new TH1D("histo_M_DYJets_fail_higheta","M",nbins,0,250);
-	//	histo_M_bkg_fail_higheta[_i] 		= new TH1D("histo_M_bkg_fail_higheta","M",nbins,0,250);
-	//	histo_M_WJets_fail_higheta[_i] = new TH1D("histo_M_WJets_fail_higheta","M",nbins,0,250);
-
-	//}
-
-	//End Old
 
 	//Event variables
 	////Generated
@@ -303,9 +279,11 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 	//Start loop over all events
 	for (int k = 0; k < n; ++k) {
 
-	if( 100*(double)k/n> count){cout<<count<<endl;++count;}
+		if( 100*(double)k/n> count){cout<<count<<endl;++count;}
 
-	//cout<<"debug2"<<endl;
+		//ok
+
+		//cout<<"debug2"<<endl;
 
 		//Definitions to use T&P
 		int tag[2];
@@ -320,7 +298,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 		//looseId leptons
 		if(select != "loose"){
 			for (int i = 0; i < On; ++i) {
-	//cout<<"debug3"<<endl;
+				//cout<<"debug3"<<endl;
 
 				//define selections using bools
 				bool reliso3((effcut != "reliso3")||((effcut == "reliso3")&&(Oiso3[i] < cut )));
@@ -359,6 +337,8 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 				}
 			}
 
+			//ok
+
 			//loop over all the rec particles to find the isolation
 			//We requiere one tag at least 
 			while((tag[0] != 9999)||(tag[1] != 9999)){
@@ -373,28 +353,21 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 
 				if(l1 != 9999){
 
-					//Parameter on the xaxis
-
-					double par;
+					//Get the x and y parameter to select the histograms
+					double par_1;
 					double par_2;
 
 					//Choose the parameter to be filled for the eff.
-					if(par_x == "Pt"){par = Opt[l1];}
-					else if(par_x == "eta"){par = Oeta[l1];}
-					else if(par_x == "phi"){par = Ophi[l1];}
+					if(par_x == "Pt"){par_1 = Opt[l1];}
+					else if(par_x == "eta"){par_1 = Oeta[l1];}
+					else if(par_x == "phi"){par_1 = Ophi[l1];}
 					if(par_y == "Pt"){par_2 = Opt[l1];}
 					else if(par_y == "eta"){par_2 = abs(Oeta[l1]);}
 					else if(par_y == "phi"){par_2 = abs(Ophi[l1]);}
 
-					for(int ii = 0; ii < nparbins+1; ++ii){
+					for(int ii = 0; ii < nparbins; ++ii){
 
-
-						//Add all the signal to the Z
-						double _par1 = 0;
-						double _par2 = 0;
-						if(ii*Dpar+par_low < par_upp){_par1 = ii*Dpar+par_low; _par2 = (ii+1)*Dpar+par_low;}
-						else if (ii*Dpar+par_low >= par_upp){_par1 = ii*Dpar+par_low; _par2 = 10000;}
-						if((par > _par1)&&(par< _par2)){
+						if((par_1 > par1[ii])&&(par_1 < par1[ii+1])){
 
 							bool reliso3((effcut != "reliso3")||((effcut == "reliso3")&&(Oiso3[l1] < cut )));
 							bool reliso4((effcut != "reliso4")||((effcut == "reliso4")&&(Oiso4[l1] < cut )));
@@ -405,15 +378,13 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 							bool tight((effcut != "tightcut")||(((abs(Oid[l1]) == 13)&&(effcut == "tightcut")&&(Otight[l1] == 1))||((abs(Oid[l1]) == 11)&&(effcut == "tightcut")&&(Otighte[l1] >= 3))));
 							bool tightmva((effcut != "tightmva")||((abs(Oid[l1]) == 11)&&(effcut == "tightmva")&&(Otight[l1] == 1)));
 
-							//Find the corresponding histogram for par2
-							bool notfund = true;
-							int kk = 0;
-							while(notfund){
+							//Find the corresponding histogram for par_y
 
-								if((kk < nrange-1)&&(par_2 > par2[kk])&&(par_2 <= par2[kk+1])){notfund = false;}
-								else if((kk == nrange-1)&&(par_2 >= par2[kk])){notfund = false;}
-								++kk;
-								if(kk == nrange){notfund = false; kk = -1;}//Doesn't match the binning. Don't fill histogram
+							int kk = -1;
+							for(int _i = 0; _i < nrange; ++_i){
+
+								if((par_2 > par2[_i])&&(par_2 <= par2[_i+1])){kk = _i;}
+
 							}
 
 							//Efficiency cut
@@ -426,17 +397,21 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 
 									//Just the Wjets bkg
 									if ((evt_id == 500)||(evt_id == 502)||(evt_id == 503)||(evt_id == 504)||(evt_id == 505)){
+
 										histo_M_WJets[kk][ii]->Fill(M,scale);
+
 									}else if (evt_id == 300){
 
 										histo_M_TTJets[kk][ii]->Fill(M,scale);
 
-									}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
-
-										histo_M_DYJets[kk][ii]->Fill(M,scale);
-
 									}
+
+								}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
+
+									histo_M_DYJets[kk][ii]->Fill(M,scale);
+
 								}
+
 
 							}
 
@@ -464,12 +439,14 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 
 										histo_M_TTJets_fail[kk][ii]->Fill(M,scale);
 
-									}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
-
-										histo_M_DYJets_fail[kk][ii]->Fill(M,scale);
-
 									}
+
+								}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
+
+									histo_M_DYJets_fail[kk][ii]->Fill(M,scale);
+
 								}
+
 							}
 						}
 					}
@@ -479,9 +456,6 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 
 
 		for (int i = 0; i < Gn; ++i) {
-
-	//cout<<"debug4"<<endl;
-
 
 			//define selections using bools
 
@@ -537,24 +511,20 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 
 				//Parameter on the xaxis
 
-				double par;
+				double par_1;
 				double par_2;
 
 				//Choose the parameter to be filled for the eff.
-				if(par_x == "Pt"){par = Gpt[l1];}
-				else if(par_x == "eta"){par = Geta[l1];}
-				else if(par_x == "phi"){par = Gphi[l1];}
+				if(par_x == "Pt"){par_1 = Gpt[l1];}
+				else if(par_x == "eta"){par_1 = Geta[l1];}
+				else if(par_x == "phi"){par_1 = Gphi[l1];}
 				if(par_y == "Pt"){par_2 = Gpt[l1];}
 				else if(par_y == "eta"){par_2 = abs(Geta[l1]);}
 				else if(par_y == "phi"){par_2 = abs(Gphi[l1]);}
 
-				for(int ii = 0; ii < nparbins+1; ++ii){
-					//Add all the signal to the Z
-					double _par1 = 0;
-					double _par2 = 0;
-					if(ii*Dpar+par_low < par_upp){_par1 = ii*Dpar+par_low; _par2 = (ii+1)*Dpar+par_low;}
-					else if (ii*Dpar+par_low >= par_upp){_par1 = ii*Dpar+par_low; _par2 = 10000;}
-					if((Gpt[l1] > _par1)&&(Gpt[l1]< _par2)){
+				for(int ii = 0; ii < nparbins; ++ii){
+
+					if((par_1 > par1[ii])&&(par_1 < par1[ii+1])){
 
 
 						bool reliso3((effcut != "reliso3")||((effcut == "reliso3")&&(Giso3[l1] < cut )));
@@ -567,16 +537,12 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 						bool tightmva((effcut != "tightmva")||((abs(Gid[l1]) == 11)&&(effcut == "tightmva")&&(Gtight[l1] == 1)));
 
 						//Find the corresponding histogram for par2
-						bool notfund = true;
-						int kk = 0;
-						while(notfund){
 
-							if((kk < nrange-1)&&(par_2 > par2[kk])&&(par_2 <= par2[kk+1])){notfund = false;}
-							else if((kk == nrange-1)&&(par_2 >= par2[kk])){notfund = false;}
-							++kk;
-							if(kk == nrange){notfund = false; kk = -1;}//Doesn't match the binning. Don't fill histogram
+						int kk = -1;
+						for(int _i = 0; _i < nrange; ++_i){
+
+							if((par_2 > par2[_i])&&(par_2 <= par2[_i+1])){kk = _i;}
 						}
-
 
 						//Efficiency cut
 						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva && (kk != -1)){
@@ -597,12 +563,14 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 									histo_M_TTJets[kk][ii]->Fill(M,scale);
 
 
-								}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
-
-									histo_M_DYJets[kk][ii]->Fill(M,scale);
-
 								}
+
+							}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
+
+								histo_M_DYJets[kk][ii]->Fill(M,scale);
+
 							}
+
 						}
 
 
@@ -631,12 +599,13 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 
 									histo_M_TTJets_fail[kk][ii]->Fill(M,scale);
 
-
-								}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
-
-									histo_M_DYJets_fail[kk][ii]->Fill(M,scale);
 								}
+
+							}else if((evt_id == 702)||(evt_id == 703)||(evt_id == 704)||(evt_id == 705)||(evt_id == 701)){
+
+								histo_M_DYJets_fail[kk][ii]->Fill(M,scale);
 							}
+
 						}
 					}
 				}
@@ -644,151 +613,179 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low , double pa
 		}
 	}
 
-	//cout<<"debug5"<<endl;
+	mkdir(_path+_fname+"_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
-	TCanvas** c1 = new TCanvas*[nrange];
-	TCanvas** c2 = new TCanvas*[nrange];
+	TFile* canvas_out = new TFile(_path+_fname+"_PDF/histograms.root","recreate"); 
 
 	for(int i = 0; i < nrange; ++i){ 
 
-		c1[i] = new TCanvas(Form("c1_%i",i),Form("c1_%i",i));
-		c1[i]->Divide(1,2);
-		c2[i] = new TCanvas(Form("c2_%i",i),Form("c2_%i",i));
-		c2[i]->Divide(1,2);
+		//c1[i] = new TCanvas(Form("c1_%i",i),Form("c1_%i",i));
+		//c1[i]->Divide(1,2);
+		//c2[i] = new TCanvas(Form("c2_%i",i),Form("c2_%i",i));
+		//c2[i]->Divide(1,2);
 
-		for(int j = 0; j < nparbins+1; ++j){ 
+		for(int j = 0; j < nparbins; ++j){ 
 
-		//Plot the canvas
-		double _par1;
-		double _par2;
-		if(i*Dpar+par_low < par_upp){_par1 = i*Dpar+par_low; _par2 = (i+1)*Dpar+par_low;}
-		else if (i*Dpar+par_low >= par_upp){_par1 = i*Dpar+par_low; _par2 = 10000;}
+			//String for name of the ouput files and histograms titles
 
-		c1[i]->cd(1);
+			TString _parxbin;
+			TString _parybin;
 
-		TString _title; 
-		_title = Form(", %0.f #leq P_{t} #leq %0.f",_par1,_par2);
-		if(_par2==10000)_title = Form(", %0.f  #leq P_{t}",_par1);
-		TString _stitle = (TString)"Invariant mass for "+pname+_title+", #||{#eta}<1.2, "+effcut+" pass";
-		TString _stitlefail = (TString)"Invariant mass for "+pname+_title+", #||{#eta}<1.2, "+effcut+" fail";
-		TString _stitle2 = (TString)"Invariant mass for "+pname+_title+", #||{#eta}>1.2, "+effcut+" pass";
-		TString _stitle2fail = (TString)"Invariant mass for "+pname+_title+", #||{#eta}>1.2, "+effcut+" fail";
+			//Parameter string
+			TString _par;
+			if(par_x == "Pt"){_parxbin = Form("%0.f_Pt%0.f",par1[j],par1[j+1]);}
+			else if(par_x == "eta"){_parxbin = Form("%0.3f_eta%0.3f",par1[j],par1[j+1]);}
+			else if(par_x == "phi"){_parxbin = Form("%0.3f_phi%0.3f",par1[j],par1[j+1]);}
+			if(par_y == "Pt"){_parybin = Form("%0.f_Pt%0.f",par2[i],par2[i+1]);}
+			else if(par_y == "eta"){_parybin = Form("%0.3f_eta%0.3f",par2[i],par2[i+1]);cout<<"it works !"<<endl;}
+			else if(par_y == "phi"){_parybin = Form("%0.3f_phi%0.3f",par2[i],par2[i+1]);}
 
-		histo_M_DYJets_bkg[i][j]->Draw();
-		histo_M_DYJets_bkg[i][j]->SetTitle(_stitle);
-		histo_M_DYJets_bkg[i][j]->GetXaxis()->SetTitle("m [GeV]");
-		histo_M_DYJets_bkg[i][j]->SetLineWidth(2);
-		histo_M_DYJets_bkg[i][j]->SetLineColor(4);
-		histo_M_DYJets_bkg[i][j]->SetMarkerColor(4);
-		histo_M_bkg[i][j]->Draw("same");
-		histo_M_bkg[i][j]->SetLineWidth(2);
-		histo_M_bkg[i][j]->SetMarkerColor(2);
-		histo_M_bkg[i][j]->SetLineColor(2);
-		histo_M_WJets[i][j]->Draw("same");
-		histo_M_WJets[i][j]->SetLineWidth(3);
-		histo_M_WJets[i][j]->SetLineColor(3);
-		histo_M_WJets[i][j]->SetMarkerColor(3);
-		TLegend* leg = new TLegend(0.6, 0.7,0.89,0.89);
-		leg->AddEntry(histo_M_DYJets_bkg[i][j], "Z + bkg");
-		leg->SetTextFont(43);
-		leg->SetTextSize(25);
-		leg->AddEntry(histo_M_bkg[i][j], "TTJets + WJets");
-		leg->AddEntry(histo_M_WJets[i][j], "WJets");
-		leg->SetBorderSize(0);
-		leg->Draw();
+			TString _parxtitle;
+			TString _parytitle;
 
-		//Zbkg fail
-		c1[i]->cd(2);
-		histo_M_DYJets_bkg_fail[i][j]->Draw();
-		histo_M_DYJets_bkg_fail[i][j]->SetTitle(_stitlefail);
-		histo_M_DYJets_bkg_fail[i][j]->GetXaxis()->SetTitle("m [GeV]");
-		histo_M_DYJets_bkg_fail[i][j]->SetLineWidth(2);
-		histo_M_DYJets_bkg_fail[i][j]->SetLineColor(4);
-		histo_M_DYJets_bkg_fail[i][j]->SetMarkerColor(4);
-		histo_M_bkg_fail[i][j]->Draw("same");
-		histo_M_bkg_fail[i][j]->SetLineWidth(2);
-		histo_M_bkg_fail[i][j]->SetMarkerColor(2);
-		histo_M_bkg_fail[i][j]->SetLineColor(2);
-		histo_M_WJets_fail[i][j]->Draw("same");
-		histo_M_WJets_fail[i][j]->SetLineWidth(3);
-		histo_M_WJets_fail[i][j]->SetLineColor(3);
-		histo_M_WJets_fail[i][j]->SetMarkerColor(3);
+			//Title string
+			if(par_x == "Pt"){_parxtitle = Form("%0.f #leq P_{t} #leq %0.f",par1[j],par1[j+1]);}
+			else if(par_x == "eta"){_parxtitle = Form("%0.3f #leq #eta #leq %0.3f",par1[j],par1[j+1]);}
+			else if(par_x == "phi"){_parxtitle = Form("%0.3f #leq #phi #leq %0.3f",par1[j],par1[j+1]);}
+			if(par_y == "Pt"){_parytitle = Form("%0.f #leq P_{t} #leq %0.f",par2[i],par2[i+1]);}
+			else if(par_y == "eta"){_parytitle = Form("%0.3f #leq #||{#eta}  #leq %0.3f",par2[i],par2[i+1]);cout<<"it works !"<<endl;}
+			else if(par_y == "phi"){_parytitle = Form("%0.3f #leq #||{#phi}  #leq %0.3f",par2[i],par2[i+1]);}
+
+			//Plot histograms
+			
+			
+			TCanvas* c1 = new TCanvas("c1","c1");
+			TCanvas* c2 = new TCanvas("c2","c2");
+			c1->Divide(1,2);
+			c2->Divide(1,2);
+
+			c1->cd(1);
+
+			//TString _title; 
+			TString _stitle = (TString)"Invariant mass for "+pname+" "+_parxtitle+", "+_parytitle+", "+effcut+" pass";
+			TString _stitlefail = (TString)"Invariant mass for "+pname+" "+_parxtitle+", "+_parytitle+", "+effcut+" fail";
+
+			histo_M_DYJets_bkg[i][j]->Draw();
+			histo_M_DYJets_bkg[i][j]->SetTitle(_stitle);
+			histo_M_DYJets_bkg[i][j]->GetXaxis()->SetTitle("m [GeV]");
+			histo_M_DYJets_bkg[i][j]->SetLineWidth(2);
+			histo_M_DYJets_bkg[i][j]->SetLineColor(4);
+			histo_M_DYJets_bkg[i][j]->SetMarkerColor(4);
+			histo_M_bkg[i][j]->Draw("same");
+			histo_M_bkg[i][j]->SetLineWidth(2);
+			histo_M_bkg[i][j]->SetMarkerColor(2);
+			histo_M_bkg[i][j]->SetLineColor(2);
+			histo_M_WJets[i][j]->Draw("same");
+			histo_M_WJets[i][j]->SetLineWidth(3);
+			histo_M_WJets[i][j]->SetLineColor(3);
+			histo_M_WJets[i][j]->SetMarkerColor(3);
+			histo_M_TTJets[i][j]->Draw("same");
+			histo_M_TTJets[i][j]->SetLineWidth(3);
+			histo_M_TTJets[i][j]->SetLineColor(6);
+			histo_M_TTJets[i][j]->SetMarkerColor(6);
+			TLegend* leg = new TLegend(0.6, 0.65,0.89,0.89);
+			leg->AddEntry(histo_M_DYJets_bkg[i][j], "Z + bkg");
+			leg->SetTextFont(43);
+			leg->SetTextSize(25);
+			leg->AddEntry(histo_M_bkg[i][j], "TTJets + WJets");
+			leg->AddEntry(histo_M_WJets[i][j], "WJets");
+			leg->AddEntry(histo_M_TTJets[i][j], "TTJets");
+			leg->SetBorderSize(0);
+			leg->Draw();
+
+			//Zbkg fail
+			c1->cd(2);
+			histo_M_DYJets_bkg_fail[i][j]->Draw();
+			histo_M_DYJets_bkg_fail[i][j]->SetTitle(_stitlefail);
+			histo_M_DYJets_bkg_fail[i][j]->GetXaxis()->SetTitle("m [GeV]");
+			histo_M_DYJets_bkg_fail[i][j]->SetLineWidth(2);
+			histo_M_DYJets_bkg_fail[i][j]->SetLineColor(4);
+			histo_M_DYJets_bkg_fail[i][j]->SetMarkerColor(4);
+			histo_M_bkg_fail[i][j]->Draw("same");
+			histo_M_bkg_fail[i][j]->SetLineWidth(2);
+			histo_M_bkg_fail[i][j]->SetMarkerColor(2);
+			histo_M_bkg_fail[i][j]->SetLineColor(2);
+			histo_M_WJets_fail[i][j]->Draw("same");
+			histo_M_WJets_fail[i][j]->SetLineWidth(3);
+			histo_M_WJets_fail[i][j]->SetLineColor(3);
+			histo_M_WJets_fail[i][j]->SetMarkerColor(3);
+			histo_M_TTJets_fail[i][j]->Draw("same");
+			histo_M_TTJets_fail[i][j]->SetLineWidth(3);
+			histo_M_TTJets_fail[i][j]->SetLineColor(6);
+			histo_M_TTJets_fail[i][j]->SetMarkerColor(6);
 
 
-		//Z pass eta<1.2
-		c2[i]->cd(1);
-		histo_M_DYJets[i][j]->Draw();
-		histo_M_DYJets[i][j]->SetTitle(_stitle);
-		histo_M_DYJets[i][j]->GetXaxis()->SetTitle("m [GeV]");
-		histo_M_DYJets[i][j]->SetLineWidth(2);
-		histo_M_DYJets[i][j]->SetLineColor(4);
-		histo_M_DYJets[i][j]->SetMarkerColor(4);
-		histo_M_bkg[i][j]->Draw("same");
-		histo_M_bkg[i][j]->SetLineWidth(2);
-		histo_M_bkg[i][j]->SetMarkerColor(2);
-		histo_M_bkg[i][j]->SetLineColor(2);
-		TLegend* leg2 = new TLegend(0.6, 0.7,0.89,0.89);
-		leg2->SetTextFont(43);
-		leg2->SetTextSize(25);
-		leg2->AddEntry(histo_M_DYJets[i][j], "Z");
-		leg2->AddEntry(histo_M_bkg[i][j], "TTJets + WJets");
-		leg2->SetBorderSize(0);
-		leg2->Draw();
+			//Z pass eta<1.2
+			c2->cd(1);
+			histo_M_DYJets[i][j]->Draw();
+			histo_M_DYJets[i][j]->SetTitle(_stitle);
+			histo_M_DYJets[i][j]->GetXaxis()->SetTitle("m [GeV]");
+			histo_M_DYJets[i][j]->SetLineWidth(2);
+			histo_M_DYJets[i][j]->SetLineColor(4);
+			histo_M_DYJets[i][j]->SetMarkerColor(4);
+			histo_M_bkg[i][j]->Draw("same");
+			histo_M_bkg[i][j]->SetLineWidth(2);
+			histo_M_bkg[i][j]->SetMarkerColor(2);
+			histo_M_bkg[i][j]->SetLineColor(2);
+			TLegend* leg2 = new TLegend(0.6, 0.65,0.89,0.89);
+			leg2->SetTextFont(43);
+			leg2->SetTextSize(25);
+			leg2->AddEntry(histo_M_DYJets[i][j], "Z");
+			leg2->AddEntry(histo_M_bkg[i][j], "TTJets + WJets");
+			leg2->SetBorderSize(0);
+			leg2->Draw();
 
-		//Z fail eta<1.2
-		c2[i]->cd(2);
-		histo_M_DYJets_fail[i][j]->Draw();
-		histo_M_DYJets_fail[i][j]->SetTitle(_stitlefail);
-		histo_M_DYJets_fail[i][j]->GetXaxis()->SetTitle("m [GeV]");
-		histo_M_DYJets_fail[i][j]->SetLineWidth(2);
-		histo_M_DYJets_fail[i][j]->SetLineColor(4);
-		histo_M_DYJets_fail[i][j]->SetMarkerColor(4);
-		histo_M_bkg_fail[i][j]->Draw("same");
-		histo_M_bkg_fail[i][j]->SetLineWidth(2);
-		histo_M_bkg_fail[i][j]->SetMarkerColor(2);
-		histo_M_bkg_fail[i][j]->SetLineColor(2);
+			//Z fail eta<1.2
+			c2->cd(2);
+			histo_M_DYJets_fail[i][j]->Draw();
+			histo_M_DYJets_fail[i][j]->SetTitle(_stitlefail);
+			histo_M_DYJets_fail[i][j]->GetXaxis()->SetTitle("m [GeV]");
+			histo_M_DYJets_fail[i][j]->SetLineWidth(2);
+			histo_M_DYJets_fail[i][j]->SetLineColor(4);
+			histo_M_DYJets_fail[i][j]->SetMarkerColor(4);
+			histo_M_bkg_fail[i][j]->Draw("same");
+			histo_M_bkg_fail[i][j]->SetLineWidth(2);
+			histo_M_bkg_fail[i][j]->SetMarkerColor(2);
+			histo_M_bkg_fail[i][j]->SetLineColor(2);
 
-		TString _parxbin;
-		TString _parybin;
 
-		//Parameter string
-		TString _par;
-		if(par_x == "Pt"){_parxbin = Form("%0.f_Pt%0.f_",_par1,_par2);}
-		else if(par_x == "eta"){_parxbin = Form("%0.f_eta%0.f_",_par1,_par2);}
-		else if(par_x == "phi"){_parxbin = Form("%0.f_phi%0.f_",_par1,_par2);}
-		if(par_y == "Pt"){_parybin = Form("%0.f_Pt%0.f_",_par1,_par2);}
-		else if(par_y == "eta"){_parybin = Form("%0.f_eta%0.f_",_par1,_par2);}
-		else if(par_y == "phi"){_parybin = Form("%0.f_phi%0.f_",_par1,_par2);}
+			//cout<<"_parxbin is "<<_parxbin<<endl;
+			//cout<<"_parybin is "<<_parybin<<endl;
+			//cout<<"par_y is "<<par_y<<endl;
 
-		c1[i]->Write("Zbkg_"+_parxbin+"_"+_parybin);
-		c2[i]->Write("Z_"+_parxbin+"_"+_parybin);
+			canvas_out->cd();
 
-		mkdir(_path+_fname+"_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		TString _cname = _path+_fname+"_PDF/InvM4test_"+_parxbin;
-		_cname += "_"+_effcut+"_"+pname;
+			c1->Write("Zbkg_"+_parxbin+"_"+_parybin);
+			c2->Write("Z_"+_parxbin+"_"+_parybin);
 
-		TString _c1name = _cname+ "_Zbkg_bkg_"+_parybin;
-		TString _c2name = _cname+ "_Z_bkg_"+_parybin;
+			TString _cname = _path+_fname+"_PDF/InvM4test_"+_parxbin;
+			_cname += "_"+_effcut+"_"+pname;
 
-		c1[i]->SaveAs(_c1name);
-		c2[i]->SaveAs(_c2name);
+			TString _c1name = _cname+ "_Zbkg_bkg_"+_parybin;
+			TString _c2name = _cname+ "_Z_bkg_"+_parybin;
 
-		histo_M_DYJets_bkg[i][j]->Write("histo_M_DYJets_bkg_Pt"+_parxbin+"_"+_parybin);
-		histo_M_DYJets[i][j]->Write("histo_M_DYJets_Pt"+_parxbin+"_"+_parybin); 
-		histo_M_bkg[i][j]->Write("histo_M_bkg_Pt"+_parxbin+"_"+_parybin); 
-		histo_M_WJets[i][j]->Write("histo_M_WJets_Pt"+_parxbin+"_"+_parybin); 
-		histo_M_TTJets[i][j]->Write("histo_M_TTJets_Pt"+_parxbin+"_"+_parybin); 
-		histo_M_DYJets_bkg_fail[i][j]->Write("histo_M_DYJets_bkg_fail_Pt"+_parxbin+"_"+_parybin); 
-		histo_M_DYJets_fail[i][j]->Write("histo_M_DYJets_fail_Pt"+_parxbin+"_"+_parybin); 
-		histo_M_bkg_fail[i][j]->Write("histo_M_bkg_fail_Pt"+_parxbin+"_"+_parybin); 
-		histo_M_WJets_fail[i][j]->Write("histo_M_WJets_fail_Pt"+_parxbin+"_"+_parybin); 
-		histo_M_TTJets_fail[i][j]->Write("histo_M_TTJets_fail_Pt"+_parxbin+"_"+_parybin); 
-                                     
+			c1->SaveAs(_c1name+".pdf");
+			c2->SaveAs(_c2name+".pdf");
+
+			file_out->cd();
+
+			histo_M_DYJets_bkg[i][j]->Write("histo_M_DYJets_bkg_Pt"+_parxbin+"_"+_parybin);
+			histo_M_DYJets[i][j]->Write("histo_M_DYJets_Pt"+_parxbin+"_"+_parybin); 
+			histo_M_bkg[i][j]->Write("histo_M_bkg_Pt"+_parxbin+"_"+_parybin); 
+			histo_M_WJets[i][j]->Write("histo_M_WJets_Pt"+_parxbin+"_"+_parybin); 
+			histo_M_TTJets[i][j]->Write("histo_M_TTJets_Pt"+_parxbin+"_"+_parybin); 
+			histo_M_DYJets_bkg_fail[i][j]->Write("histo_M_DYJets_bkg_fail_Pt"+_parxbin+"_"+_parybin); 
+			histo_M_DYJets_fail[i][j]->Write("histo_M_DYJets_fail_Pt"+_parxbin+"_"+_parybin); 
+			histo_M_bkg_fail[i][j]->Write("histo_M_bkg_fail_Pt"+_parxbin+"_"+_parybin); 
+			histo_M_WJets_fail[i][j]->Write("histo_M_WJets_fail_Pt"+_parxbin+"_"+_parybin); 
+			histo_M_TTJets_fail[i][j]->Write("histo_M_TTJets_fail_Pt"+_parxbin+"_"+_parybin); 
+
 		}                    
 
 	}
 
 	file_out->Close();
+	canvas_out->Close();
 
 	return 0;
 
