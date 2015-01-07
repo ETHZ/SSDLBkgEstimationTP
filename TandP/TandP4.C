@@ -1,10 +1,12 @@
 /*********************************************
-* Description - Performs a fit of the invriant mass mass + background and store the result using path.
-                Retrieve then the efficiency using the T&P
+ * Description - Performs a fit of the invriant mass mass + background and store the result using path.
+ Retrieve then the efficiency using the T&P
 
-* Author - Gaël L. Perrin
-* Date - Jan 05 2015
-* *******************************************/
+ * Author - Gaël L. Perrin
+
+ * Date - Jan 05 2015
+
+ * *******************************************/
 
 #include "TString.h"
 #include "TFile.h"
@@ -16,7 +18,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "FitInvMassBkg_v3.C"
+#include "FitInvMassBkg4.C"
 
 double BinomError(double Nt, double eff) {
 
@@ -28,38 +30,63 @@ double BinomError(double Nt, double eff) {
 }
 
 
-int TandP(int leptonId, double Pt_low, double Pt_upp = 9999, int nptbins = 10, TString select = "tight", TString effcut = "", double cut = 0.2, TString _sig = "CBxBW",TString option = ""){
+int TandP(int leptonId, double par_low, double par_upp = 9999, int npar1bins = 10, TString select = "tight", TString effcut = "", double cut = 0.2, TString par_x = "Pt", TString par_y = "eta", TString _sig = "CBxBW",TString option = ""){
 	gROOT->SetBatch(kTRUE); 
 
 	cout<<"Debug1"<<endl;
-	
+
 	//Path for input and output file.
 	TString _path = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/ZBkgInvM/";
 
 	//Some variables
-	double Dpt = (Pt_upp-Pt_low)/nptbins;
+	double Dpt = (par_upp-par_low)/npar1bins;
+	int nbins = 200;
 
 	/////////////////////
 	//Name of the input//
 	/////////////////////
-	
+
 	TString pname;
 	if(leptonId == 11){pname = "e";}
 	if(leptonId == 13){pname = "mu";}
 
+	//Parameter string
+	TString _par;
+	TString _par2;
+	if(par_x == "Pt"){_par = "P_{t}";}
+	else if(par_x == "eta"){_par = "#eta";}
+	else if(par_x == "phi"){_par = "#phi";}
+	if(par_y == "Pt"){_par2 = "P_{t}";}
+	else if(par_y == "eta"){_par2 = "#eta";}
+	else if(par_y == "phi"){_par2 = "#phi";}
+
+	//Parameter 1
+	double* par1 = new double[npar1bins+1];
+	double Dpar = (double)(par_upp - par_low)/(double)npar1bins;
+
+	for(int i = 0; i < npar1bins+1; ++i){
+		par1[i] = par_low + i*Dpar;
+	}
+
+	//Parameter 2
+	const int npar2bins = 2;
+	double par2[npar2bins+1] = {0,1.2,2.5};
+
 	//selection string
 	TString _sel;
 
-	//cout<<"select is "<<select<<endl;
-	if(select == "tight"){_sel = "tight";}
+	if((select == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
+	if(select == "tightcut"){_sel = "tightcut";}
+	else if(select == "tightmva"){_sel = "tightmva";}
 	else if(select == "loose"){_sel = "loose";}
 	else if(select == ""){_sel = "";}
 	else{cout<<"ERROR: wrong selection !";return 1;}
 
 	//cut string
 	TString _effcut;
-
-	if(effcut == "tight"){_effcut = "tight";}
+	if((effcut == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
+	if(effcut == "tightcut"){_effcut = "tightcut";}
+	else if(effcut == "tightmva"){_effcut = "tightmva";}
 	else if(effcut == ""){_effcut = "";}
 	else if(effcut == "loose"){_effcut = "loose";}
 	else if(effcut == "reliso3"){_effcut = Form("reliso3_%0.3lf",cut);}
@@ -70,19 +97,18 @@ int TandP(int leptonId, double Pt_low, double Pt_upp = 9999, int nptbins = 10, T
 	else if(effcut == "dz"){_effcut = Form("dz_%0.3lf",cut);}
 	else{cout<<"ERROR: wrong numerator name !";return 1;}
 
-
-	////////////////////////////////////////////
+	///////////////////////////////////////////
 	//Write the name of the input/output file//
-	////////////////////////////////////////////
-	
-	TString _fname_in = "InvM4";
-	TString _fname_out = "InvM4";
+	///////////////////////////////////////////
+
+	TString _fname_in = "InvM4test";
+	TString _fname_out = "InvM4test";
 	if(option.Contains("matching")){_fname_in += "_Matched";_fname_out += "_Matched";}
 
-	TString _ptrange;
-	_ptrange = Form("Pt%0.f_Pt%0.f",Pt_low,Pt_upp);
-	_fname_in += "_"+_ptrange;
-	_fname_out += "_"+_ptrange;
+	TString par1range;
+	par1range = Form("%0.3f_"+par_x+"%0.3f",par1[0],par1[npar1bins]);
+	_fname_in += "_"+par1range;
+	_fname_out += "_"+par1range;
 	_fname_in += "_"+_effcut+"_for_"+_sel+"_"+pname; 
 	_fname_out += "_"+_effcut+"_for_"+_sel+"_"+pname; 
 
@@ -91,195 +117,188 @@ int TandP(int leptonId, double Pt_low, double Pt_upp = 9999, int nptbins = 10, T
 	//Create folder to store background fitting
 	mkdir(_path+_fname_out+"_FIT_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
-	//Name of the input file
-	cout<<"Debug2"<<endl;
-	
 	//Check if the file exist
 	TFile  f_test(_path+_fname_in+".root");
-	cout<<"Debug3"<<endl;
 	if(f_test.IsZombie()){
 
 		cout<<"File does not exists"<<endl;
-		cout<<"Creating file, please wait..."<<endl;
-		DrawInvMassBkg(leptonId,Pt_low,Pt_upp,nptbins,select,effcut,cut,option); 
-		cout<<"Done !"<<endl;
-//int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int nptbins = 10,TString select = "tight", TString effcut = "reliso3", double cut = 0.2, TString option = ""){
-//int TandP(int leptonId, double Pt_low, double Pt_upp = 9999, int nptbins = 10, TString select = "tight", TString effcut = "", double cut = 0.2, TString _sig = "CBxBW",TString option = ""){
-		
+
+		return 1;
+		//cout<<"Creating file, please wait..."<<endl;
+		//DrawInvMassBkg(leptonId,par_low,par_upp,npar1bins,select,effcut,cut,option); 
+		//cout<<"Done !"<<endl;
+
 	}
-	cout<<"Debug4"<<endl;
+
 	TFile* f = new TFile(_path+_fname_in+".root","read");
-
 	TFile* file_out = new TFile(_path+_fname_out+"_FIT"+".root","recreate");
-			
+	TFile* file_out2 = new TFile(_path+_fname_out+"_FIT_eff"+".root","recreate");
+
+	/////////////////////////////////////////
+	//Recover the invariant mass histograms//
+	/////////////////////////////////////////
+
 	//Declaration of the histograms
-	//eta < 1.2
-	TH1D **histo_DY = new TH1D*[nptbins+1];
-	TH1D **histo_BKG = new TH1D*[nptbins+1];
-	TH1D **histo_DY_fail = new TH1D*[nptbins+1];
-	TH1D **histo_BKG_fail = new TH1D*[nptbins+1];
+	//
+	
+	//Histo to recover
+	TH1D ***histo_DY 	= new TH1D**[npar2bins];
+	TH1D ***histo_BKG 	= new TH1D**[npar2bins];
+	TH1D ***histo_DY_fail 	= new TH1D**[npar2bins];
+	TH1D ***histo_BKG_fail 	= new TH1D**[npar2bins];
 
-	TH1D *eff = new TH1D("eff_BKG_fail","eff",nptbins,Pt_low,Pt_upp);
-	//eta > 1.2
-	TH1D **histo_DY_ = new TH1D*[nptbins+1];
-	TH1D **histo_BKG_ = new TH1D*[nptbins+1];
-	TH1D **histo_DY_fail_ = new TH1D*[nptbins+1];
-	TH1D **histo_BKG_fail_ = new TH1D*[nptbins+1];
+	//Output histo
+	TH1D **eff 		= new TH1D*[npar2bins];
+	//Declaration of graph for the efficiency
+	TGraphErrors** _eff 	= new TGraphErrors*[npar2bins];
 
-	TH1D *eff_ = new TH1D("eff_BKG_fail_","eff",nptbins,Pt_low,Pt_upp);
+	//Recover the histo
+	for(int i = 0; i < npar2bins; ++i){ 
+
+		histo_DY[i]      	= new TH1D*[npar1bins];
+		histo_BKG[i]     	= new TH1D*[npar1bins];
+		histo_DY_fail[i] 	= new TH1D*[npar1bins];
+		histo_BKG_fail[i]	= new TH1D*[npar1bins];
+
+		eff[i]			= new TH1D("eff_BKG_fail","eff",npar1bins,par1[0],par1[npar1bins+1]);
+
+		for(int j = 0; j < npar1bins; ++j){ 
+
+			histo_DY[i][j]        	=  new TH1D("histo_M_DY","M",nbins,0,250);
+			histo_BKG[i][j]     		=  new TH1D("histo_M_BKG","M",nbins,0,250);
+			histo_DY_fail[i][j] 		=  new TH1D("histo_M_DY_fail","M",nbins,0,250);
+			histo_BKG_fail[i][j]		=  new TH1D("histo_M_BKG_fail","M",nbins,0,250);
+
+		}
+
+	}
+
+	////////////////////////////
+	//Calculate the efficiency//
+	////////////////////////////
+
 	//Efficiency
 	//In order to compute the efficiency, one needs to fill the following variables
-	double EffB[100];
-	double EffE[100];
-	double error_effB[100];
-	double error_effE[100];
-	double PT[100];
-	double error_pt[100];
-	
-	//Starting the loop that read the hisograms and do the fit
-	for(int i =0; i<nptbins;++i){
+	double** Eff = new double*[100];
+	double** error_eff = new double*[100];
+	double** PT = new double*[100];
+	double** error_par1 = new double*[100];
 
-		//eta < 1.2
-		char _DY[200];
-		char _BKG[200];
-		char _DY_fail[200];
-		char _BKG_fail[200];
-		//eta > 1.2
-		char _DY_[200];
-		char _BKG_[200];
-		char _DY_fail_[200];
-		char _BKG_fail_[200];
+	for(int j = 0; j < npar2bins; ++j){ 
 
-		//Define the Pt range of each histogram
-		double Pt1;
-		double Pt2;
-		if(i*Dpt+Pt_low < Pt_upp){Pt1 = i*Dpt+Pt_low; Pt2 = (i+1)*Dpt+Pt_low;}
-		else if (i*Dpt+Pt_low >= Pt_upp){Pt1 = i*Dpt+Pt_low; Pt2 = 10000;}
-
-		//Fill the eff variables
-		
-	        PT[i] = (Pt2+Pt1)/2.;
-		error_pt[i] = (Pt2-Pt1)/2.;
-
-		//eta < 1.2
-		sprintf(_DY,"histo_M_DYJets_bkg_loweta_Pt%0.f_Pt%0.f;1",Pt1,Pt2);
-		sprintf(_BKG,"histo_M_bkg_loweta_Pt%0.f_Pt%0.f;1",Pt1,Pt2);
-		sprintf(_DY_fail,"histo_M_DYJets_bkg_fail_loweta_Pt%0.f_Pt%0.f;1",Pt1,Pt2);
-		sprintf(_BKG_fail,"histo_M_bkg_fail_loweta_Pt%0.f_Pt%0.f;1",Pt1,Pt2);
-		//eta > 1.2
-		sprintf(_DY_,"histo_M_DYJets_bkg_higheta_Pt%0.f_Pt%0.f;1",Pt1,Pt2);
-		sprintf(_BKG_,"histo_M_bkg_higheta_Pt%0.f_Pt%0.f;1",Pt1,Pt2);
-		sprintf(_DY_fail_,"histo_M_DYJets_bkg_fail_higheta_Pt%0.f_Pt%0.f;1",Pt1,Pt2);
-		sprintf(_BKG_fail_,"histo_M_bkg_fail_higheta_Pt%0.f_Pt%0.f;1",Pt1,Pt2);
-
-		//eta > 1.2
-		histo_DY[i] = (TH1D*)f->Get(_DY);
-		histo_BKG[i] = (TH1D*)f->Get(_BKG);
-		histo_DY_fail[i] = (TH1D*)f->Get(_DY_fail);
-		histo_BKG_fail[i] = (TH1D*)f->Get(_BKG_fail);
-		//eta > 1.2
-		histo_DY_[i] = (TH1D*)f->Get(_DY_);
-		histo_BKG_[i] = (TH1D*)f->Get(_BKG_);
-		histo_DY_fail_[i] = (TH1D*)f->Get(_DY_fail_);
-		histo_BKG_fail_[i] = (TH1D*)f->Get(_BKG_fail_);
-
-		//Do the rebinning
-
-		//eta >1.2
-		histo_DY[i]->SetName(_DY);
-		histo_BKG[i]->SetName(_BKG);
-		histo_DY_fail[i]->SetName(_DY_fail);
-		histo_BKG_fail[i]->SetName(_BKG_fail);
-		//eta <1.2
-  	 	histo_DY_[i]->SetName(_DY_);
-		histo_BKG_[i]->SetName(_BKG_);
-		histo_DY_fail_[i]->SetName(_DY_fail_);
-		histo_BKG_fail_[i]->SetName(_BKG_fail_);
-		
-		//cout<<"This is the bin from "<<Pt1<<" to "<<Pt2<<endl;
-	        TCanvas* c1 = new TCanvas("c1","c1");
-		c1->Divide(1,2);
-		c1->cd(1);
-		histo_DY[i]->Draw();
-		histo_BKG[i]->Draw();
-	        cout<<"Debug5"<<endl;
-		double passB = FitInvMassBkg_v3(histo_DY[i],histo_BKG[i],_sig,"Cheb",option);
-	        cout<<"Debug6"<<endl;
-		c1->cd(2);
-		double failB = FitInvMassBkg_v3(histo_DY_fail[i],histo_BKG_fail[i],_sig,"Cheb",option);
-	        TCanvas* c2 = new TCanvas("c2","c2");
-		c2->Divide(1,2);
-		c2->cd(1);
-		double passE = FitInvMassBkg_v3(histo_DY_[i],histo_BKG_[i],_sig,"Cheb",option);
-		c2->cd(2);
-		double failE = FitInvMassBkg_v3(histo_DY_fail_[i],histo_BKG_fail_[i],_sig,"Cheb",option);
-
-		//Compute and fill the efficiency
-
-		EffB[i] = passB/(passB+failB);
-		error_effB[i] = BinomError(passB+failB,EffB[i]);
-		EffE[i] = passE/(passE+failE);
-		error_effE[i] = BinomError(passE+failE,EffE[i]);
-
-		eff->Fill(PT[i],EffB[i]);
-		eff->SetBinError(i,error_effB[i]);
-		eff_->Fill(PT[i],EffE[i]);
-		eff_->SetBinError(i,error_effE[i]);
-
-		mkdir(_path+_fname_out+"_FIT_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		TString _cname = Form(_path+_fname_out+"_FIT_PDF/InvM_Pt%0.f_Pt%0.f",Pt1,Pt2);
-		_cname += "_"+effcut+"_"+pname;
-		TString _c1name = _cname+ "_eta<1.2.pdf";
-		TString _c2name = _cname+ "_eta>1.2.pdf";
-		c1->SaveAs(_c1name);
-		c2->SaveAs(_c2name);
+		Eff[j] = new double[100];
+		error_eff[j] = new double[100];
+		PT[j] = new double[100];
+		error_par1[j] = new double[100];  	
 	}
 
-	//Declaration of graph for the efficiency
-	//Barrel
-	TGraphErrors* effB = new TGraphErrors(nptbins,PT,EffB,error_pt,error_effB);
-	effB->Draw("A");
-	effB->SetMarkerStyle(4);
-	effB->SetMarkerSize(0.4);
-	effB->SetMarkerColor(4);
-	effB->GetXaxis()->SetTitle("P_{t}");
-	effB->GetXaxis()->SetRangeUser(0,250);
-	effB->GetYaxis()->SetRangeUser(0,1.1);
-	effB->GetYaxis()->SetTitle(" #epsilon ");
-	effB->GetXaxis()->SetTitle("P_{t}");
-	//Endcape
-	TGraphErrors* effE = new TGraphErrors(nptbins,PT,EffE,error_pt,error_effE);
-	effE->Draw("A");
-	effE->SetMarkerStyle(4);
-	effE->SetMarkerSize(0.4);
-	effE->SetMarkerColor(4);
-	//effE->SetLineColor(4);
-	effE->GetXaxis()->SetTitle("P_{t}");
-	effE->GetYaxis()->SetRangeUser(0,1.1);
-	effE->GetYaxis()->SetTitle(" #epsilon ");
-	effE->GetXaxis()->SetTitle("P_{t}");
+	//Folder to save the output 
+	mkdir(_path+_fname_out+"_FIT_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+	//Starting the loop that read the hisograms and do the fit
+	for(int j = 0; j < npar2bins; ++j){ 
+
+			//name of the bins
+			TString _parxbin;
+			TString _parybin;
+
+		for(int i = 0; i<npar1bins; ++i){
+
+			//Recover the Histograms
+			//
+			
+
+			//Parameter string
+			TString _par;
+			if(par_x == "Pt"){_parxbin = Form("%0.f_Pt%0.f",par1[i],par1[i+1]);}
+			else if(par_x == "eta"){_parxbin = Form("%0.3f_eta%0.3f",par1[i],par1[i+1]);}
+			else if(par_x == "phi"){_parxbin = Form("%0.3f_phi%0.3f",par1[i],par1[i+1]);}
+			if(par_y == "Pt"){_parybin = Form("%0.f_Pt%0.f",par2[j],par2[j+1]);}
+			else if(par_y == "eta"){_parybin = Form("%0.3f_eta%0.3f",par2[j],par2[j+1]);cout<<"it works !"<<endl;}
+			else if(par_y == "phi"){_parybin = Form("%0.3f_phi%0.3f",par2[j],par2[j+1]);}
+
+			TString _DY;
+			TString _BKG;
+			TString _DY_fail;
+			TString _BKG_fail;
+
+			_DY 		= "histo_M_DYJets_bkg"+_parxbin+"_"+_parybin;
+			_BKG 		= "histo_M_bkg"+_parxbin+"_"+_parybin; 
+			_DY_fail 	= "histo_M_DYJets_bkg_fail"+_parxbin+"_"+_parybin; 
+			_BKG_fail 	= "histo_M_bkg_fail"+_parxbin+"_"+_parybin; 
+
+			histo_DY[j][i] 		 	= (TH1D*)f->Get(_DY);
+			histo_BKG[j][i] 		= (TH1D*)f->Get(_BKG);
+			histo_DY_fail[j][i] 		= (TH1D*)f->Get(_DY_fail);
+			histo_BKG_fail[j][i] 		= (TH1D*)f->Get(_BKG_fail);
+
+			histo_DY[j][i]->SetName(_DY);
+			histo_BKG[j][i]->SetName(_BKG);
+			histo_DY_fail[j][i]->SetName(_DY_fail);
+			histo_BKG_fail[j][i]->SetName(_BKG_fail);
+
+			//Fit the recovered histograms
+			//
+
+			TCanvas* c1 = new TCanvas("c1","c1");
+			c1->Divide(1,2);
+			c1->cd(1);
+			double pass = FitInvMassBkg_v3(histo_DY[j][i],histo_BKG[j][i],_sig,"Cheb",option);
+			c1->cd(2);
+			double fail = FitInvMassBkg_v3(histo_DY_fail[j][i],histo_BKG_fail[j][i],_sig,"Cheb",option);
+
+			//Compute and fill the efficiency
+			//
+
+			Eff[j][i] = pass/(pass+fail);
+			error_eff[j][i] = BinomError(pass+fail,Eff[j][i]);
+
+			PT[j][i] = (par1[i] + par1[i])/2.;
+			error_par1[j][i] = (par1[i] - par1[i])/2.;
+			eff[j]->Fill(PT[j][i],Eff[j][i]);
+			eff[j]->SetBinError(i,error_eff[j][i]);
+
+			//Save the Fit 
+
+			TString _cname = _path+_fname_out+"_FIT_PDF/InvM_"+_parxbin+"_"+_parybin;
+			_cname += "_"+effcut+"_"+pname;
+			TString _c1name = _cname+ ".pdf";
+			c1->SaveAs(_c1name);
+		}
+
+		
+	///////////////////////
+	//Fill the efficiency//
+	///////////////////////
+	
+	_eff[j] = new TGraphErrors(npar1bins,PT[j],Eff[j],error_par1[j],error_eff[j]);
+	
+	_eff[j]->Draw("A");
+	_eff[j]->SetMarkerStyle(4);
+	_eff[j]->SetMarkerSize(0.4);
+	_eff[j]->SetMarkerColor(4);
+	_eff[j]->GetXaxis()->SetTitle("P_{t}");
+	_eff[j]->GetXaxis()->SetRangeUser(0,250);
+	_eff[j]->GetYaxis()->SetRangeUser(0,1.1);
+	_eff[j]->GetYaxis()->SetTitle(" #epsilon ");
+	_eff[j]->GetXaxis()->SetTitle("P_{t}");
 
 	TString _g1name = _path+_fname_out+"_PDF/Eff";
-	TString _g2name = _path+_fname_out+"_PDF/Eff";
-	_g1name += "_"+effcut+"_"+pname+"_eta<1.2.pdf";
-	_g2name += "_"+effcut+"_"+pname+"_eta>1.2.pdf";
+	_g1name += "_"+effcut+"_"+pname+"_"+_parxbin+"_"+_parybin+".pdf";
 
 	TCanvas* b1 = new TCanvas("b1","b1");
-	TCanvas* b2 = new TCanvas("b2","b2");
 
 	b1->cd();
-	effB->Draw();
+	eff[j]->Draw();
 	b1->SaveAs(_g1name);
-	b2->cd();
-	effE->Draw();
-	b2->SaveAs(_g2name);
 
-	effB->Write("Eff_"+effcut+"_"+pname+"_eta<1.2");
-	effE->Write("Eff_"+effcut+"_"+pname+"_eta>1.2");
+	file_out2->cd();
+	_eff[j]->Write("Eff_"+effcut+"_"+pname+"_"+_parxbin+"_"+_parybin);
+	eff[j]->Write("Eff_histo_"+effcut+"_"+pname+"_"+_parxbin+"_"+_parybin);
 
-	eff->Write("Eff_histo_"+effcut+"_"+pname+"_eta<1.2");
-	eff_->Write("Eff_histo_"+effcut+"_"+pname+"_eta>1.2");
+	}
 
 	f->Close();
 	file_out->Close();
+	file_out2->Close();
 }
