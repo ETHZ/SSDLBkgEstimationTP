@@ -43,21 +43,37 @@
 
 #include "../setTDRStyle.C"
 
-int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* par, int nrange, TString sel_den , TString sel_num, double cut_den = 0., double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = "");
+//#include "TandP_sidefunction.h"
 
-int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double par2_low, double par2_upp, int nbins2, TString sel_den , TString sel_num, double cut_den = 0., double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = ""){
+int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2bins, TString sel_den , TString sel_num, double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = "");
 
-	double* par2 = new double[nbins2];
-	double Dpar2 = (double)(par2_upp - par2_low)/(double)nbins;
-	for(int i = 0; i < nbins; ++i){
-		par2[i] = par2_low + i*Dpar2;
+int MC_Ratio(int leptonId, double par_low, double par_upp, int npar1bins, TString sel_den , TString sel_num, double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = ""){
+
+
+	//Parameter 1
+	double* par1 = new double[npar1bins+1];
+	double Dpar = (double)(par_upp - par_low)/(double)npar1bins;
+
+	for(int i = 0; i < npar1bins+1; ++i){
+		par1[i] = par_low + i*Dpar;
 	}
 
-return MC_Ratio(leptonId, par_low, par_upp, nbins, par2, nbins2, sel_den, sel_num, cut_den, cut_num, par_x, par_y, option );
+	//Parameter 2
+	const int npar2bins_eta = 2;
+	const int npar2bins_pt = 19;
+
+	double par2_eta[npar2bins_eta+1] = {0,1.2,2.5};
+	double par2_pt[npar2bins_pt+1] = {10,20,30,40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200};
+
+	if(par_y == "eta"){
+	return MC_Ratio(leptonId, par1, npar1bins, par2_eta, npar2bins_eta, sel_den, sel_num, cut_num, par_x, par_y, option );
+	}else if(par_y == "pt"){
+	return MC_Ratio(leptonId, par1, npar1bins, par2_pt, npar2bins_pt, sel_den, sel_num, cut_num, par_x, par_y, option );
+	}else{return 1;}
 
 }
 
-int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* par2, int nrange, TString sel_den , TString sel_num, double cut_den , double cut_num , TString par_x , TString par_y , TString option ){
+int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2bins, TString sel_den , TString sel_num, double cut_num , TString par_x , TString par_y , TString option ){
 
 	setTDRStyle();
 
@@ -91,21 +107,28 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* pa
 	TString _par;
 	TString _sel_num;
 	TString _sel_den;
-	TString _cut_den;
 	TString _option;
 
-	//Writing string
-	if (leptonId == 11) {pname = "e";_pname = "e";}
-	else if (leptonId == 13){pname = " #mu";_pname = "mu";}
+	////Writing string
+	//particle string
+	if(abs(leptonId) == 11){pname = "e"; _pname = "e";}
+	if(abs(leptonId) == 13){pname = " #mu"; _pname = "mu";}
+	//Parameter string
 	if(par_x == "Pt"){_par = "P_{t}";}
 	else if(par_x == "eta"){_par = "#eta";}
 	else if(par_x == "phi"){_par = "#phi";}
-	else{cout<<"ERROR: wrong parameter name !";return 1;}
-	if((sel_num == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
-	if(sel_num == ""){_sel_num = "unsel";}
-	else if(sel_num == "tightcut"){_sel_num = "tightcut";}
+	//sel_den string
+	if((sel_den == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
+	if(sel_den == "tightcut"){_sel_den = "tightcut";}
+	else if(sel_den == "tightmva"){_sel_den = "tightmva";}
+	else if(sel_den == "loose"){_sel_den = "loose";}
+	else if(sel_den == ""){_sel_den = "";}
+	else{cout<<"ERROR: wrong sel_denion !";return 1;}
+	//sel_num string
+	if((sel_num == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
+	if(sel_num == "tightcut"){_sel_num = "tightcut";}
 	else if(sel_num == "tightmva"){_sel_num = "tightmva";}
-	//else if(sel_num == "mvaid"){_sel_num = Form("tightmva%0.3lf",cut_num) ;}
+	else if(sel_num == ""){_sel_num = "";}
 	else if(sel_num == "loose"){_sel_num = "loose";}
 	else if(sel_num == "reliso3"){_sel_num = Form("reliso3_%0.3lf",cut_num);}
 	else if(sel_num == "reliso4"){_sel_num = Form("reliso4_%0.3lf",cut_num);}
@@ -114,50 +137,40 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* pa
 	else if(sel_num == "dxy"){_sel_num = Form("dxy_%0.3lf",cut_num);}
 	else if(sel_num == "dz"){_sel_num = Form("dz_%0.3lf",cut_num);}
 	else{cout<<"ERROR: wrong numerator name !";return 1;}
-	//Selection on the denominator
-	if((sel_den == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
-	if(sel_den == ""){_sel_den = "unsel";}
-	else if(sel_den == "tightcut"){_sel_den = "tightcut";}
-	else if(sel_den == "tightmva"){_sel_den = "tightmva";}
-	//else if(sel_den == "mvaid"){_sel_den = Form("tightmva%0.3lf",cut_den) ;}
-	else if(sel_den == "loose"){_sel_den = "loose";}
-	else{cout<<"ERROR: wrong denominator selection name !";return 1;}
+	//option string
 	option.Append(" ");
 	option.Prepend(" ");
 	if(option.Contains(" ll ")){_option += "_ll";}
 	if(option.Contains(" unmatched ")){_option += "_unmatched";}
 	if(option.Contains(" alleta ")){_option += "_alleta";}
 	_option += "_";
+	//parameter range string
+	TString _par1range;
+	_par1range = Form("%0.3f_"+par_x+"%0.3f",par1[0],par1[npar1bins]);
+	TString _par2range;
+	_par2range = Form("%0.3f_"+par_y+"%0.3f",par2[0],par2[npar2bins]);
 
-	//Name of the output
+	/////////////////////////////////////
+	//Write the name of the output file//
+	/////////////////////////////////////
 
-	//TString _fname = file_name("eff3",leptonId, par_low,par_upp,sel_den,sel_num,cut_den,cut_num,par_x,option);
-	//TString _output= _path+_fname + ".root";
-	TString _output = _path+"eff4test"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+par_x+".root";
+	TString _fname = "eff4test"+_option+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
 
 	//Output file
-	TFile* output = new TFile(_output,"recreate");
+	TFile* file_out = new TFile(_path+_fname+".root","recreate");
 
 	//Declaration of histogram
 
+	TH1D **histo_num = new TH1D*[npar2bins];
+	TH1D **histo_den = new TH1D*[npar2bins];
+	TH1D **eff = new TH1D*[npar2bins];
 
-	//Preparation for general range in eta/pt
-
-	//const int nrange = 3;
-	//double par2[nrange] = {0,0.8,1.5};
-	//const int nrange = 10;
-	//double par2[nrange] = {10,30,40,60,75,80,100,150,160,188};
-
-	TH1D **histo_num = new TH1D*[nrange];
-	TH1D **histo_den = new TH1D*[nrange];
-	TH1D **eff = new TH1D*[nrange];
-
-	for(int _i = 0; _i < nrange; ++_i){ 
+	for(int _i = 0; _i < npar2bins; ++_i){ 
 
 		//Barrel
-		histo_num[_i] = new TH1D("histo_num","Pt",nbins,min(par_low,0.),par_upp);
-		histo_den[_i] = new TH1D("histo_den","Pt",nbins,min(par_low,0.),par_upp);
-		eff[_i] = new TH1D("eff","Pt",nbins,min(par_low,0.),par_upp);
+		histo_num[_i] = new TH1D("histo_num","Pt",npar1bins,par1[0],par1[npar1bins]);
+		histo_den[_i] = new TH1D("histo_den","Pt",npar1bins,par1[0],par1[npar1bins]);
+		eff[_i] = new TH1D("eff","Pt",npar1bins,par1[0],par1[npar1bins]);
 
 	}
 
@@ -238,7 +251,6 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* pa
 	tree->SetBranchAddress("LepOther_tightId",&Otight);
 	tree->SetBranchAddress("LepOther_eleCutIdCSA14_50ns_v1",&Otighte);
 	//tree->SetBranchAddress("LepOther_mvaId",&Omvaid);
-	tree->SetBranchAddress("LepOther_looseIdSusy",Oloose);
 	tree->SetBranchAddress("LepOther_relIso03",&Oiso3);
 	tree->SetBranchAddress("LepOther_relIso04",&Oiso4);
 	tree->SetBranchAddress("LepOther_chargedHadRelIso03",&Ochiso3);
@@ -256,7 +268,6 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* pa
 	tree->SetBranchAddress("LepGood_tightId",&Gtight);
 	tree->SetBranchAddress("LepGood_eleCutIdCSA14_50ns_v1",&Gtighte);
 	//tree->SetBranchAddress("LepGood_mvaId",&Gmvaid);
-	tree->SetBranchAddress("LepGood_looseIdSusy",&Gloose);
 	tree->SetBranchAddress("LepGood_relIso03",&Giso3);
 	tree->SetBranchAddress("LepGood_relIso04",&Giso4);
 	tree->SetBranchAddress("LepGood_chargedHadRelIso03",&Gchiso3);
@@ -267,7 +278,7 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* pa
 	int count = 0;
 
 	//Start loop over all events
-	for (int k = 0; k < 100000; ++k) {
+	for (int k = 0; k < n; ++k) {
 
 		if( 100*(double)k/n> count){cout<<count<<endl;++count;}
 
@@ -319,15 +330,9 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* pa
 
 								//Fill Pt only for matched events
 								if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
-									//Filling the den
 
-
-									for(int ii = 0; ii < nrange; ++ii){
-
-										if((ii < nrange-1)&&(par_2 >= par2[ii])&&(par_2 < par2[ii+1])){histo_den[ii]->Fill(par);}
-										else if((ii == nrange-1)&&(par_2 >= par2[ii])){histo_den[ii]->Fill(par);}//Put large par2 into large bin
-										else{}
-
+								  for(int ii = 0; ii < npar2bins; ++ii){
+								    if((par_2 > par2[ii])&&(par_2 <= par2[ii+1])){histo_den[ii]->Fill(par);}
 									}
 
 
@@ -349,17 +354,12 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* pa
 
 									//Find the corresponding histogram for par2
 									TH1D* hist;
-									bool notfund = true;
-									int ii = 0;
-									while(notfund){
 
-										if((ii < nrange-1)&&(par_2 > par2[ii])&&(par_2 <= par2[ii+1])){hist = histo_num[ii]; notfund = false;}
-										else if((ii == nrange-1)&&(par_2 >= par2[ii])){hist = histo_num[ii]; notfund = false;}
-										//if(ii == nrange){cout<<"Error! The value of the parameter is "<<par_2<<endl; return 1;}
-										if(ii == nrange){a = 0; notfund = false;}//Doesn't match the binning
-										++ii;
-
-									}
+									bool found = false;
+								  	for(int _i = 0; _i < npar2bins; ++_i){
+								  	  if((par_2 > par2[_i])&&(par_2 <= par2[_i+1])){hist = histo_num[_i]; found = true;}
+								  	}
+									if(!found){a = 0;}
 
 									switch(a){
 
@@ -456,12 +456,9 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* pa
 							//Fill Pt only for matched events
 							if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
 
-								for(int ii = 0; ii < nrange; ++ii){
-
-									if((ii < nrange-1)&&(par_2 >= par2[ii])&&(par_2 < par2[ii+1])){histo_den[ii]->Fill(par);}
-									else if((ii == nrange-1)&&(par_2 >= par2[ii])){histo_den[ii]->Fill(par);}//Put large par2 into large bin
-
-								}
+								  for(int ii = 0; ii < npar2bins; ++ii){
+								    if((par_2 > par2[ii])&&(par_2 <= par2[ii+1])){histo_den[ii]->Fill(par);}
+									}
 
 								//Additional cut on the numerator
 								int a = 0;
@@ -482,17 +479,12 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* pa
 
 								//Find the corresponding histogram for par2
 								TH1D* hist;
-								bool notfund = true;
-								int ii = 0;
-								while(notfund){
 
-									if((ii < nrange-1)&&(par_2 > par2[ii])&&(par_2  <= par2[ii+1])){hist = histo_num[ii]; notfund = false;}
-									else if((ii == nrange-1)&&(par_2  >= par2[ii])){hist = histo_num[ii]; notfund = false;}
-									//if(ii == nrange){cout<<"Error! The value of the parameter is "<<par_2<<endl; return 1;}
-									if(ii == nrange){a = 0; notfund = false;}//Doesn't match the binning
-									++ii;
-
+								bool found = false;
+								for(int _i = 0; _i < npar2bins; ++_i){
+								  if((par_2 > par2[_i])&&(par_2 <= par2[_i+1])){hist = histo_num[_i];found = true;}
 								}
+								if(!found){a = 0;}
 
 								switch(a){
 
@@ -540,55 +532,65 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, double* pa
 		}
 	}
 
-
+	///////////////////
+	//Draw histograms//
+	///////////////////
 
 	//Canvas declaration
+	for(int i = 0; i < npar2bins; ++i){
 
-	TCanvas** c = new TCanvas*[nrange];
+	  ////////////////////
+	  //Build histograms//
+	  ////////////////////
 
-	for(int i = 0; i < nrange; ++i){
+	  histo_num[i]->Sumw2();
+	  histo_den[i]->Sumw2();
+	  eff[i]->Divide(histo_num[i],histo_den[i],1,1,"B");
 
-		c[i] = new TCanvas(Form("c%i",i),"c");
+	  //String for name of the ouput files and histograms titles
+	  //
+
+	  TString _parybin;
+
+	  //Parameter string
+	  if(par_y == "Pt"){_parybin = Form("%0.f_Pt%0.f",par2[i],par2[i+1]);}
+	  else if(par_y == "eta"){_parybin = Form("%0.3f_eta%0.3f",par2[i],par2[i+1]);cout<<"it works !"<<endl;}
+	  else if(par_y == "phi"){_parybin = Form("%0.3f_phi%0.3f",par2[i],par2[i+1]);}
+
+	  TString _parytitle;
+
+	  //Title string
+	  if(par_y == "Pt"){_parytitle = Form("%0.f #leq P_{t} #leq %0.f",par2[i],par2[i+1]);}
+	  else if(par_y == "eta"){_parytitle = Form("%0.3f #leq #||{#eta}  #leq %0.3f",par2[i],par2[i+1]);cout<<"it works !"<<endl;}
+	  else if(par_y == "phi"){_parytitle = Form("%0.3f #leq #||{#phi}  #leq %0.3f",par2[i],par2[i+1]);}
+
+	  //Draw histograms
+	  TCanvas* c1 = new TCanvas("c1","c1");
+	  c1->cd();
+	  eff[i]->Draw();
+	  eff[i]->GetYaxis()->SetTitle("#epsilon");
+	  eff[i]->GetXaxis()->SetTitle(_par);
+	  eff[i]->SetMarkerStyle(20);
+	  eff[i]->SetMarkerSize(1);
+	  eff[i]->SetMarkerColor(4);
+	  eff[i]->SetLineColor(4);
+	  eff[i]->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" "+_parytitle);
+
+	  /////////////////////
+	  //Saving the output//
+	  /////////////////////
+
+	  //Write pdf
+	  TString cname = "eff4test"+_option+_pname+_par1range+"_"+_parybin+"_den_"+_sel_den+"_num_"+_sel_num;
+	  c1->SaveAs(_path+"PDF/"+cname+".pdf");
+
+	  //Write in output file
+	  file_out->cd();
+	  eff[i]->Write("eff"+_parybin);
+
 	}
 
-
-	for(int i = 0; i < nrange; ++i){
-
-		histo_num[i]->Sumw2();
-		histo_den[i]->Sumw2();
-
-		eff[i]->Divide(histo_num[i],histo_den[i],1,1,"B");
-
-		//Name of the par2 range
-		TString _par2;
-
-		if(i < nrange-1){_par2 = Form("%0.3lf<",par2[i])+par_y+Form("<%0.3lf",par2[i+1]);}
-		else if(i == nrange-1){_par2 = Form("%0.3lf<",par2[i])+par_y;}
-
-		//Efficiency of the iso cut.
-		c[i]->cd();
-		eff[i]->Draw();
-		eff[i]->GetYaxis()->SetTitle("#epsilon");
-		eff[i]->GetXaxis()->SetTitle(_par);
-		//eff->GetXaxis()->SetRangeUser(0,250);
-		eff[i]->SetMarkerStyle(20);
-		eff[i]->SetMarkerSize(1);
-		eff[i]->SetMarkerColor(4);
-		eff[i]->SetLineColor(4);
-		eff[i]->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" "+_par2);
-
-		//Define the name of the canvas
-		TString cname = "eff4test"+_option+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+_par2;
-
-		c[i]->SaveAs(_path+"PDF/"+cname+".pdf");
-
-		output->cd();
-		eff[i]->Write("eff"+_par2);
-
-	}
-
-	output->Close();
-
+	file_out->Close();
 	return 0;
 
 }
