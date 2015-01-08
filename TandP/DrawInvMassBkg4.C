@@ -103,15 +103,17 @@ int     DrawInvMassBkg( int leptonId, double par_low , double par_upp ,int npar1
 
   //Parameter 2
   const int npar2bins_eta = 2;
-  const int npar2bins_pt = 19;
+  //const int npar2bins_pt = 19;
+  const int npar2bins_pt = 1;
 
   double par2_eta[npar2bins_eta+1] = {0,1.2,2.5};
-  double par2_pt[npar2bins_pt+1] = {10,20,30,40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200};
+  //double par2_pt[npar2bins_pt+1] = {10,20,30,40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200};
+  double par2_pt[npar2bins_pt+1] = {10,250};//,30,40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200};
 
 
   if(par_y == "eta"){
     return DrawInvMassBkg(leptonId, par1, npar1bins, par2_eta, npar2bins_eta, sel_den, sel_num, cut_num, par_x, par_y, option );
-  }else if(par_y == "pt"){
+  }else if(par_y == "Pt"){
     return DrawInvMassBkg(leptonId, par1, npar1bins, par2_pt, npar2bins_pt, sel_den, sel_num, cut_num, par_x, par_y, option );
   }else{return 1;}
 
@@ -220,10 +222,9 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
       histo_M_TTJets[i][j]  			=  new TH1D("histo_M_TTJets","M",nbins,0,250);
       histo_M_DYJets_bkg_fail[i][j]	 	=  new TH1D("histo_M_DYJets_bkg_fail","M",nbins,0,250);
       histo_M_DYJets_fail[i][j]     		=  new TH1D("histo_M_DYJets_fail","M",nbins,0,250);
-      histo_M_bkg_fail[i][j]  		=  new TH1D("histo_M_bkg_fail","M",nbins,0,250);
+      histo_M_bkg_fail[i][j]  			=  new TH1D("histo_M_bkg_fail","M",nbins,0,250);
       histo_M_WJets_fail[i][j]  		=  new TH1D("histo_M_WJets_fail","M",nbins,0,250);
       histo_M_TTJets_fail[i][j]  		=  new TH1D("histo_M_TTJets_fail","M",nbins,0,250);
-
 
     }
 
@@ -326,7 +327,6 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
     //looseId leptons
     if(sel_den != "loose"){
       for (int i = 0; i < On; ++i) {
-	//cout<<"debug3"<<endl;
 
 	//define sel_denions using bools
 	bool reliso3((sel_num != "reliso3")||((sel_num == "reliso3")&&(Oiso3[i] < cut_num )));
@@ -481,7 +481,6 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 	}
       }
     }
-
 
     for (int i = 0; i < Gn; ++i) {
 
