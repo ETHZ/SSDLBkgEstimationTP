@@ -27,6 +27,7 @@
 #include "TGraphErrors.h"
 #include "TGraph.h"
 #include "TLorentzVector.h"
+
 //#include "../setTDRStyle.C"
 //#include "../InvMass.C"
 //#include "../DeltaR.C"
@@ -200,18 +201,23 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
   TH1D*** histo_M_WJets_fail  = new TH1D**[npar2bins];
   TH1D*** histo_M_TTJets_fail  = new TH1D**[npar2bins];
 
+  //
+  TH1D** histo_par1 = new TH1D*[npar2bins];
+
   for(int i = 0; i < npar2bins; ++i){ 
 
     histo_M_DYJets_bkg[i]  		= new TH1D*[npar1bins];
-    histo_M_DYJets[i]  		= new TH1D*[npar1bins];
-    histo_M_bkg[i]  		= new TH1D*[npar1bins];
-    histo_M_WJets[i]  		= new TH1D*[npar1bins];
-    histo_M_TTJets[i]  		= new TH1D*[npar1bins];
-    histo_M_DYJets_bkg_fail[i] 	= new TH1D*[npar1bins];
-    histo_M_DYJets_fail[i]     	= new TH1D*[npar1bins];
+    histo_M_DYJets[i]  			= new TH1D*[npar1bins];
+    histo_M_bkg[i]  			= new TH1D*[npar1bins];
+    histo_M_WJets[i]  			= new TH1D*[npar1bins];
+    histo_M_TTJets[i]  			= new TH1D*[npar1bins];
+    histo_M_DYJets_bkg_fail[i] 		= new TH1D*[npar1bins];
+    histo_M_DYJets_fail[i]     		= new TH1D*[npar1bins];
     histo_M_bkg_fail[i]  		= new TH1D*[npar1bins];
     histo_M_WJets_fail[i]  		= new TH1D*[npar1bins];
-    histo_M_TTJets_fail[i]  	= new TH1D*[npar1bins];
+    histo_M_TTJets_fail[i]  		= new TH1D*[npar1bins];
+
+    histo_par1[i] 			= new TH1D("histo_par1","par1",npar1bins*25,par1[0],par1[npar1bins]);
 
     for(int j = 0; j < npar1bins; ++j){ 
 
@@ -225,6 +231,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
       histo_M_bkg_fail[i][j]  			=  new TH1D("histo_M_bkg_fail","M",nbins,0,250);
       histo_M_WJets_fail[i][j]  		=  new TH1D("histo_M_WJets_fail","M",nbins,0,250);
       histo_M_TTJets_fail[i][j]  		=  new TH1D("histo_M_TTJets_fail","M",nbins,0,250);
+
 
     }
 
@@ -309,6 +316,8 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 
   int count = 0;
 
+  n = 100000;
+
   //Start loop over all events
   for (int k = 0; k < n; ++k) {
 
@@ -324,6 +333,8 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 
     tree->GetEntry(k);
 
+    //cout<<"debug1"<<endl;
+
     //looseId leptons
     if(sel_den != "loose"){
       for (int i = 0; i < On; ++i) {
@@ -338,6 +349,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 	bool tight((sel_num != "tightcut")||(((abs(Oid[i]) == 13)&&(sel_num == "tightcut")&&(Otight[i] == 1))||((abs(Oid[i]) == 11)&&(sel_num == "tightcut")&&(Otighte[i] >= 3))));
 	bool tightmva((sel_num != "tightmva")||((abs(Oid[i]) == 11)&&(sel_num == "tightmva")&&(Otight[i] == 1)));
 
+    //cout<<"debug2"<<endl;
 
 	//Store the values from both the loose and tight in the same variable
 
@@ -365,8 +377,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 	}
       }
 
-      //ok
-
+    //cout<<"debug3"<<endl;
       //loop over all the rec particles to find the isolation
       //We requiere one tag at least 
       while((tag[0] != 9999)||(tag[1] != 9999)){
@@ -396,6 +407,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 	  for(int ii = 0; ii < npar1bins; ++ii){
 
 	    if((par_1 > par1[ii])&&(par_1 < par1[ii+1])){
+    //cout<<"debug4"<<endl;
 
 	      bool reliso3((sel_num != "reliso3")||((sel_num == "reliso3")&&(Oiso3[l1] < cut_num )));
 	      bool reliso4((sel_num != "reliso4")||((sel_num == "reliso4")&&(Oiso4[l1] < cut_num )));
@@ -406,14 +418,15 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 	      bool tight((sel_num != "tightcut")||(((abs(Oid[l1]) == 13)&&(sel_num == "tightcut")&&(Otight[l1] == 1))||((abs(Oid[l1]) == 11)&&(sel_num == "tightcut")&&(Otighte[l1] >= 3))));
 	      bool tightmva((sel_num != "tightmva")||((abs(Oid[l1]) == 11)&&(sel_num == "tightmva")&&(Otight[l1] == 1)));
 
-	      //Find the corresponding histogram for par_y
 
+	      //Find the corresponding histogram for par_y
 	      int kk = -1;
 	      for(int _i = 0; _i < npar2bins; ++_i){
-
 		if((par_2 > par2[_i])&&(par_2 <= par2[_i+1])){kk = _i;}
-
 	      }
+
+	      //Fill the par1 distribution histogram
+	      if(kk != -1){histo_par1[kk]->Fill(par_1);}
 
 	      //Efficiency cut
 	      if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva && (kk!= -1)){
@@ -442,6 +455,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 
 
 	      }
+    //cout<<"debug5"<<endl;
 
 	      reliso3 = ((sel_num != "reliso3")||((sel_num == "reliso3")&&(Oiso3[l1] >= cut_num )));
 	      reliso4 = ((sel_num != "reliso4")||((sel_num == "reliso4")&&(Oiso4[l1] >= cut_num )));
@@ -481,6 +495,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 	}
       }
     }
+    //cout<<"debug6"<<endl;
 
     for (int i = 0; i < Gn; ++i) {
 
@@ -521,6 +536,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 	}
       }
     }
+    //cout<<"debug7"<<endl;
 
     //loop over all the rec particles to find the isolation
     //We requiere one tag at least 
@@ -564,15 +580,18 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 	    bool tightmva((sel_num != "tightmva")||((abs(Gid[l1]) == 11)&&(sel_num == "tightmva")&&(Gtight[l1] == 1)));
 
 	    //Find the corresponding histogram for par2
-
 	    int kk = -1;
 	    for(int _i = 0; _i < npar2bins; ++_i){
-
 	      if((par_2 > par2[_i])&&(par_2 <= par2[_i+1])){kk = _i;}
 	    }
+            //cout<<"debug7.2"<<endl;
+
+	    //Fill the par1 distribution histogram
+	    if(kk != -1){histo_par1[kk]->Fill(par_1);}
 
 	    //Efficiency cut
 	    if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva && (kk != -1)){
+    //cout<<"debug7.5"<<endl;
 
 	      histo_M_DYJets_bkg[kk][ii]->Fill(M,scale);
 
@@ -599,6 +618,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
 	      }
 
 	    }
+    //cout<<"debug8"<<endl;
 
 
 	    reliso3 = ((sel_num != "reliso3")||((sel_num == "reliso3")&&(Giso3[l1] >= cut_num )));
@@ -639,12 +659,21 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
       }
     }
   }
+    //cout<<"debug10"<<endl;
 
   mkdir(_path+_fname+"_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
   TFile* canvas_out = new TFile(_path+_fname+"_PDF/histograms.root","recreate"); 
 
   for(int i = 0; i < npar2bins; ++i){ 
+
+    //String for output file name
+      TString _parxbin;
+      TString _parybin;
+      TString _parxtitle;
+      TString _parytitle;
+      TString _parx;
+      TString _pary;
 
     for(int j = 0; j < npar1bins; ++j){ 
 
@@ -653,10 +682,6 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
       ////////////////////
 
       //String for name of the ouput files and histograms titles
-
-      TString _parxbin;
-      TString _parybin;
-
       //Parameter string
       TString _par;
       if(par_x == "Pt"){_parxbin = Form("%0.f_Pt%0.f",par1[j],par1[j+1]);}
@@ -666,19 +691,15 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
       else if(par_y == "eta"){_parybin = Form("%0.3f_eta%0.3f",par2[i],par2[i+1]);cout<<"it works !"<<endl;}
       else if(par_y == "phi"){_parybin = Form("%0.3f_phi%0.3f",par2[i],par2[i+1]);}
 
-      TString _parxtitle;
-      TString _parytitle;
-
       //Title string
-      if(par_x == "Pt"){_parxtitle = Form("%0.f #leq P_{t} #leq %0.f",par1[j],par1[j+1]);}
-      else if(par_x == "eta"){_parxtitle = Form("%0.3f #leq #eta #leq %0.3f",par1[j],par1[j+1]);}
-      else if(par_x == "phi"){_parxtitle = Form("%0.3f #leq #phi #leq %0.3f",par1[j],par1[j+1]);}
+      if(par_x == "Pt"){_parxtitle = Form("%0.f #leq P_{t} #leq %0.f",par1[j],par1[j+1]); _parx = "P_{t}";}
+      else if(par_x == "eta"){_parxtitle = Form("%0.3f #leq #eta #leq %0.3f",par1[j],par1[j+1]); _parx = "#eta";}
+      else if(par_x == "phi"){_parxtitle = Form("%0.3f #leq #phi #leq %0.3f",par1[j],par1[j+1]); _parx = "#phi";}
       if(par_y == "Pt"){_parytitle = Form("%0.f #leq P_{t} #leq %0.f",par2[i],par2[i+1]);}
       else if(par_y == "eta"){_parytitle = Form("%0.3f #leq #||{#eta}  #leq %0.3f",par2[i],par2[i+1]);cout<<"it works !"<<endl;}
       else if(par_y == "phi"){_parytitle = Form("%0.3f #leq #||{#phi}  #leq %0.3f",par2[i],par2[i+1]);}
 
       //Plot histograms
-
 
       TCanvas* c1 = new TCanvas("c1","c1");
       TCanvas* c2 = new TCanvas("c2","c2");
@@ -740,7 +761,6 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
       histo_M_TTJets_fail[i][j]->SetLineColor(6);
       histo_M_TTJets_fail[i][j]->SetMarkerColor(6);
 
-
       //Z pass eta<1.2
       c2->cd(1);
       histo_M_DYJets[i][j]->Draw();
@@ -774,6 +794,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
       histo_M_bkg_fail[i][j]->SetMarkerColor(2);
       histo_M_bkg_fail[i][j]->SetLineColor(2);
 
+
       /////////////////////
       //Saving the output//
       /////////////////////
@@ -806,6 +827,25 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double* par1 ,int npar1bin
       histo_M_TTJets_fail[i][j]->Write("histo_M_TTJets_fail"+_parxbin+"_"+_parybin); 
 
     }                    
+
+      TCanvas* c_par1 = new TCanvas("cpar1","cpar1");
+      TString _partitle = _parx + (TString)" distribution for "+pname+" "+_parxtitle+", "+_parytitle+", "+sel_num;
+
+      c_par1->cd();
+      histo_par1[i]->Draw();
+      histo_par1[i]->SetTitle(_partitle);
+      histo_par1[i]->GetXaxis()->SetTitle(par_x);
+      histo_par1[i]->SetLineWidth(2);
+      histo_par1[i]->SetLineColor(4);
+      histo_par1[i]->SetMarkerColor(4);
+
+      canvas_out->cd();
+      c_par1->Write("par1_distr_"+_parybin);
+      TString _c_par1name = _path + _fname + "_PDF/par1_distr_"+_parxbin+"_"+_sel_num+"_"+_pname + _parybin;
+      c_par1->SaveAs(_c_par1name+".pdf");
+
+      file_out->cd();
+      histo_par1[i]->Write("histo_par1_"+_parybin);
 
   }
 

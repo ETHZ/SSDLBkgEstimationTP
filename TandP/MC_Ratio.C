@@ -60,14 +60,16 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int npar1bins, TStrin
 
 	//Parameter 2
 	const int npar2bins_eta = 2;
-	const int npar2bins_pt = 19;
+	//const int npar2bins_pt = 19;
+  	const int npar2bins_pt = 1;
 
 	double par2_eta[npar2bins_eta+1] = {0,1.2,2.5};
-	double par2_pt[npar2bins_pt+1] = {10,20,30,40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200};
+	//double par2_pt[npar2bins_pt+1] = {10,20,30,40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200};
+  	double par2_pt[npar2bins_pt+1] = {10,250};
 
 	if(par_y == "eta"){
 	return MC_Ratio(leptonId, par1, npar1bins, par2_eta, npar2bins_eta, sel_den, sel_num, cut_num, par_x, par_y, option );
-	}else if(par_y == "pt"){
+	}else if(par_y == "Pt"){
 	return MC_Ratio(leptonId, par1, npar1bins, par2_pt, npar2bins_pt, sel_den, sel_num, cut_num, par_x, par_y, option );
 	}else{return 1;}
 
@@ -165,12 +167,50 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 	TH1D **histo_den = new TH1D*[npar2bins];
 	TH1D **eff = new TH1D*[npar2bins];
 
+
+	//Par1 distribution histogram
+        TH1D** histo_par1 = new TH1D*[npar2bins];
+
+	//Histo separate in Lep_good Lep_other
+	//
+	TH1D **histo_num_O = new TH1D*[npar2bins];
+	TH1D **histo_den_O = new TH1D*[npar2bins];
+	TH1D **eff_O = new TH1D*[npar2bins];
+	TH1D **histo_num_G = new TH1D*[npar2bins];
+	TH1D **histo_den_G = new TH1D*[npar2bins];
+	TH1D **eff_G = new TH1D*[npar2bins];
+
+	//Counter LepGood vs LepOther
+	
+	TH1D **histo_counter = new TH1D*[npar2bins];
+	TH1D **histo_counter_G_par1 = new TH1D*[npar2bins];
+	TH1D **histo_counter_O_par1 = new TH1D*[npar2bins];
+	TH1D **histo_counter_par1 = new TH1D*[npar2bins];
+
+
 	for(int _i = 0; _i < npar2bins; ++_i){ 
 
-		//Barrel
 		histo_num[_i] = new TH1D("histo_num","Pt",npar1bins,par1[0],par1[npar1bins]);
 		histo_den[_i] = new TH1D("histo_den","Pt",npar1bins,par1[0],par1[npar1bins]);
 		eff[_i] = new TH1D("eff","Pt",npar1bins,par1[0],par1[npar1bins]);
+
+		//
+    		histo_par1[_i] = new TH1D("histo_par1","par1",npar1bins*25,par1[0],par1[npar1bins]);
+
+		//
+		histo_num_O[_i] = new TH1D("histo_num_O","Pt",npar1bins,par1[0],par1[npar1bins]);
+		histo_den_O[_i] = new TH1D("histo_den_O","Pt",npar1bins,par1[0],par1[npar1bins]);
+		eff_O[_i] = new TH1D("eff_O","Pt",npar1bins,par1[0],par1[npar1bins]);
+
+		histo_num_G[_i] = new TH1D("histo_num_G","Pt",npar1bins,par1[0],par1[npar1bins]);
+		histo_den_G[_i] = new TH1D("histo_den_G","Pt",npar1bins,par1[0],par1[npar1bins]);
+		eff_G[_i] = new TH1D("eff_G","Pt",npar1bins,par1[0],par1[npar1bins]);
+
+		histo_counter_G_par1[_i] = new TH1D("histo_counter_G_par1","count",npar1bins,par1[0],par1[npar1bins]);
+		histo_counter_O_par1[_i] = new TH1D("histo_counter_O_par1","count",npar1bins,par1[0],par1[npar1bins]);
+		histo_counter_par1[_i] = new TH1D("histo_counter_par1","count",npar1bins,par1[0],par1[npar1bins]);
+
+		histo_counter[_i] = new TH1D("histo_counter","count",2,0,2); 
 
 	}
 
@@ -277,6 +317,14 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 
 	int count = 0;
 
+	//Count lepgood/other
+	
+	int goodcount = 0;
+	int othercount = 0;
+	
+
+	n = 100000;
+
 	//Start loop over all events
 	for (int k = 0; k < n; ++k) {
 
@@ -287,6 +335,7 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 		//loop on other (not loose) 
 		//Selection on denominator
 		if(sel_den != "loose"){
+		//if(false){
 			for(int j=0; j<On;++j){
 				if((!option.Contains(" ll "))||((option.Contains(" ll "))&&(On == 2)&&(Oid[0] == -Oid[1]))){
 					if(abs(Oid[j]) == leptonId){
@@ -332,7 +381,7 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 								if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
 
 								  for(int ii = 0; ii < npar2bins; ++ii){
-								    if((par_2 > par2[ii])&&(par_2 <= par2[ii+1])){histo_den[ii]->Fill(par);}
+								    if((par_2 > par2[ii])&&(par_2 <= par2[ii+1])){histo_den[ii]->Fill(par); histo_par1[ii]->Fill(par); histo_den_O[ii]->Fill(par); ++othercount; histo_counter_O_par1[ii]->Fill(par);}
 									}
 
 
@@ -347,17 +396,18 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 									if((sel_num == "chiso4")&&(Ochiso4[j] <= cut_num)){a = 5;}
 									if((sel_num == "dxy")&&(abs(Odxy[j]) <= cut_num)){a = 6;}
 									if((sel_num == "dz")&&(abs(Odz[j]) <= cut_num)){a = 7;}
-									if((sel_num == "tightmva")&&(abs(Oid[j] == 11))&&(Otight[j] == 1)){a = 9;}
+									if((sel_num == "tightmva")&&(abs(Oid[j]) == 11)&&(Otight[j] == 1)){a = 9;}
 									//Never filled here
 									if(sel_num == "loose"){a = 8;}
 
 
 									//Find the corresponding histogram for par2
 									TH1D* hist;
+									TH1D* hist_O;
 
 									bool found = false;
 								  	for(int _i = 0; _i < npar2bins; ++_i){
-								  	  if((par_2 > par2[_i])&&(par_2 <= par2[_i+1])){hist = histo_num[_i]; found = true;}
+								  	  if((par_2 > par2[_i])&&(par_2 <= par2[_i+1])){hist = histo_num[_i]; hist_O = histo_num_O[_i]; found = true;}
 								  	}
 									if(!found){a = 0;}
 
@@ -369,26 +419,33 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 
 										case 1:
 											hist->Fill(par);
+											hist_O->Fill(par);
 											break;
 
 										case 2:
 											hist->Fill(par);
+											hist_O->Fill(par);
 											break;
 										case 3:
 											hist->Fill(par);
+											hist_O->Fill(par);
 											break;
 										case 4:
 											hist->Fill(par);
+											hist_O->Fill(par);
 											break;
 										case 5:
 											hist->Fill(par);
+											hist_O->Fill(par);
 											break;
 										case 6:
 											hist->Fill(par);
+											hist_O->Fill(par);
 											break;
 
 										case 7:
 											hist->Fill(par);
+											hist_O->Fill(par);
 											break;
 
 										case 8:
@@ -397,6 +454,7 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 
 										case 9:
 											hist->Fill(par);
+											hist_O->Fill(par);
 											break;
 
 									}
@@ -457,7 +515,7 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 							if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains("unmat")){
 
 								  for(int ii = 0; ii < npar2bins; ++ii){
-								    if((par_2 > par2[ii])&&(par_2 <= par2[ii+1])){histo_den[ii]->Fill(par);}
+								    if((par_2 > par2[ii])&&(par_2 <= par2[ii+1])){histo_den[ii]->Fill(par);histo_par1[ii]->Fill(par); histo_den_G[ii]->Fill(par); ++goodcount; histo_counter_G_par1[ii]->Fill(par);}
 									}
 
 								//Additional cut on the numerator
@@ -471,7 +529,7 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 								if((sel_num == "chiso4")&&(Gchiso4[j] <= cut_num)){a = 5;}
 								if((sel_num == "dxy")&&(abs(Gdxy[j]) <= cut_num)){a = 6;}
 								if((sel_num == "dz")&&(abs(Gdz[j]) <= cut_num)){a = 7;}
-								if((sel_num == "tightmva")&&(abs(Gid[j] == 11))&&(Gtight[j] == 1)){a = 9;}
+								if((sel_num == "tightmva")&&(abs(Gid[j]) == 11)&&(Gtight[j] == 1)){a = 9;}
 								//Only loose leptons here, so this is filled anyway
 								if((sel_num == "loose")){a = 8;}
 								//if((sel_num == "mvaid")&&(abs(Gmvaid[j]) >= cut_num)){a = 9;}
@@ -479,10 +537,11 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 
 								//Find the corresponding histogram for par2
 								TH1D* hist;
+								TH1D* hist_G;
 
 								bool found = false;
 								for(int _i = 0; _i < npar2bins; ++_i){
-								  if((par_2 > par2[_i])&&(par_2 <= par2[_i+1])){hist = histo_num[_i];found = true;}
+								  if((par_2 > par2[_i])&&(par_2 <= par2[_i+1])){hist = histo_num[_i];hist_G = histo_num_G[_i];found = true;}
 								}
 								if(!found){a = 0;}
 
@@ -494,34 +553,43 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 
 									case 1:
 										hist->Fill(par);
+										hist_G->Fill(par);
 										break;
 
 									case 2:
 										hist->Fill(par);
+										hist_G->Fill(par);
 										break;
 									case 3:
 										hist->Fill(par);
+										hist_G->Fill(par);
 										break;
 									case 4:
 										hist->Fill(par);
+										hist_G->Fill(par);
 										break;
 									case 5:
 										hist->Fill(par);
+										hist_G->Fill(par);
 										break;
 									case 6:
 										hist->Fill(par);
+										hist_G->Fill(par);
 										break;
 
 									case 7:
 										hist->Fill(par);
+										hist_G->Fill(par);
 										break;
 
 									case 8:
 										hist->Fill(par);
+										hist_G->Fill(par);
 										break;
 
 									case 9:
 										hist->Fill(par);
+										hist_G->Fill(par);
 										break;
 								}
 							}
@@ -531,6 +599,8 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 			}
 		}
 	}
+
+        mkdir(_path+_fname+"_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 	///////////////////
 	//Draw histograms//
@@ -546,6 +616,21 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 	  histo_num[i]->Sumw2();
 	  histo_den[i]->Sumw2();
 	  eff[i]->Divide(histo_num[i],histo_den[i],1,1,"B");
+
+	  histo_num_O[i]->Sumw2();
+	  histo_den_O[i]->Sumw2();
+	  eff_O[i]->Divide(histo_num_O[i],histo_den_O[i],1,1,"B");
+
+	  histo_num_G[i]->Sumw2();
+	  histo_den_G[i]->Sumw2();
+	  eff_G[i]->Divide(histo_num_G[i],histo_den_G[i],1,1,"B");
+
+	  histo_counter_G_par1[i]->Sumw2();
+	  histo_counter_O_par1[i]->Sumw2();
+	  histo_counter_par1[i]->Divide(histo_counter_O_par1[i],histo_counter_G_par1[i],1,1,"B");
+
+	  histo_counter[i]->Fill(0.5,goodcount);
+	  histo_counter[i]->Fill(1.5,othercount);
 
 	  //String for name of the ouput files and histograms titles
 	  //
@@ -576,17 +661,67 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 	  eff[i]->SetLineColor(4);
 	  eff[i]->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" "+_parytitle);
 
+	  TCanvas* c_par1 = new TCanvas("cpar1","cpar1");
+	  TString _partitle = _par + (TString)" distribution for "+pname+", "+_parytitle+", "+sel_num;
+	  c_par1->cd();
+	  histo_par1[i]->Draw();
+	  histo_par1[i]->SetTitle(_partitle);
+	  histo_par1[i]->GetXaxis()->SetTitle(_par);
+	  histo_par1[i]->SetLineWidth(2);
+	  histo_par1[i]->SetLineColor(4);
+	  histo_par1[i]->SetMarkerColor(4);
+
+	  TCanvas* cO = new TCanvas("cO","cO");
+	  cO->cd();
+	  eff_O[i]->Draw();
+	  eff_O[i]->GetYaxis()->SetTitle("#epsilon");
+	  eff_O[i]->GetXaxis()->SetTitle(_par);
+	  eff_O[i]->SetMarkerStyle(20);
+	  eff_O[i]->SetMarkerSize(1);
+	  eff_O[i]->SetMarkerColor(4);
+	  eff_O[i]->SetLineColor(4);
+	  eff_O[i]->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" "+_parytitle+" , LepOther");
+
+	  TCanvas* cG = new TCanvas("cG","cG");
+	  cG->cd();
+	  eff_G[i]->Draw();
+	  eff_G[i]->GetYaxis()->SetTitle("#epsilon");
+	  eff_G[i]->GetXaxis()->SetTitle(_par);
+	  eff_G[i]->SetMarkerStyle(20);
+	  eff_G[i]->SetMarkerSize(1);
+	  eff_G[i]->SetMarkerColor(4);
+	  eff_G[i]->SetLineColor(4);
+	  eff_G[i]->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" "+_parytitle+" , LepGood");
+
+	  TCanvas* ccpar = new TCanvas("ccpar","ccpar");
+	  ccpar->cd();
+	  histo_counter_par1[i]->Draw();
+
+	  TCanvas* cc = new TCanvas("cc","cc");
+	  cc->cd();
+	  histo_counter[i]->Draw();
+
 	  /////////////////////
 	  //Saving the output//
 	  /////////////////////
 
 	  //Write pdf
 	  TString cname = "eff4test"+_option+_pname+_par1range+"_"+_parybin+"_den_"+_sel_den+"_num_"+_sel_num;
-	  c1->SaveAs(_path+"PDF/"+cname+".pdf");
+	  c1->SaveAs(_path+_fname+"_PDF/"+cname+".pdf");
+	  c_par1->SaveAs(_path+_fname+"_PDF/"+cname+"par_distr.pdf");
+	  cO->SaveAs(_path+_fname+"_PDF/"+cname+"_LepOther.pdf");
+	  cG->SaveAs(_path+_fname+"_PDF/"+cname+"_LepGood.pdf");
+	  ccpar->SaveAs(_path+_fname+"_PDF/"+cname+"_counter_par.pdf");
+	  cc->SaveAs(_path+_fname+"_PDF/"+cname+"_counter.pdf");
 
 	  //Write in output file
 	  file_out->cd();
 	  eff[i]->Write("eff"+_parybin);
+	  histo_par1[i]->Write("histo_par1_"+_parybin);
+	  eff_O[i]->Write("eff_LepOther"+_parybin);
+	  eff_G[i]->Write("eff_LepGood"+_parybin);
+	  histo_counter_par1[i]->Write("counter_par"+_parybin);
+	  histo_counter[i]->Write("counter"+_parybin);
 
 	}
 
