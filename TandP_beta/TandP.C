@@ -39,7 +39,7 @@ double BinomError(double Nt, double eff) {
 int TandP(int leptonId, double Pt_low, double Pt_upp = 9999, int nptbins = 10, TString select = "tight", TString effcut = "", double cut = 0.2, TString _sig = "CBxBW",TString option = ""){
 	gROOT->SetBatch(kTRUE); 
 
-	cout<<"Debug1"<<endl;
+	TString _filetag = "InvM_beta_newdy";
 	
 	//Path for input and output file.
 	TString _path = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/ZBkgInvM/";
@@ -83,8 +83,8 @@ int TandP(int leptonId, double Pt_low, double Pt_upp = 9999, int nptbins = 10, T
 	//Write the name of the input/output file//
 	////////////////////////////////////////////
 	
-	TString _fname_in = "InvM2";
-	TString _fname_out = "InvM2";
+	TString _fname_in = _filetag;
+	TString _fname_out = _filetag;
 	if(option.Contains("matching")){_fname_in += "_Matched";_fname_out += "_Matched";}// Form("InvM2_Matched_Pt%0.f_Pt%0.f_",Pt_low,Pt_upp);}
 
 	TString _ptrange;

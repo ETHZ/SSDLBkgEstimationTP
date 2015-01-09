@@ -27,8 +27,9 @@ _._._._._._._._._._._._._._._._._._._._._.*/
 #include <TFile.h>
 #include <TLegend.h>
 #include <TCanvas.h>
-#include "../setTDRStyle.C"
+//#include "../setTDRStyle.C"
 #include "MC_Ratio.C"
+//#include "MC_Ratio2.C"
 #include "TandP.C"
 #include "TPaveText.h"
 
@@ -44,7 +45,7 @@ int CompareMCvsTandP(int leptonId, double par_low, double par_upp,int nbins, TSt
 	//Retrieve MC ratio file//
 	//////////////////////////
 	
-	TString path_MC = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/MC_ratio/eff3";
+	TString path_MC = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/MC_ratio/eff_beta_newdy";
 	
 	//Name for storing and final plots
 	TString pname;
@@ -130,7 +131,7 @@ int CompareMCvsTandP(int leptonId, double par_low, double par_upp,int nbins, TSt
 	else if(sel_num == "dz"){_effcut = Form("dz_%0.3lf",cut_num);}
 	else{cout<<"ERROR: wrong numerator name !";return 1;}
 
-	TString _fname = "InvM2";
+	TString _fname = "InvM_beta_newdy";
 	if(option.Contains("matching")){_fname += "_Matched";}
 
 	TString _ptrange;

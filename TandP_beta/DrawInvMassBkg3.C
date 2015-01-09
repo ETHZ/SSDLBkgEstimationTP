@@ -42,13 +42,15 @@ int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int np
 
 	//Location of the .root file
 	TString location = "/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/matched/";
+	TString location2 = "/Users/GLP/Desktop/CERN_data/dyjetsnew/postprocessed";
 
 	//Reading the tree 
 	//
 	TChain* tree = new TChain("treeProducerSusyMultilepton");
 
 	//DY events
-	tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");
+	//tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");
+	tree->Add(location2+"dyjets_good.root");
 
 	//WJet events
 	tree->Add(location+"WJetsToLNu_13TeV-madgraph-pythia8-tauola.root");
@@ -67,6 +69,8 @@ int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int np
 int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_upp ,int nptbins , TString select, TString effcut , double cut, TString option){
 
 	TString _path= "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/ZBkgInvM/";
+
+	TString _filetag = "InvM_beta_newdy";
 
 	setTDRStyle();
 
@@ -105,7 +109,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	else if(effcut == "dz"){_effcut = Form("dz_%0.3lf",cut);}
 	else{cout<<"ERROR: wrong numerator name !";return 1;}
 
-	TString _fname = "InvM2";
+	TString _fname = _filetag; 
 	if(option.Contains("matching")){_fname += "_Matched";}
 
 	TString _ptrange;
