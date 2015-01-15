@@ -182,6 +182,13 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 
   //Output file
   cout<<"going to create the file"<<endl;
+  //Check if the file exists
+  TFile *fcheck = TFile::Open(_path+_fname+".root", "READ");
+  if (fcheck) {
+    cout << "File "<<_fname<<" exists ! Please change name" << endl;
+    return 1;
+  }
+
   TFile* file_out = new TFile(_path+_fname+".root","recreate");
   cout<<"done ! "<<endl;
 
@@ -193,6 +200,11 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 
   //Par1 distribution histogram
   TH1D** histo_par1 = new TH1D*[npar2bins];
+
+  //Distribution of the cut parameter whose efficiency is studied
+  TH1D *histo_other_sel = new TH1D("histo_other_sel","h",5,0,5);
+  TH1D *histo_good_sel = new TH1D("histo_good_sel","h",5,0,5);
+
 //Histo separate in Lep_good Lep_other
   //
   TH1D **histo_num_O = new TH1D*[npar2bins];
@@ -374,40 +386,40 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
       //Separate here other from loose
       if(j < On){
 
-	evtloose[j]			  = 0;
-	evtid[j]                      = Oid[j];
-	evtpt[j]                      = Opt[j];
-	evtm[j]                       = Om[j];
-	evteta[j]                     = Oeta[j];
-	evtphi[j]                     = Ophi[j];
-	evtq[j]                       = Oq[j];
-	evttight[j]                   = Otight[j];
-	evttighte[j]                  = Otighte[j];
-	evtiso3[j]                    = Oiso3[j];
-	evtiso4[j]                    = Oiso4[j];
-	evtchiso3[j]                  = Ochiso3[j];
-	evtchiso4[j]                  = Ochiso4[j];
-	evtdxy[j]                     = Odxy[j];
-	evtdz[j]                      = Odz[j];
+        evtloose[j]			  = 0;
+        evtid[j]                      = Oid[j];
+        evtpt[j]                      = Opt[j];
+        evtm[j]                       = Om[j];
+        evteta[j]                     = Oeta[j];
+        evtphi[j]                     = Ophi[j];
+        evtq[j]                       = Oq[j];
+        evttight[j]                   = Otight[j];
+        evttighte[j]                  = Otighte[j];
+        evtiso3[j]                    = Oiso3[j];
+        evtiso4[j]                    = Oiso4[j];
+        evtchiso3[j]                  = Ochiso3[j];
+        evtchiso4[j]                  = Ochiso4[j];
+        evtdxy[j]                     = Odxy[j];
+        evtdz[j]                      = Odz[j];
 
 
       }else if((j >=  On)&&(j < Gn+On)){
 
-	evtloose[j]		       = 1;
-	evtid[j]                   = Gid[j-On];
-	evtpt[j]                   = Gpt[j-On];
-	evtm[j]                    = Gm[j-On];
-	evteta[j]                  = Geta[j-On];
-	evtphi[j]                  = Gphi[j-On];
-	evtq[j]                    = Gq[j-On];
-	evttight[j]                = Gtight[j-On];
-	evttighte[j]               = Gtighte[j-On];
-	evtiso3[j]                 = Giso3[j-On];
-	evtiso4[j]                 = Giso4[j-On];
-	evtchiso3[j]               = Gchiso3[j-On];
-	evtchiso4[j]               = Gchiso4[j-On];
-	evtdxy[j]                  = Gdxy[j-On];
-	evtdz[j]                   = Gdz[j-On];
+        evtloose[j]		       = 1;
+        evtid[j]                   = Gid[j-On];
+        evtpt[j]                   = Gpt[j-On];
+        evtm[j]                    = Gm[j-On];
+        evteta[j]                  = Geta[j-On];
+        evtphi[j]                  = Gphi[j-On];
+        evtq[j]                    = Gq[j-On];
+        evttight[j]                = Gtight[j-On];
+        evttighte[j]               = Gtighte[j-On];
+        evtiso3[j]                 = Giso3[j-On];
+        evtiso4[j]                 = Giso4[j-On];
+        evtchiso3[j]               = Gchiso3[j-On];
+        evtchiso4[j]               = Gchiso4[j-On];
+        evtdxy[j]                  = Gdxy[j-On];
+        evtdz[j]                   = Gdz[j-On];
 
       }
 
@@ -444,7 +456,7 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 		      R = R2;
 		      delta_P = abs(evtpt[j]-Pt[i])/Pt[i];
 		      delta_charge = abs(evtq[j] - charge[i]);
-		    //}
+		    }
 		  }
 		}
 
@@ -460,7 +472,14 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 		if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains(" unmatched ")){
 
 		  for(int ii = 0; ii < npar2bins; ++ii){
-		    if((par_2 > par2[ii])&&(par_2 <= par2[ii+1])){histo_den[ii]->Fill(par);histo_par1[ii]->Fill(par);}
+		    if((par_2 > par2[ii])&&(par_2 <= par2[ii+1])){histo_den[ii]->Fill(par);histo_par1[ii]->Fill(par);
+		      
+		      if(evtloose[j] == 1){histo_good_sel->Fill(evttighte[j]);}
+		      else if(evtloose[j] == 0){histo_other_sel->Fill(evttighte[j]);}
+		      else{cout<<"Error !"<<endl; return 1;}
+			
+			
+			}
 		  }
 
 		  //Additional cut on the numerator
@@ -529,7 +548,8 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
 	      }
 	    }
 	  }
-	}
+	
+	//}
 	}
       }
     }
@@ -606,6 +626,12 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
       histo_par1[i]->SetLineColor(4);
       histo_par1[i]->SetMarkerColor(4);
 
+      histo_good_sel->Add(histo_other_sel);
+      TCanvas* csel = new TCanvas("csel","csel");
+      csel->cd();
+      histo_good_sel->Draw();
+
+
       /////////////////////
       //Saving the output//
       /////////////////////
@@ -614,11 +640,14 @@ int MC_Ratio(int leptonId, double* par1, int npar1bins, double* par2, int npar2b
       TString cname = "eff"+_filetag+_option+_pname+_par1range+"_"+_parybin+"_den_"+_sel_den+"_num_"+_sel_num;
       c1->SaveAs(_path+_fname+"_PDF/"+cname+".pdf");
       c_par1->SaveAs(_path+_fname+"_PDF/"+cname+"par_distr.pdf");
+      csel->SaveAs(_path+_fname+"_PDF/"+cname+"sel.pdf");
 
       //Write in output file
       file_out->cd();
       eff[i]->Write("eff"+_parybin);
+      histo_good_sel->Write("sel"+_parybin);
       //histo_par1[i]->Write("histo_par1_"+_parybin);
+      
 
     }
 
