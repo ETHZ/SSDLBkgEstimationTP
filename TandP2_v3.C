@@ -2,7 +2,7 @@
 
 * File Name : TanP2_v3.C 
 
-* Purpose : Third version of the Tag and Prob file. It calculates the efficiency on the reconstructed particles using the tag and prob method. The previous version used the same selection criteria for both Tag and Prob, which is not how the method is supposed to work. We implement here a different selection criteria for the tag and prob method which is independent of the lepton order.
+* Purpose : Third version of the Tag and Prob file. It calculates the efficiency on the reconstructed particles using the tag and prob method. The previous version used the same selection criteria for both Tag and Prob, which is not how the method is supposed to work. We implement here a different selection criteria for the tag and prob method which is independent of the lepton order. No background here.
 
 * Creation Date : 20-12-2008
 

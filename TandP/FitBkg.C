@@ -40,9 +40,10 @@
 #include "TLegend.h"
 #include "TLorentzVector.h"
 
-//#include "../setTDRStyle.C"
-
-//#include "TandP_sidefunction.h"
+//Helper functions
+#include "../tools/InvMass.C"
+#include "../tools/DeltaR.C"
+#include "../tools/setTDRStyle.C"
 
 
 using namespace RooFit;

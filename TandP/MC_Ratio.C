@@ -87,8 +87,8 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   ///////////////
 
   //Location of the .root file
-  TString location = "/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/";
-  TString location2 = "/Users/GLP/Desktop/CERN_data/dyjetsnew/postprocessed/";
+  TString location = "/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/matched2/";
+  TString location2 = "/Users/GLP/Desktop/CERN_data/dyjetsnew/postprocessed/matched/";
 
   //Reading the tree 
   //

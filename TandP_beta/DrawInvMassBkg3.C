@@ -32,25 +32,27 @@
 #include "TGraphErrors.h"
 #include "TGraph.h"
 #include "TLorentzVector.h"
+
 //#include "FitInvMass.C"
-//#include "InvMass.C"
-//#include "DeltaR.C"
+#include "../tools/setTDRStyle.C"
+#include "../tools/InvMass.C"
+#include "../tools/DeltaR.C"
 
 int DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low = 10, double Pt_upp = 50,int nptbins = 10, TString select = "tight", TString effcut = "reliso3", double cut = 0.2, TString option ="");
 
 int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int nptbins = 10,TString select = "tight", TString effcut = "reliso3", double cut = 0.2, TString option = ""){
 
 	//Location of the .root file
-	TString location = "/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/matched/";
-	TString location2 = "/Users/GLP/Desktop/CERN_data/dyjetsnew/postprocessed";
+	TString location = "/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/matched2/";
+	//TString location2 = "/Users/GLP/Desktop/CERN_data/dyjetsnew/postprocessed/";
 
 	//Reading the tree 
 	//
 	TChain* tree = new TChain("treeProducerSusyMultilepton");
 
 	//DY events
-	//tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");
-	tree->Add(location2+"dyjets_good.root");
+	tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");
+	//tree->Add(location2+"dyjetsnew.root");
 
 	//WJet events
 	tree->Add(location+"WJetsToLNu_13TeV-madgraph-pythia8-tauola.root");
@@ -68,9 +70,11 @@ int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int np
 
 int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_upp ,int nptbins , TString select, TString effcut , double cut, TString option){
 
+  cout<<"Starting creating file"<<endl;
+
 	TString _path= "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/ZBkgInvM/";
 
-	TString _filetag = "InvM_beta_newdy";
+	TString _filetag = "_beta_oldtree_synchronisation";
 
 	setTDRStyle();
 
@@ -109,7 +113,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	else if(effcut == "dz"){_effcut = Form("dz_%0.3lf",cut);}
 	else{cout<<"ERROR: wrong numerator name !";return 1;}
 
-	TString _fname = _filetag; 
+	TString _fname = "InvM"+_filetag; 
 	if(option.Contains("matching")){_fname += "_Matched";}
 
 	TString _ptrange;
@@ -189,7 +193,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	Float_t Odz[200];
 	//loose
 	Int_t Gn;
-	Int_t matched[200];
+	//Int_t matched[200];
 	Int_t Gid[200];
 	Float_t Gpt[200];
 	Float_t Gm[200];
@@ -204,6 +208,14 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	Float_t Gchiso4[200];
 	Float_t Gdxy[200];
 	Float_t Gdz[200];
+
+	tree->SetBranchStatus("*",0);
+	tree->SetBranchStatus("evt_scale1fb",1);
+	tree->SetBranchStatus("evt_id",1);
+	tree->SetBranchStatus("nLepOther",1);
+	tree->SetBranchStatus("nLepGood",1);
+	tree->SetBranchStatus("LepOther_*",1);
+	tree->SetBranchStatus("LepGood_*",1);
 
 	//Assigne branches
 	tree->SetBranchAddress("evt_scale1fb", &scale);
@@ -226,7 +238,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 	tree->SetBranchAddress("LepOther_dz",&Odz);
 	//Loose
 	tree->SetBranchAddress("nLepGood",&Gn);
-	tree->SetBranchAddress("LepGood_matched",&matched);
+	//tree->SetBranchAddress("LepGood_matched",&matched);
 	tree->SetBranchAddress("LepGood_pdgId",&Gid);
 	tree->SetBranchAddress("LepGood_pt",&Gpt);
 	tree->SetBranchAddress("LepGood_mass",&Gm);
@@ -273,12 +285,12 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 			//Prob selection cut
 			if(abs(Gid[i]) == leptonId){
 				if((select != "tight")||((select == "tight")&&(Gtight[i] == 1))){ 
-					if((!option.Contains("matching"))||((option.Contains("matching"))&&(matched[i] == 1))){ 
+//					if((!option.Contains("matching"))||((option.Contains("matching"))&&(matched[i] == 1))){ 
 
 						//Prob1
 						if(prob[0] == 9999){prob[0] = i;}
 						//Prob2
-						if((prob[0] != 9999)&&(prob[0] != i)&&(prob[1] == 9999)){prob[1] = i;}
+						if((prob[0] != 9999)&&(prob[0] != i)&&(prob[1] == 9999)&&(Gq[prob[0]] == -Gq[i])){prob[1] = i;}
 
 						//Selection cut for Tag only
 						if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight){
@@ -286,7 +298,7 @@ int     DrawInvMassBkgMain(TTree* tree, int leptonId, double Pt_low , double Pt_
 							if(prob[0] == i){tag[0] = i; }
 							if(prob[1] == i){tag[1] = i; }
 
-						}
+//						}
 					}
 				}
 			}

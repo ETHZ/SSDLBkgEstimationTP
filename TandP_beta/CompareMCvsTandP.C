@@ -33,19 +33,25 @@ _._._._._._._._._._._._._._._._._._._._._.*/
 #include "TandP.C"
 #include "TPaveText.h"
 
+//Delete this
+//#include "header.h"
+
 int CompareMCvsTandP(int leptonId, double par_low, double par_upp,int nbins, TString sel_den , TString sel_num, double cut_den = 0., double cut_num = 0.,TString option = "", TString par_x = "Pt"){
+
+  	TString _filetag = "_beta";
+
 
 	setTDRStyle();
 
 	//output of the code
-	TString _output ="Compare";
+	TString _output ="Compare"+_filetag;
 	TString _outpath ="/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/MCvsTandP/";
 
 	//////////////////////////
 	//Retrieve MC ratio file//
 	//////////////////////////
 	
-	TString path_MC = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/MC_ratio/eff_beta_newdy";
+	TString path_MC = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/MC_ratio/eff"+_filetag;
 	
 	//Name for storing and final plots
 	TString pname;
@@ -131,7 +137,7 @@ int CompareMCvsTandP(int leptonId, double par_low, double par_upp,int nbins, TSt
 	else if(sel_num == "dz"){_effcut = Form("dz_%0.3lf",cut_num);}
 	else{cout<<"ERROR: wrong numerator name !";return 1;}
 
-	TString _fname = "InvM_beta_newdy";
+	TString _fname = "InvM"+_filetag;
 	if(option.Contains("matching")){_fname += "_Matched";}
 
 	TString _ptrange;

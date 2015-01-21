@@ -17,7 +17,7 @@ using namespace std;
 
 int postProcessing(string inputFile="treeSmall1.root",
 		   string outputFile="output.root",
-		   string treeName="treeProducerSusyFullHad",
+		   string treeName="treeProducerSusyMultilepton",
 		   float filter=1.0, float kfactor=1.0, float xsec=1.0,int id=-1);
 
 
@@ -144,6 +144,7 @@ int postProcessing(string inputFile,
   }
   //-------------------------------------------------------------
 
+  clone->SetName("treeProducerSusyMultilepton");
   clone->Write(); 
   out->Close();
   f->Close();

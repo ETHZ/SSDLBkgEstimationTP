@@ -156,6 +156,7 @@ int Compare(){
 
 	}
       }
+    }
 
       //Put vector in increasing pt order
       sort(vect.begin(),vect.end(),mycompare);
@@ -168,6 +169,7 @@ int Compare(){
 	map_vect.push_back(vect[i].first);
 
       }
+    
 
       //Add vector to the map with the corresponding evt number
       map_good[evt] = map_vect;
@@ -200,7 +202,7 @@ int Compare(){
 	}
       }
     }
-  }
+  
 
   ///////////////////////
   //Fill histo and plot//

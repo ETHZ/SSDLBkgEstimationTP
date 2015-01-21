@@ -24,8 +24,8 @@
 #include "TGraphErrors.h"
 #include "TGraph.h"
 #include "TLorentzVector.h"
-#include "InvMass.C"
-#include "DeltaR.C"
+#include "../InvMass.C"
+#include "../DeltaR.C"
 #include "vector"
 #include <iostream>
 #include "TFile.h"
@@ -40,7 +40,7 @@
 #include "TLegend.h"
 #include "TObject.h"
 
-#include "setTDRStyle.C"
+#include "../setTDRStyle.C"
 
 int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString sel_den , TString sel_num, double cut_den = 0., double cut_num = 0., TString par_x = "Pt", TString option = ""){
 
@@ -86,10 +86,10 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 	else if(par_x == "eta"){_par = "#eta";}
 	else if(par_x == "phi"){_par = "#phi";}
 	else{cout<<"ERROR: wrong parameter name !";return 1;}
+	if((sel_num == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
 	if(sel_num == ""){_sel_num = "unsel";}
 	else if(sel_num == "tight"){_sel_num = "tight";}
 	else if(sel_num == "tightmva"){_sel_num = "tightmva";}
-	if((sel_num == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
 	//else if(sel_num == "mvaid"){_sel_num = Form("tightmva%0.3lf",cut_num) ;}
 	else if(sel_num == "loose"){_sel_num = "loose";}
 	else if(sel_num == "reliso3"){_sel_num = Form("reliso3_%0.3lf",cut_num);}
@@ -100,10 +100,10 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 	else if(sel_num == "dz"){_sel_num = Form("dz_%0.3lf",cut_num);}
 	else{cout<<"ERROR: wrong numerator name !";return 1;}
 	//Selection on the denominator
+	if((sel_den == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
 	if(sel_den == ""){_sel_den = "unsel";}
 	else if(sel_den == "tight"){_sel_den = "tight";}
 	else if(sel_den == "tightmva"){_sel_den = "tightmva";}
-	if((sel_den == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !";return 1;}
 	//else if(sel_den == "mvaid"){_sel_den = Form("tightmva%0.3lf",cut_den) ;}
 	else if(sel_den == "loose"){_sel_den = "loose";}
 	else{cout<<"ERROR: wrong denominator selection name !";return 1;}
@@ -154,7 +154,7 @@ int MC_Ratio(int leptonId, double par_low, double par_upp, int nbins, TString se
 	TH1D* effE = new TH1D ("effE","Pt",nbins,min(par_low,0.),par_upp);
 
 	//efficiency all eta 
-	TH1D* eff = new TH1D ("eff","Pt",nbins,min(par_low,0.),par_upp);k
+	TH1D* eff = new TH1D ("eff","Pt",nbins,min(par_low,0.),par_upp);
 		//Event variables
 		Int_t evt_id;
 	Float_t scale;

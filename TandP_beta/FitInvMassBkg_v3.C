@@ -55,16 +55,6 @@ double FitInvMassBkg_v3(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",T
 	if(option.Contains("nentries")){return histo->GetEntries()-histo_bkg->GetEntries();}
 	else{
 
-	cout<<"Debug2"<<endl;
-
-	//Path for input and output file. Written in FitDataPath.txt
-	//ifstream file("FitDataPath.txt");
-	//ustring str;
-	//ugetline(file,str);
-	//uTString _path = str;
-
-//	Rebin(histo);
-
 	//Getting info about the histogram to fit
 	int n = histo->GetEntries();
 	double w = histo->GetXaxis()->GetBinWidth(1);

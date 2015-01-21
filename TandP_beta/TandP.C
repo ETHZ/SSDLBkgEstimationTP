@@ -39,7 +39,7 @@ double BinomError(double Nt, double eff) {
 int TandP(int leptonId, double Pt_low, double Pt_upp = 9999, int nptbins = 10, TString select = "tight", TString effcut = "", double cut = 0.2, TString _sig = "CBxBW",TString option = ""){
 	gROOT->SetBatch(kTRUE); 
 
-	TString _filetag = "InvM_beta_newdy";
+	TString _filetag = "_beta";//"InvM";
 	
 	//Path for input and output file.
 	TString _path = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/ZBkgInvM/";
@@ -83,8 +83,8 @@ int TandP(int leptonId, double Pt_low, double Pt_upp = 9999, int nptbins = 10, T
 	//Write the name of the input/output file//
 	////////////////////////////////////////////
 	
-	TString _fname_in = _filetag;
-	TString _fname_out = _filetag;
+	TString _fname_in = "InvM"+_filetag;
+	TString _fname_out = "InvM"+_filetag;
 	if(option.Contains("matching")){_fname_in += "_Matched";_fname_out += "_Matched";}// Form("InvM2_Matched_Pt%0.f_Pt%0.f_",Pt_low,Pt_upp);}
 
 	TString _ptrange;
@@ -111,9 +111,6 @@ int TandP(int leptonId, double Pt_low, double Pt_upp = 9999, int nptbins = 10, T
 		cout<<"Creating file, please wait..."<<endl;
 		DrawInvMassBkg(leptonId,Pt_low,Pt_upp,nptbins,select,effcut,cut,option); 
 		cout<<"Done !"<<endl;
-//int DrawInvMassBkg(int leptonId, double Pt_low = 10 , double Pt_upp = 50 ,int nptbins = 10,TString select = "tight", TString effcut = "reliso3", double cut = 0.2, TString option = ""){
-//int TandP(int leptonId, double Pt_low, double Pt_upp = 9999, int nptbins = 10, TString select = "tight", TString effcut = "", double cut = 0.2, TString _sig = "CBxBW",TString option = ""){
-		
 	}
 	cout<<"Debug4"<<endl;
 	TFile* f = new TFile(_path+_fname_in+".root","read");
@@ -230,6 +227,8 @@ int TandP(int leptonId, double Pt_low, double Pt_upp = 9999, int nptbins = 10, T
 		error_effE[i] = BinomError(passE+failE,EffE[i]);
 
 		eff->Fill(PT[i],EffB[i]);
+		//This is wrong ! Need to shift error one to the right because of the underflow bin tha is filled i.e replace eff->SetBinError(i,error_effB[i]); by eff->SetBin                Error(i+1,error_effB[i]);
+
 		eff->SetBinError(i,error_effB[i]);
 		eff_->Fill(PT[i],EffE[i]);
 		eff_->SetBinError(i,error_effE[i]);
