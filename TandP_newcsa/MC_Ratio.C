@@ -47,6 +47,8 @@
 
 int MC_Ratio(TString _filetag, int leptonId, double* par1, int npar1bins, double* par2, int npar2bins, TString sel_den , TString sel_num, double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = "");
 
+int MC_Ratio(TString _filetag, int leptonId, TString sel_den , TString sel_num, double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = "");
+
 int MC_Ratio(TString _filetag,int leptonId, double par_low, double par_upp, int npar1bins, TString sel_den , TString sel_num, double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = ""){
 
 
@@ -212,9 +214,12 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 
   for(int _i = 0; _i < npar2bins; ++_i){ 
 
-    histo_num[_i] = new TH1D("histo_num","Pt",npar1bins,par1[0],par1[npar1bins]);
-    histo_den[_i] = new TH1D("histo_den","Pt",npar1bins,par1[0],par1[npar1bins]);
-    eff[_i] = new TH1D("eff","Pt",npar1bins,par1[0],par1[npar1bins]);
+    histo_num[_i] = new TH1D("histo_num","Pt",npar1bins,par1);
+    histo_den[_i] = new TH1D("histo_den","Pt",npar1bins,par1);
+    eff[_i] = new TH1D("eff","Pt",npar1bins,par1);
+    //histo_num[_i] = new TH1D("histo_num","Pt",npar1bins,par1[0],par1[npar1bins]);
+    //histo_den[_i] = new TH1D("histo_den","Pt",npar1bins,par1[0],par1[npar1bins]);
+    //eff[_i] = new TH1D("eff","Pt",npar1bins,par1[0],par1[npar1bins]);
 
     //
     histo_par1[_i] = new TH1D("histo_par1","par1",npar1bins*25,par1[0],par1[npar1bins]);
@@ -222,7 +227,7 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 
     for(int _j = 0; _j < npar1bins; ++_j){
 
-      h_par1[_i][_j] = new TH1D(Form("h_par1_par2bins_%i_%_par2bins_%i_%ii",_i,_j),"par1",25,par1[_j],par1[_j+1]);
+    h_par1[_i][_j] = new TH1D(Form("h_par1_par2bins_%i_%_par2bins_%i_%i",_i,_j),"par1",25,par1[_j],par1[_j+1]);
 
     }
 
@@ -733,4 +738,173 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 
   return 0;
 
+}
+
+int MC_Ratio(TString _filetag, int leptonId, TString sel_den , TString sel_num, double cut_num, TString par_x, TString par_y, TString option){
+
+  if(leptonId == 11){
+    if((par_x == "Pt")&&(par_y == "eta")){
+      const int npar1bins = 18;
+      //Parameter 1
+      double* par1 = new double[npar1bins+1];
+
+      par1[0] = 7;
+      par1[1] = 10;
+      par1[2] = 15;
+      par1[3] = 20;
+      par1[4] = 25;
+      par1[5] = 30;
+      par1[6] = 35;
+      par1[7] = 40;
+      par1[8] = 45;
+      par1[9] = 50;
+      par1[10] = 60;
+      par1[11] = 70;
+      par1[12] = 80;
+      par1[13] = 90;
+      par1[14] = 100;
+      par1[15] = 120;
+      par1[16] = 140;
+      par1[17] = 200;
+      par1[18] = 250;
+      //Parameter 2
+      const int npar2bins = 3;
+      double par2[npar2bins+1];
+      par2[0] = 0;
+      par2[1] = 1.45;
+      par2[2] = 1.67;
+      par2[3] = 2.5;
+      return MC_Ratio(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
+
+    }else if((par_x == "eta")&&(par_y == "Pt")){
+
+      const int npar1bins = 29;
+      //Parameter 1
+      double* par1 = new double[npar1bins+1];
+
+      par1[0]  = -2.5;
+      par1[1]  = -2.4;
+      par1[2]  = -2.3;
+      par1[3]  = -2.2;
+      par1[4]  = -2.1;
+      par1[5]  = -1.9;
+      par1[6]  = -1.67; 
+      par1[7]  = -1.45;
+      par1[8]  = -1.3;
+      par1[9]  = -1.1;
+      par1[10] = -0.9;
+      par1[11] = -0.7;
+      par1[12] = -0.5;
+      par1[13] = -0.3;
+      par1[14] = -0.1;
+      par1[15] = 0.1;
+      par1[16] = 0.3;
+      par1[17] = 0.5;
+      par1[18] = 0.7;
+      par1[19] = 0.9;
+      par1[20] = 1.1;
+      par1[21] = 1.3;
+      par1[22] = 1.45;
+      par1[23] = 1.67;
+      par1[24] = 1.9;
+      par1[25] = 2.1;
+      par1[26] = 2.2;
+      par1[27] = 2.3;
+      par1[28] = 2.4;
+      par1[29] = 2.5;
+
+      //Parameter 2
+      const int npar2bins = 1;
+      double par2[npar2bins+1];
+      par2[0] = 7;
+      par2[1] = 250;
+
+	return MC_Ratio(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
+    }
+
+  }else if(leptonId == 13){
+
+    if((par_x == "Pt")&&(par_y == "eta")){
+      const int npar1bins = 18;
+      //Parameter 1
+      double* par1 = new double[npar1bins+1];
+
+      par1[0] = 7;
+      par1[1] = 10;
+      par1[2] = 15;
+      par1[3] = 20;
+      par1[4] = 25;
+      par1[5] = 30;
+      par1[6] = 35;
+      par1[7] = 40;
+      par1[8] = 45;
+      par1[9] = 50;
+      par1[10] = 60;
+      par1[11] = 70;
+      par1[12] = 80;
+      par1[13] = 90;
+      par1[14] = 100;
+      par1[15] = 120;
+      par1[16] = 140;
+      par1[17] = 200;
+      par1[18] = 250;
+
+      //Parameter 2
+      const int npar2bins = 3;
+      double par2[npar2bins+1];
+      par2[0] = 0;
+      par2[1] = 0.9;
+      par2[2] = 1.2;
+      par2[3] = 2.5;
+
+      return MC_Ratio(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
+
+    }else if((par_x == "eta")&&(par_y == "Pt")){
+
+      const int npar1bins = 31;
+      //Parameter 1
+      double* par1 = new double[npar1bins+1];
+
+      par1[0]  = -2.5;
+      par1[1]  = -2.4;
+      par1[2]  = -2.3;
+      par1[3]  = -2.2;
+      par1[4]  = -2.1;
+      par1[5]  = -1.9;
+      par1[6]  = -1.7; 
+      par1[7]  = -1.5;
+      par1[8]  = -1.3;
+      par1[9]  = -1.2;
+      par1[10] = -1.05;
+      par1[11] = -0.9;
+      par1[12] = -0.7;
+      par1[13] = -0.5;
+      par1[14] = -0.3;
+      par1[15] = -0.1;
+      par1[16] = 0.1;
+      par1[17] = 0.3;
+      par1[18] = 0.5;
+      par1[19] = 0.7;
+      par1[20] = 0.9;
+      par1[21] = 1.05;
+      par1[22] = 1.2;
+      par1[23] = 1.3;
+      par1[24] = 1.5;
+      par1[25] = 1.7;
+      par1[26] = 1.9;
+      par1[27] = 2.1;
+      par1[28] = 2.2;
+      par1[29] = 2.3;
+      par1[30] = 2.4;
+      par1[31] = 2.5;
+
+      //Parameter 2
+      const int npar2bins = 1;
+      double par2[npar2bins+1];
+      par2[0] = 7;
+      par2[1] = 250;
+
+	return MC_Ratio(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
+    }
+  }
 }
