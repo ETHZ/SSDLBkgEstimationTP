@@ -83,7 +83,8 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
 
   //output of the code
   TString _output ="Compare"+_filetag;
-  TString _outpath = "/shome/gaperrin/plots_root/MCvsTandP/";
+  //TString _outpath = "/shome/gaperrin/plots_root/MCvsTandP/";
+  TString _outpath ="/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/MCvsTandP/";
 
   //////////////////////////
   //Retrieve MC ratio file//
@@ -144,7 +145,8 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
 
   //MC input file
   //
-  TString _path_MC = "/shome/gaperrin/plots_root/MC_eff/";
+  //TString _path_MC = "/shome/gaperrin/plots_root/MC_eff/";
+  TString _path_MC = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/MC_eff/";
   TString _fname_MC = "eff"+_filetag+_option_mc+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
 
   cout<<"debug 1"<<endl;
@@ -216,7 +218,8 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
 
   //TP input file
   //
-  TString _path_TP = "/shome/gaperrin/plots_root/ZBkgInvM/";
+  //TString _path_TP = "/shome/gaperrin/plots_root/ZBkgInvM/";
+  TString _path_TP = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/ZBkgInvM/";
   TString _fname_TP = "InvM"+_filetag+_option_tp+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
   TFile* file_test_TP = new TFile(_path_TP+_fname_TP+"_FIT_eff"+".root","read");
   //Location of mass distribution
@@ -238,7 +241,8 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   cout<<"list of keys of the TP file"<<endl;
   //file_in_TP->GetListOfKeys()->ls();
 
-  TString _path_invM = "/shome/gaperrin/plots_root/ZBkgInvM/";
+  //TString _path_invM = "/shome/gaperrin/plots_root/ZBkgInvM/";
+  TString _path_invM = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/ZBkgInvM/";
   TString _fname_invM = "InvM"+_filetag+_optionInvM+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
   TFile* file_invM = new TFile(_path_invM+_fname_invM+".root","read");
   cout<<"The list of keys of the invM file"<<endl;
