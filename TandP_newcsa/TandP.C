@@ -80,7 +80,8 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
   gROOT->SetBatch(kTRUE); 
 
   //Path for input and output file.
-  TString _path = "/shome/gaperrin/plots_root/ZBkgInvM/";
+  //TString _path = "/shome/gaperrin/plots_root/ZBkgInvM/";
+  TString _path = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/ZBkgInvM/";
 
   //Some variables
   double Dpt = (par1[npar1bins]-par1[0])/npar1bins;
@@ -153,6 +154,7 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
   TString _fname = "InvM"+_filetag+_option+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
   TString _fnameInvM = "InvM"+_filetag+_optionInvM+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
   cout<<"FNAME IS "<<_fname<<endl;
+  cout<<"option is "<<option<<endl;
 
   //Create folder to store background fitting
   mkdir(_path+_fname+"_FIT_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);

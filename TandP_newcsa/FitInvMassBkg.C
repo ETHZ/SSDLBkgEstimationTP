@@ -94,7 +94,7 @@ double FitInvMassBkg(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW", TSt
 	//x.setRange("R0",0,200) ;
 	//x.setRange("R1",55,200) ;
 	//x.setRange("R1",75,200) ;
-	//x.setRange("D",55,120) ;
+	x.setRange("D",55,120) ;
 
         /////////////////////
 	//Define fit function 
@@ -181,15 +181,24 @@ double FitInvMassBkg(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW", TSt
 
 	for(int i = 0; i < 10; ++i){vec.push_back(9999);}//Dirty solution to avoid segfault...
 	
-	//Chebychev
+	//Chebychev newfit
 	 RooRealVar a0("a0","a0",vec[0],-5.,0.) ;
-	 RooRealVar a1("a1","a1",vec[1],-2.5,1.2) ;
-	 RooRealVar a2("a2","a2",vec[2],-1.5,1.) ;
-	 RooRealVar a3("a3","a3",vec[3],-3,1.) ;
-	 RooRealVar a4("a4","a4",vec[4],-1.5,1.) ;
-	 RooRealVar a5("a5","a5",vec[5],-1.,1.) ;
+	 RooRealVar a1("a1","a1",vec[1],-2.5,3) ;
+	 RooRealVar a2("a2","a2",vec[2],-1.5,3) ;
+	 RooRealVar a3("a3","a3",vec[3],-4,2.) ;
+	 RooRealVar a4("a4","a4",vec[4],-1.5,3.) ;
+	 RooRealVar a5("a5","a5",vec[5],-3.,1.) ;
 	 RooRealVar a6("a6","a6",vec[6],-1.,1.) ;
 	 RooChebychev bkg_cheb("bkg","Background",x,RooArgSet(a0,a1,a2,a3,a4,a5,a6));
+	//Chebychev
+	 //RooRealVar a0("a0","a0",vec[0],-5.,0.) ;
+	 //RooRealVar a1("a1","a1",vec[1],-2.5,1.2) ;
+	 //RooRealVar a2("a2","a2",vec[2],-1.5,1.) ;
+	 //RooRealVar a3("a3","a3",vec[3],-3,1.) ;
+	 //RooRealVar a4("a4","a4",vec[4],-1.5,1.) ;
+	 //RooRealVar a5("a5","a5",vec[5],-1.,1.) ;
+	 //RooRealVar a6("a6","a6",vec[6],-1.,1.) ;
+	 //RooChebychev bkg_cheb("bkg","Background",x,RooArgSet(a0,a1,a2,a3,a4,a5,a6));
 
 	//Novo
 	RooRealVar peak_bkg("peak_bkg","peak",vec[0],0,250);
@@ -232,12 +241,12 @@ double FitInvMassBkg(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW", TSt
 	
 	cout<<"The range of x is "<<hmin0<<"-"<<hmax0<<endl; 
 	//Reset the range to correct bug
-	x.setRange(75,200);
+	//x.setRange(75,200);
 	cout<<"Debugfuther2"<<endl;
-	//RooFitResult* filters = fit_func->fitTo(dh,Range("R1"),"qr");
+	RooFitResult* filters = fit_func->fitTo(dh,Range("R1"),"qr");
 	//RooFitResult* filters = fit_func->fitTo(dh,Range(75,120),"qr");
-	RooFitResult* training= sig->fitTo(dh,Range(75,120),"qr");
-	RooFitResult* filters = fit_func->fitTo(dh,"qr");
+	//RooFitResult* training= sig->fitTo(dh,Range(75,120),"qr");
+	//RooFitResult* filters = fit_func->fitTo(dh,"qr");
 	fit_func->plotOn(frame);
 	fit_func->plotOn(frame,Components(*sig),LineStyle(kDashed),LineColor(kRed));
 	fit_func->plotOn(frame,Components(*bkg),LineStyle(kDashed),LineColor(kGreen));

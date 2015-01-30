@@ -77,7 +77,7 @@ vector<double> FitBkg(TH1D* histo, TString _bkg = "Exp"){
 	dh.plotOn(frame,DataError(RooAbsData::SumW2), MarkerColor(1),MarkerSize(0.9),MarkerStyle(7)); 
 	dh.statOn(frame);  
 
-	x.setRange("R0",10,200) ;
+	x.setRange("R0",35,200) ;
 	x.setRange("R1",50,200) ;//For exponential
 
 	//Defining the fitting functions
@@ -104,14 +104,22 @@ vector<double> FitBkg(TH1D* histo, TString _bkg = "Exp"){
 	if(_bkg == "Cheb"){
 		//Chebychev
 
+	//Chebychev newfit
+	 RooRealVar a0("a0","a0",-1,-5.,0.) ;
+	 RooRealVar a1("a1","a1",0,-2.5,3) ;
+	 RooRealVar a2("a2","a2",0,-1.5,3) ;
+	 RooRealVar a3("a3","a3",0,-4,2.) ;
+	 RooRealVar a4("a4","a4",0,-1.5,3.) ;
+	 RooRealVar a5("a5","a5",0,-3.,1.) ;
+	 RooRealVar a6("a6","a6",0,-1.,1.) ;
 
-		RooRealVar a0("a0","a0",-1,-5.,0.) ;
-		RooRealVar a1("a1","a1",0,-2.5,1.2); 
-		RooRealVar a2("a2","a2",0,-1.5,1.) ;
-		RooRealVar a3("a3","a3",0,-3,1.) ;
-		RooRealVar a4("a4","a4",0,-1.5,1.) ;
-		RooRealVar a5("a5","a5",0,-1.,1.) ;
-		RooRealVar a6("a6","a6",0,-1.,1.) ;
+		//RooRealVar a0("a0","a0",-1,-5.,0.) ;
+		//RooRealVar a1("a1","a1",0,-2.5,1.2); 
+		//RooRealVar a2("a2","a2",0,-1.5,1.) ;
+		//RooRealVar a3("a3","a3",0,-3,1.) ;
+		//RooRealVar a4("a4","a4",0,-1.5,1.) ;
+		//RooRealVar a5("a5","a5",0,-1.,1.) ;
+		//RooRealVar a6("a6","a6",0,-1.,1.) ;
 
 		RooChebychev bkg("bkg","Background",x,RooArgSet(a0,a1,a2,a3,a4,a5,a6));
 

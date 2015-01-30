@@ -101,7 +101,8 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   ///////////////
 
   //Location of the .root file
-  TString location = "/shome/gaperrin/CERN_data/newcsasample/postprocessed/matched/";
+  //TString location = "/shome/gaperrin/CERN_data/newcsasample/postprocessed/matched/";
+  TString location = "/Users/GLP/Desktop/CERN_data/dyjetsnew/postprocessed/matched/";
 
   //Reading the tree 
   TChain* tree = new TChain("tree");
@@ -114,7 +115,8 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   Long64_t n = tree->GetEntries();
 
   //Path for input and output file. Written in FitDataPath.txt
-  TString _path = "/shome/gaperrin/plots_root/MC_eff/";
+  //TString _path = "/shome/gaperrin/plots_root/MC_eff/";
+  TString _path = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/MC_eff/";
 
   //////////////////////
   //Name for the plots//
