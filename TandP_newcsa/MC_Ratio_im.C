@@ -1,11 +1,8 @@
 /*********************************************
- * Description - A modification of MC_Ratio2 to take in account the lep_other, which was not done correctly in MC_Ratio2
- Final version
-
- * Author - Gaël L. Perrin
-
- * Date - Jan 05 2015
- * *******************************************/
+* Description - Improved version of MC ratio. Does the matching first and stores some parameters. Then the histogram are filled, requierement taking into account the matching procedure can be applied (e.g. #matched rec. leptons)
+* Author - Gaël L. Perrin
+* Date - Feb 08 2015
+* *******************************************/
 
 #include "cmath"
 #include "TChain.h"

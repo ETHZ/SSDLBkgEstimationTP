@@ -1,15 +1,8 @@
 /*********************************************
-  Update w.r.t. previous code: all lepton are now considered (loose and tight). 
- * Description - A modification of DrawInvMassBkg2.C to take in account the lep_other, which was not done correctly in MC_Ratio2
- Final version
-
-
+ * Description - Create the invariant mass distribution that will be used by the T&P
  * Author - Gaël L. Perrin
-
- * Date - Jan 06 2015
-
+ * Date - Feb 06 2015
  * *******************************************/
-
 using namespace std;
 
 #include "cmath"
@@ -30,6 +23,7 @@ using namespace std;
 #include "TGraphErrors.h"
 #include "TGraph.h"
 #include "TLorentzVector.h"
+#include "TnPCombinatorics.C"
 #include <map>
 
 //Helper functions
@@ -38,29 +32,74 @@ using namespace std;
 #include "../tools/setTDRStyle.C"
 #include "../tools/getmaxallhist.C"
 
+//Some usefull structures
+
+Int_t 	Gtight[200];
+Int_t 	Gtighte[200];
+Int_t 	Gloose[200];
+Float_t 	Giso3[200];
+Float_t 	Giso4[200];
+Float_t 	Gchiso3[200];
+Float_t 	Gchiso4[200];
+Float_t 	Gdxy[200];
+Float_t 	Gdz[200];
+Int_t         Gfromtau[200];
+Int_t         Gmatched[200];
+
+//struct Probe{
+//
+//  //indices of the event
+//  int I;
+//  //kinematic variables
+//  Float_t PT;
+//  Float_t ETA;
+//  Float_t PHI;
+//  Float_t M;
+//  //other variables
+//  Int_t ID;
+//  Int_t Q;
+//  //selection variables
+//  Int_t         TIGHT;
+//  Int_t         LOOSE;
+//  Float_t      RELISO3;
+//  Float_t      RELISO4;
+//  Float_t      DXY;
+//  Float_t      DZ;
+//  Int_t         FROMTAU;
+//  Int_t         MATCHED;
+//
+//};
+//
+//struct Tag{
+//
+//  vector< Probe > PROBE;
+//
+//  //indices of the event
+//  int I;
+//  //kinematic variables
+//  Float_t PT;
+//  Float_t ETA;
+//  Float_t PHI;
+//  Float_t M;
+//  //other variables
+//  Int_t ID;
+//  Int_t Q;
+//  //selection variables
+//  Int_t         TIGHT;
+//  Int_t         LOOSE;
+//  Float_t      RELISO3;
+//  Float_t      RELISO4;
+//  Float_t      DXY;
+//  Float_t      DZ;
+//  Int_t         FROMTAU;
+//  Int_t         MATCHED;
+//
+//};
+
+
 ////////////////////////
 //Variable description//
 ////////////////////////
-
-//tree:		TTree to be analysed
-//leptonId:	pdgId of the lepton
-//par_low	low boundary of Pt bins
-//par_upp	high boundary of Pt bins
-//nparbins	number of Pt bins
-//sel_den	sel_denion of Tag AND Probe. Can take parameters such as: "loose", "tightcut", "tightmva" (for electron only).
-//sel_num	additional requirement on Tag (the sel_denion on tag is sel_den + sel_num). Can take the parameter: "loose", "tightcut", "tightmva", "dxy", "dz", "reliso3", "reliso4", "chiso3", "chiso4".
-//cut_num		cut_num parameter of sel_num is possible.
-//option	can take: matching (a matching between the Tag and Probe is required).
-
-////////////////////////////////////
-//Declaration of all the functions//
-////////////////////////////////////
-
-//Function: loading the tree and calling DrawInvMassBkgMain
-//int DrawInvMassBkg(int leptonId, double* par1 , int npar1bins , double* par2, int npar2bins ,TString sel_den = "tightcut", TString sel_num = "reliso3", double cut_num = 0.2, TString par_x = "Pt", TString par_y = "eta", TString option = "");
-
-//Function: Draw the invariant mass. Take boundary's of parx and array of pary as argument.
-//int DrawInvMassBkgMain(TTree* tree, int leptonId, double par_low = 10, double par_upp = 50,int nparbins = 10, TString sel_den = "tightcut", TString sel_num = "reliso3", double cut_num = 0.2,TString par_x = "Pt", TString par_y = "eta", TString option ="");
 
 //Function: Draw the invariant mass. Take array for parx and pary range as argument.
 int DrawInvMassBkgMain(TString _filetag, vector<TTree*> tree, int leptonId, double* par1 ,int npar1bins , double* par2, int npar2bins, TString sel_den, TString sel_num , double cut_num, TString par_x, TString par_y, TString option);
@@ -70,13 +109,13 @@ int DrawInvMassBkg( TString _filetag, int leptonId, TString sel_den, TString sel
 ////////////////////////
 //Function definitions//
 ////////////////////////
-//
+
 
 int     DrawInvMassBkg(TString _filetag, int leptonId, double* par1, int npar1bins , double* par2 ,int npar2bins , TString sel_den, TString sel_num , double cut_num, TString par_x, TString par_y, TString option = ""){
 
 
   //Location of the .root file
-  TString location = "/shome/gaperrin/CERN_data/newcsasample/postprocessed/";
+  TString location = "dcap://t3se01.psi.ch:22125//pnfs/psi.ch/cms/trivcat/store/user/gaperrin/data/phys14/";//phy14
 
   vector< TTree* > tree;
 
@@ -86,15 +125,13 @@ int     DrawInvMassBkg(TString _filetag, int leptonId, double* par1, int npar1bi
   TChain* tree_wjet = new TChain("tree");
   TChain* tree_ttjet = new TChain("tree");
 
+  //For phy14
   //DY events
-  tree_dy->Add(location+"/matched/DYJetsToLLM50_PU_S14_POSTLS170.root");
-
+  tree_dy->Add(location+"DYJets/tree.root");
   //WJet events
-  tree_wjet->Add(location+"WJetsToLNu_13TeV-madgraph-pythia8-tauola.root");
-
+  tree_wjet->Add(location+"TTJets/tree.root");
   //TTJets events
-  tree_ttjet->Add(location+"TTJets_MSDecaysCKM_central_PU_S14_POSTLS170.root");
-
+  tree_ttjet->Add(location+"WJets/tree.root");
 
   tree.push_back(tree_dy);
   tree.push_back(tree_wjet);
@@ -155,8 +192,8 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 
   //Some variables
   Long64_t n[] = {tree[0]->GetEntries(),tree[1]->GetEntries(),tree[2]->GetEntries()};
-  cout<<"The number of entries in the tree 3 are "<< n[2]<<endl;
   int nbins = 200;
+  cout<<"The entries of each tree are "<<n[0]<<", "<<n[1]<<", "<<n[2]<<endl;
 
   /////////////////////
   //Name of the files//
@@ -204,6 +241,8 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
   if(option.Contains(" loose ")){_option += "_loose";}
   if(option.Contains(" oldtree ")){_option += "_oldtree";}
   if(option.Contains(" dyonly ")){_option += "_dyonly";}
+  if(option.Contains(" closestZM ")){_option += "_combi_Zm";}
+  if(option.Contains(" looseprobe ")){_option += "_looseprobe";}
   _option += "_";
   //parameter range string
   TString _par1range;
@@ -299,13 +338,13 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
   Int_t evt_id;
   Float_t scale;
   //Generated
-  Double_t gen_phi[200];
-  Double_t gen_eta[200];
-  Double_t Pt[200];
-  Double_t m[200];
+  Float_t gen_phi[200];
+  Float_t gen_eta[200];
+  Float_t Pt[200];
+  Float_t m[200];
   Int_t Id[200];
   Int_t Mo[200];
-  Double_t charge[200];
+  Float_t charge[200];
   Int_t status[200];
   Int_t GrMa[200];
   Int_t ngenPart;
@@ -314,41 +353,41 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
   //not loose
   Int_t On;
   Int_t Oid[200];
-  Double_t Opt[200];
-  Double_t Om[200];
-  Double_t Oeta[200];
-  Double_t Ophi[200];
+  Float_t Opt[200];
+  Float_t Om[200];
+  Float_t Oeta[200];
+  Float_t Ophi[200];
   Int_t   Oq[200];
   Int_t Otight[200];
   Int_t Otighte[200];
-  //Double_t Omvaid[200];
+  //Float_t Omvaid[200];
   Int_t Oloose[200];
-  Double_t Oiso3[200];
-  Double_t Oiso4[200];
-  Double_t Ochiso3[200];
-  Double_t Ochiso4[200];
-  Double_t Odxy[200];
-  Double_t Odz[200];
+  Float_t Oiso3[200];
+  Float_t Oiso4[200];
+  Float_t Ochiso3[200];
+  Float_t Ochiso4[200];
+  Float_t Odxy[200];
+  Float_t Odz[200];
   Int_t Ofromtau[200];
   Int_t Omatched[200];
 
   //loose
   Int_t 	Gn;
   Int_t 	Gid[200];
-  Double_t 	Gpt[200];
-  Double_t 	Gm[200];
-  Double_t 	Geta[200];
-  Double_t 	Gphi[200];
+  Float_t 	Gpt[200];
+  Float_t 	Gm[200];
+  Float_t 	Geta[200];
+  Float_t 	Gphi[200];
   Int_t   	Gq[200];
   Int_t 	Gtight[200];
   Int_t 	Gtighte[200];
   Int_t 	Gloose[200];
-  Double_t 	Giso3[200];
-  Double_t 	Giso4[200];
-  Double_t 	Gchiso3[200];
-  Double_t 	Gchiso4[200];
-  Double_t 	Gdxy[200];
-  Double_t 	Gdz[200];
+  Float_t 	Giso3[200];
+  Float_t 	Giso4[200];
+  Float_t 	Gchiso3[200];
+  Float_t 	Gchiso4[200];
+  Float_t 	Gdxy[200];
+  Float_t 	Gdz[200];
   Int_t         Gfromtau[200];
   Int_t         Gmatched[200];
 
@@ -420,29 +459,33 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
       Int_t 	evtn;
       Int_t 	evtloose[200];
       Int_t 	evtid[200];
-      Double_t 	evtpt[200];
-      Double_t 	evtm[200];
-      Double_t 	evteta[200];
-      Double_t 	evtphi[200];
+      Float_t 	evtpt[200];
+      Float_t 	evtm[200];
+      Float_t 	evteta[200];
+      Float_t 	evtphi[200];
       Int_t   	evtq[200];
       Int_t 	evttight[200];
       Int_t 	evttighte[200];
-      Double_t 	evtiso3[200];
-      Double_t 	evtiso4[200];
-      Double_t 	evtchiso3[200];
-      Double_t 	evtchiso4[200];
-      Double_t 	evtdxy[200];
-      Double_t 	evtdz[200];
+      Float_t 	evtiso3[200];
+      Float_t 	evtiso4[200];
+      Float_t 	evtchiso3[200];
+      Float_t 	evtchiso4[200];
+      Float_t 	evtdxy[200];
+      Float_t 	evtdz[200];
       Int_t 	evtfromtau[200];
       Int_t 	evtmatched[200];
 
-      //Definitions to use T&P
-      int tag[2];
-      int prob[2];
-      tag[0] = 9999;
-      tag[1] = 9999;
-      prob[0] = 9999;
-      prob[1] = 9999;
+      //Preparing variables for T&P
+      vector <Tag> vec_tag;
+      vector <Probe> vec_probe;
+
+      ////Definitions to use T&P
+      //int tag[2];
+      //int prob[2];
+      //tag[0] = 9999;
+      //tag[1] = 9999;
+      //prob[0] = 9999;
+      //prob[1] = 9999;
 
       tree[tree_i]->GetEntry(k);
 
@@ -495,8 +538,7 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 
 	}
 
-	//define sel_denions using bools
-
+	//define sel_den using bools
 	bool reliso3((sel_num != "reliso3")||((sel_num == "reliso3")&&(evtiso3[i] < cut_num )));
 	bool reliso4((sel_num != "reliso4")||((sel_num == "reliso4")&&(evtiso4[i] < cut_num )));
 	bool chiso3((sel_num != "chiso3")||((sel_num == "chiso3")&&(evtchiso3[i] < cut_num )));
@@ -518,18 +560,49 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 
 		    if(evt_id == 701){++nprob;};
 
-		    //Prob1
-		    if(prob[0] == 9999){prob[0] = i;}
-		    //Prob2
-		    if((prob[0] != 9999)&&(prob[0] != i)&&(prob[1] == 9999)&&(evtq[prob[0]] == -evtq[i])){prob[1] = i;}
+		    //Define and fil the prob
+		    Probe prob;
+		    prob.I = i;
+		    prob.PT = evtpt[i];
+		    prob.ETA = evteta[i];
+		    prob.PHI = evtphi[i];
+		    prob.M = evtm[i];
+		    prob.ID = evtid[i];
+		    prob.Q = evtq[i];
+		    prob.TIGHT = evttight[i];
+		    prob.LOOSE = evtloose[i];
+		    prob.RELISO3 = evtiso3[i];
+		    prob.RELISO4 = evtiso4[i];
+		    prob.DXY= evtdxy[i];
+		    prob.DZ = evtdz[i];
+		    prob.FROMTAU= evtfromtau[i];
+		    prob.MATCHED= evtmatched[i];
+
+		    vec_probe.push_back(prob);
 
 		    //Selection cut for Tag only
 		    if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
 
 		      if(evt_id == 701){++ntag;}
 
-		      if(prob[0] == i){tag[0] = i; }
-		      if(prob[1] == i){tag[1] = i; }
+		      Tag tag;
+		      tag.I = i;
+		      tag.PT = evtpt[i];
+		      tag.ETA = evteta[i];
+		      tag.PHI = evtphi[i];
+		      tag.M = evtm[i];
+		      tag.ID = evtid[i];
+		      tag.Q = evtq[i];
+		      tag.TIGHT = evttight[i];
+		      tag.LOOSE = evtloose[i];
+		      tag.RELISO3 = evtiso3[i];
+		      tag.RELISO4 = evtiso4[i];
+		      tag.DXY= evtdxy[i];
+		      tag.DZ = evtdz[i];
+		      tag.FROMTAU= evtfromtau[i];
+		      tag.MATCHED= evtmatched[i];
+
+		      vec_tag.push_back(tag);
 
 		    }
 		  }
@@ -538,23 +611,52 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 	    }
 	  }
 	}
-      }//end counting on reclep
-      h_prob->Fill(nprob);
-      h_tag->Fill(ntag);
+      }
+      //end of reclep loop
 
-      //loop over all the rec particles to find the isolation
-      //We requiere one tag at least 
-      while((tag[0] != 9999)||(tag[1] != 9999)){
+      //need at least two leptons
+      if(vec_probe.size() == 1) continue;
+      //take events with exaclty two leptons
+      if(option.Contains(" 2lep ") && vec_probe.size() != 2) continue;
 
-	int l1;
-	int l2;
+      //do the loop on all the Tags
+      for(int t = 0; t < vec_tag.size(); ++t){
 
-	if(tag[0] != 9999){l1 = prob[1]; l2 = tag[0]; tag[0] = 9999;}
-	else if(tag[1] != 9999){l1 = prob[0]; l2 = tag[1]; tag[1] = 9999;}
+        //add list of probes in each tag
+	vec_tag[t].PROBE = vec_probe;
+	//IMPORTANT STEP: Define the final Tag and Probe using the combinatorics
+	Tag _tag = combine(vec_tag[t],option); 
 
-	if(l1 != 9999){
+	//do the loop on all the probes for the corresponding Tag
+	for(int p = 0; p < _tag.PROBE.size(); ++p){
+	  //combinatorics should be done by now 
+
+	  //retrieve the indices of the tag and the probe
+	  int l2 = _tag.I;
+	  int l1 = _tag.PROBE[p].I;
+
+	  if(l1 == l2){cout<<"ERROR: tag and probe are the same !"<<endl;return 1;}
 
 	  double M = InvMass(evtpt[l1],evteta[l1],evtphi[l1],evtm[l1],evtpt[l2],evteta[l2],evtphi[l2],evtm[l2]);
+	  //Debuging
+
+	  if(M <2){
+	    cout<<""<<endl;
+	    cout<<"InvM is "<<M<<endl;
+	    cout<<"tag indices is "<<l2<<endl;
+	    cout<<"probe indices is "<<l1<<endl;
+	    cout<<"the sample is "<<tree_i<<endl;
+	    cout<<"the event is  "<<k<<endl;
+	    cout<<"pt probe is "<<evtpt[l1]<<endl;
+	    cout<<"eta probe is "<<evteta[l1]<<endl;
+	    cout<<"phi probe is "<<evtphi[l1]<<endl;
+	    cout<<"m probe is "<<evtm[l1]<<endl;
+	    cout<<"pt tag is "<<evtpt[l2]<<endl;
+	    cout<<"eta tag is "<<evteta[l2]<<endl;
+	    cout<<"phi tag is "<<evtphi[l2]<<endl;
+	    cout<<"m tag is "<<evtm[l2]<<endl;
+
+	      }
 
 	  //Parameter on the xaxis
 
@@ -661,8 +763,14 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 	    }
 	  }
 	}
-
       }
+
+    h_prob->Fill(nprob);
+    h_tag->Fill(ntag);
+
+    //loop over all the rec particles to find the isolation
+    //We requiere one tag at least 
+    
     }
   }
 
@@ -859,32 +967,32 @@ int main(int argc, char** argv){
 
   if(argc-1 == 8){
 
-  cout<<"The 1th parameter is "<<argv[1]<<endl;
-  cout<<"The 2th parameter is "<<argv[2]<<endl;
-  cout<<"The 3th parameter is "<<argv[3]<<endl;
-  cout<<"The 4th parameter is "<<argv[4]<<endl;
-  cout<<"The 5th parameter is "<<argv[5]<<endl;
-  cout<<"The 6th parameter is "<<argv[6]<<endl;
-  cout<<"The 7th parameter is "<<argv[7]<<endl;
-  cout<<"The 8th parameter is "<<argv[8]<<endl;
+    cout<<"The 1th parameter is "<<argv[1]<<endl;
+    cout<<"The 2th parameter is "<<argv[2]<<endl;
+    cout<<"The 3th parameter is "<<argv[3]<<endl;
+    cout<<"The 4th parameter is "<<argv[4]<<endl;
+    cout<<"The 5th parameter is "<<argv[5]<<endl;
+    cout<<"The 6th parameter is "<<argv[6]<<endl;
+    cout<<"The 7th parameter is "<<argv[7]<<endl;
+    cout<<"The 8th parameter is "<<argv[8]<<endl;
 
-  return DrawInvMassBkg(argv[1], atof(argv[2]), argv[3],argv[4], atof(argv[5]),argv[6], argv[7],argv[8]);
+    return DrawInvMassBkg(argv[1], atof(argv[2]), argv[3],argv[4], atof(argv[5]),argv[6], argv[7],argv[8]);
 
   }else{
 
-  cout<<"The 1th parameter is "<<argv[1]<<endl;
-  cout<<"The 2th parameter is "<<argv[2]<<endl;
-  cout<<"The 3th parameter is "<<argv[3]<<endl;
-  cout<<"The 4th parameter is "<<argv[4]<<endl;
-  cout<<"The 5th parameter is "<<argv[5]<<endl;
-  cout<<"The 6th parameter is "<<argv[6]<<endl;
-  cout<<"The 7th parameter is "<<argv[7]<<endl;
-  cout<<"The 8th parameter is "<<argv[8]<<endl;
-  cout<<"The 9th parameter is "<<argv[9]<<endl;
-  cout<<"The 10th parameter is "<<argv[10]<<endl;
-  cout<<"The 11th parameter is "<<argv[11]<<endl;
+    cout<<"The 1th parameter is "<<argv[1]<<endl;
+    cout<<"The 2th parameter is "<<argv[2]<<endl;
+    cout<<"The 3th parameter is "<<argv[3]<<endl;
+    cout<<"The 4th parameter is "<<argv[4]<<endl;
+    cout<<"The 5th parameter is "<<argv[5]<<endl;
+    cout<<"The 6th parameter is "<<argv[6]<<endl;
+    cout<<"The 7th parameter is "<<argv[7]<<endl;
+    cout<<"The 8th parameter is "<<argv[8]<<endl;
+    cout<<"The 9th parameter is "<<argv[9]<<endl;
+    cout<<"The 10th parameter is "<<argv[10]<<endl;
+    cout<<"The 11th parameter is "<<argv[11]<<endl;
 
-  return DrawInvMassBkg(argv[1], atof(argv[2]),atof(argv[3]), atof(argv[4]),atof(argv[5]), argv[6],argv[7], atof(argv[8]),argv[9], argv[10],argv[11]);
+    return DrawInvMassBkg(argv[1], atof(argv[2]),atof(argv[3]), atof(argv[4]),atof(argv[5]), argv[6],argv[7], atof(argv[8]),argv[9], argv[10],argv[11]);
 
   }
 
@@ -969,7 +1077,6 @@ int     DrawInvMassBkg( TString _filetag, int leptonId, TString sel_den, TString
       //double par2[npar2bins+1];
       //par2[0] = 7;
       //par2[1] = 250;
-      //Parameter 2
       const int npar2bins = 3;
       double par2[npar2bins+1];
       par2[0] = 7;
@@ -977,7 +1084,7 @@ int     DrawInvMassBkg( TString _filetag, int leptonId, TString sel_den, TString
       par2[2] = 60;
       par2[3] = 250;
 
-	return DrawInvMassBkg(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
+      return DrawInvMassBkg(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
     }
 
   }else if(leptonId == 13){
@@ -1056,7 +1163,7 @@ int     DrawInvMassBkg( TString _filetag, int leptonId, TString sel_den, TString
       par1[30] = 2.4;
       par1[31] = 2.5;
 
-      ////Parameter 2
+      //Parameter 2
       //const int npar2bins = 1;
       //double par2[npar2bins+1];
       //par2[0] = 7;
@@ -1068,7 +1175,7 @@ int     DrawInvMassBkg( TString _filetag, int leptonId, TString sel_den, TString
       par2[2] = 60;
       par2[3] = 250;
 
-	return DrawInvMassBkg(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
+      return DrawInvMassBkg(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
     }
   }
 }

@@ -47,8 +47,6 @@
 
 int MC_Ratio(TString _filetag, int leptonId, double* par1, int npar1bins, double* par2, int npar2bins, TString sel_den , TString sel_num, double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = "");
 
-int MC_Ratio(TString _filetag, int leptonId, TString sel_den , TString sel_num, double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = "");
-
 int MC_Ratio(TString _filetag,int leptonId, double par_low, double par_upp, int npar1bins, TString sel_den , TString sel_num, double cut_num = 0., TString par_x = "Pt", TString par_y = "eta", TString option = ""){
 
 
@@ -61,22 +59,13 @@ int MC_Ratio(TString _filetag,int leptonId, double par_low, double par_upp, int 
   }
 
   //Parameter 2
-  const int npar2bins_eta = 3;
+  const int npar2bins_eta = 2;
+  //const int npar2bins_pt = 19;
   const int npar2bins_pt = 1;
 
-  double par2_eta[npar2bins_eta+1];
-  if(leptonId == 13){
-    par2_eta[0] = 0;
-    par2_eta[1] = 0.9;
-    par2_eta[2] = 1.2;
-    par2_eta[3] = 2.5;
-  }else if(leptonId == 11){
-    par2_eta[0] = 0;
-    par2_eta[1] = 1.45;
-    par2_eta[2] = 1.67;
-    par2_eta[3] = 2.5;
-  }
-  double par2_pt[npar2bins_pt+1] = {10,250};
+  double par2_eta[npar2bins_eta+1] = {0,1.2,2.5};
+  //double par2_pt[npar2bins_pt+1] = {10,20,30,40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200};
+  double par2_pt[npar2bins_pt+1] = {0,1000};
 
   if(par_y == "eta"){
     return MC_Ratio(_filetag,leptonId, par1, npar1bins, par2_eta, npar2bins_eta, sel_den, sel_num, cut_num, par_x, par_y, option );
@@ -88,38 +77,36 @@ int MC_Ratio(TString _filetag,int leptonId, double par_low, double par_upp, int 
 
 int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double* par2, int npar2bins, TString sel_den , TString sel_num, double cut_num , TString par_x , TString par_y , TString option ){
 
-
-  //Using new samples here
-
   setTDRStyle();
-
-  option.Append(" ");
-  option.Prepend(" ");
 
   ///////////////
   //Get the TTree
   ///////////////
 
   //Location of the .root file
-  TString location = "/shome/gaperrin/CERN_data/newcsasample/postprocessed/matched/";
+  //TString location = "/Users/GLP/Desktop/CERN_data/2014-11-13_skim2ll-mva-softbtag/postprocessed/";
+  TString location2 = "/Users/GLP/Desktop/CERN_data/dyjetsnew/postprocessed/";
 
   //Reading the tree 
-  TChain* tree = new TChain("tree");
+  //
+  TChain* tree = new TChain("treeProducerSusyMultilepton");
 
   //DY events
-  tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");
+  //tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");
+  tree->Add(location2+"dyjetsnew.root");
 
   //Plot the result
 
   Long64_t n = tree->GetEntries();
 
   //Path for input and output file. Written in FitDataPath.txt
-  //TString _path = "/shome/gaperrin/plots_root/MC_eff/";
-  TString _path_MC = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/MC_eff/";
+  TString _path = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/MC_ratio/";
 
   //////////////////////
   //Name for the plots//
   //////////////////////
+
+  //_filetag += "dyjets_new";
 
   TString pname;
   TString _pname;
@@ -157,13 +144,13 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   else if(sel_num == "dz"){_sel_num = Form("dz_%0.3lf",cut_num);}
   else{cout<<"ERROR: wrong numerator name !";return 1;}
   //option string
+  option.Append(" ");
+  option.Prepend(" ");
   if(option.Contains(" ll ")){_option += "_ll";}
   if(option.Contains(" unmatched ")){_option += "_unmatched";}
   if(option.Contains(" alleta ")){_option += "_alleta";}
   if(option.Contains(" short ")){_option += "_short";}
   if(option.Contains(" loose ")){_option += "_loose";}
-  if(option.Contains(" oldtree ")){_option += "_oldtree";}
-  if(option.Contains(" moreone ")){_option += "_moreone";}
   _option += "_";
   //parameter range string
   TString _par1range;
@@ -185,14 +172,10 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   TH1D **histo_den = new TH1D*[npar2bins];
   TH1D **eff = new TH1D*[npar2bins];
 
+
   //Par1 distribution histogram
   TH1D** histo_par1 = new TH1D*[npar2bins];
   TH1D*** h_par1 = new TH1D**[npar2bins];
-
-  //number matched per event
-  TH1D* histo_matched = new TH1D("histo_matched","h",5,0,5);
-  TH1D* histo_reclep= new TH1D("histo_reclep","h",5,0,5);
-
 
   //Distribution of the cut parameter whose efficiency is studied
   TH1D *histo_other_sel = new TH1D("histo_other_sel","h",5,0,5);
@@ -208,19 +191,18 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   TH1D **eff_G = new TH1D*[npar2bins];
 
   //Counter LepGood vs LepOther
+
   TH1D **histo_counter = new TH1D*[npar2bins];
   TH1D **histo_counter_G_par1 = new TH1D*[npar2bins];
   TH1D **histo_counter_O_par1 = new TH1D*[npar2bins];
   TH1D **histo_counter_par1 = new TH1D*[npar2bins];
 
+
   for(int _i = 0; _i < npar2bins; ++_i){ 
 
-    histo_num[_i] = new TH1D("histo_num","Pt",npar1bins,par1);
-    histo_den[_i] = new TH1D("histo_den","Pt",npar1bins,par1);
-    eff[_i] = new TH1D("eff","Pt",npar1bins,par1);
-    //histo_num[_i] = new TH1D("histo_num","Pt",npar1bins,par1[0],par1[npar1bins]);
-    //histo_den[_i] = new TH1D("histo_den","Pt",npar1bins,par1[0],par1[npar1bins]);
-    //eff[_i] = new TH1D("eff","Pt",npar1bins,par1[0],par1[npar1bins]);
+    histo_num[_i] = new TH1D("histo_num","Pt",npar1bins,par1[0],par1[npar1bins]);
+    histo_den[_i] = new TH1D("histo_den","Pt",npar1bins,par1[0],par1[npar1bins]);
+    eff[_i] = new TH1D("eff","Pt",npar1bins,par1[0],par1[npar1bins]);
 
     //
     histo_par1[_i] = new TH1D("histo_par1","par1",npar1bins*25,par1[0],par1[npar1bins]);
@@ -228,7 +210,7 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 
     for(int _j = 0; _j < npar1bins; ++_j){
 
-    h_par1[_i][_j] = new TH1D(Form("h_par1_par2bins_%i_%_par2bins_%i_%i",_i,_j),"par1",25,par1[_j],par1[_j+1]);
+      h_par1[_i][_j] = new TH1D("h_par1","par1",25,par1[_j],par1[_j+1]);
 
     }
 
@@ -251,74 +233,91 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 
   //Event variables
   Int_t evt_id;
-  Double_t scale;
+  Float_t scale;
   //Generated
-  Double_t gen_phi[200];
-  Double_t gen_eta[200];
-  Double_t Pt[200];
-  Double_t m[200];
+  Float_t gen_phi[200];
+  Float_t gen_eta[200];
+  Float_t Pt[200];
+  Float_t m[200];
   Int_t Id[200];
   Int_t Mo[200];
-  Double_t charge[200];
+  Float_t charge[200];
   Int_t status[200];
   Int_t GrMa[200];
   Int_t ngenPart;
   Int_t source[200];
-  Int_t pile_up;
+  //Generated from tau
+  Float_t tgen_phi[200];
+  Float_t tgen_eta[200];
+  Float_t tPt[200];
+  Float_t tm[200];
+  Int_t tId[200];
+  Int_t tMo[200];
+  Float_t tcharge[200];
+  Int_t tstatus[200];
+  Int_t tGrMa[200];
+  Int_t tngenPart;
+  Int_t tsource[200];
   //not loose
   Int_t On;
   Int_t Oid[200];
-  Double_t Opt[200];
-  Double_t Om[200];
-  Double_t Oeta[200];
-  Double_t Ophi[200];
+  Float_t Opt[200];
+  Float_t Om[200];
+  Float_t Oeta[200];
+  Float_t Ophi[200];
   Int_t   Oq[200];
   Int_t Otight[200];
   Int_t Otighte[200];
-  //Double_t Omvaid[200];
+  //Float_t Omvaid[200];
   Int_t Oloose[200];
-  Double_t Oiso3[200];
-  Double_t Oiso4[200];
-  Double_t Ochiso3[200];
-  Double_t Ochiso4[200];
-  Double_t Odxy[200];
-  Double_t Odz[200];
+  Float_t Oiso3[200];
+  Float_t Oiso4[200];
+  Float_t Ochiso3[200];
+  Float_t Ochiso4[200];
+  Float_t Odxy[200];
+  Float_t Odz[200];
   Int_t Ofromtau[200];
-  Int_t Omatched[200];
-
   //loose
   Int_t 	Gn;
   Int_t 	Gid[200];
-  Double_t 	Gpt[200];
-  Double_t 	Gm[200];
-  Double_t 	Geta[200];
-  Double_t 	Gphi[200];
+  Float_t 	Gpt[200];
+  Float_t 	Gm[200];
+  Float_t 	Geta[200];
+  Float_t 	Gphi[200];
   Int_t   	Gq[200];
   Int_t 	Gtight[200];
   Int_t 	Gtighte[200];
   Int_t 	Gloose[200];
-  Double_t 	Giso3[200];
-  Double_t 	Giso4[200];
-  Double_t 	Gchiso3[200];
-  Double_t 	Gchiso4[200];
-  Double_t 	Gdxy[200];
-  Double_t 	Gdz[200];
+  Float_t 	Giso3[200];
+  Float_t 	Giso4[200];
+  Float_t 	Gchiso3[200];
+  Float_t 	Gchiso4[200];
+  Float_t 	Gdxy[200];
+  Float_t 	Gdz[200];
   Int_t         Gfromtau[200];
-  Int_t         Gmatched[200];
 
   //Assigne branches tree->SetBranchAddress("evt_scale1fb", &scale);
   tree->SetBranchAddress("evt_id", &evt_id);
   //generated
-  tree->SetBranchAddress("nGenPart", &ngenPart);
-  tree->SetBranchAddress("GenPart_pdgId", &Id);
-  tree->SetBranchAddress("GenPart_sourceId", &source);
-  tree->SetBranchAddress("GenPart_motherId", &Mo);
-  tree->SetBranchAddress("GenPart_eta", &gen_eta);
-  tree->SetBranchAddress("GenPart_phi", &gen_phi);
-  tree->SetBranchAddress("GenPart_pt", &Pt);
-  tree->SetBranchAddress("GenPart_mass", &m);
-  tree->SetBranchAddress("GenPart_charge", &charge);
-  tree->SetBranchAddress("GenPart_status", &status);
+  tree->SetBranchAddress("ngenLep", &ngenPart);
+  tree->SetBranchAddress("genLep_pdgId", &Id);
+  tree->SetBranchAddress("genLep_sourceId", &source);
+  tree->SetBranchAddress("genLep_eta", &gen_eta);
+  tree->SetBranchAddress("genLep_phi", &gen_phi);
+  tree->SetBranchAddress("genLep_pt", &Pt);
+  tree->SetBranchAddress("genLep_mass", &m);
+  tree->SetBranchAddress("genLep_charge", &charge);
+  tree->SetBranchAddress("genLep_status", &status);
+  //generated from tau
+  tree->SetBranchAddress("ngenLepFromTau", &tngenPart);
+  tree->SetBranchAddress("genLepFromTau_pdgId", &tId);
+  tree->SetBranchAddress("genLepFromTau_sourceId", &tsource);
+  tree->SetBranchAddress("genLepFromTau_eta", &tgen_eta);
+  tree->SetBranchAddress("genLepFromTau_phi", &tgen_phi);
+  tree->SetBranchAddress("genLepFromTau_pt", &tPt);
+  tree->SetBranchAddress("genLepFromTau_mass", &tm);
+  tree->SetBranchAddress("genLepFromTau_charge", &tcharge);
+  tree->SetBranchAddress("genLepFromTau_status", &tstatus);
   //not loose
   tree->SetBranchAddress("nLepOther",&On);
   tree->SetBranchAddress("LepOther_pdgId",&Oid);
@@ -336,7 +335,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   tree->SetBranchAddress("LepOther_dxy",&Odxy);
   tree->SetBranchAddress("LepOther_dz",&Odz);
   tree->SetBranchAddress("LepOther_mcMatchTau",&Ofromtau);
-  tree->SetBranchAddress("LepOther_matched",&Omatched);
   //Loose
   tree->SetBranchAddress("nLepGood",&Gn);
   tree->SetBranchAddress("LepGood_pdgId",&Gid);
@@ -354,7 +352,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   tree->SetBranchAddress("LepGood_dxy",&Gdxy);
   tree->SetBranchAddress("LepGood_dz",&Gdz);
   tree->SetBranchAddress("LepGood_mcMatchTau",&Gfromtau);
-  tree->SetBranchAddress("LepGood_matched",&Gmatched);
 
   int count = 0;
 
@@ -374,27 +371,26 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     Int_t 	evtn;
     Int_t 	evtloose[200];
     Int_t 	evtid[200];
-    Double_t 	evtpt[200];
-    Double_t 	evtm[200];
-    Double_t 	evteta[200];
-    Double_t 	evtphi[200];
+    Float_t 	evtpt[200];
+    Float_t 	evtm[200];
+    Float_t 	evteta[200];
+    Float_t 	evtphi[200];
     Int_t   	evtq[200];
     Int_t 	evttight[200];
     Int_t 	evttighte[200];
-    Double_t 	evtiso3[200];
-    Double_t 	evtiso4[200];
-    Double_t 	evtchiso3[200];
-    Double_t 	evtchiso4[200];
-    Double_t 	evtdxy[200];
-    Double_t 	evtdz[200];
-    Double_t 	evtfromtau[200];
-    Int_t 	evtmatched[200];
+    Float_t 	evtiso3[200];
+    Float_t 	evtiso4[200];
+    Float_t 	evtchiso3[200];
+    Float_t 	evtchiso4[200];
+    Float_t 	evtdxy[200];
+    Float_t 	evtdz[200];
+    Float_t 	evtfromtau[200];
 
     if( 100*(double)k/n> count){cout<<count<<endl;++count;}
 
     tree->GetEntry(k);
 
-    int nlep  = 0;//count the number of matched leptons
+    int nlep  = 0;//count the number of leptons
 
     //Selection on denominator
     for(int j = 0; j < Gn+On; ++j){
@@ -418,7 +414,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 	evtdxy[j]                     = Odxy[j];
 	evtdz[j]                      = Odz[j];
 	evtfromtau[j]                 = Ofromtau[j];
-	evtmatched[j]                 = Omatched[j];
 
 
       }else if((j >=  On)&&(j < Gn+On)){
@@ -439,12 +434,14 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 	evtdxy[j]                  = Gdxy[j-On];
 	evtdz[j]                   = Gdz[j-On];
 	evtfromtau[j]              = Gfromtau[j-On];
-	evtmatched[j]              = Omatched[j-On];
 
       }
 
       if((!option.Contains(" ll "))||((option.Contains(" ll "))&&(Gn+On == 2)&&(evtq[0] == -evtq[1]))){
 	if(abs(evtid[j]) == leptonId){
+	if(evtfromtau[j] == 0){
+	  //Cut on the denominator
+	  //if((sel_den != "loose")||(evtloose[j] == 1)){
 	  if((!option.Contains("loose"))||((option.Contains("loose"))&&(evtloose[j] == 1))){
 	    if((sel_den != "tightcut")||(((abs(evtid[j]) == 13)&&(sel_den == "tightcut")&&(evttight[j] == 1 ))||((abs(evtid[j]) == 11)&&(sel_den == "tightcut")&&(evttighte[j] >= 3)))){
 	      if((sel_den != "tightmva")||((abs(evtid[j]) == 11)&&(sel_den == "tightmva")&&(evttight[j] == 1))){
@@ -459,18 +456,66 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 		double par;
 		double par_2;
 
+		//Declare here the genPart (to merge genLep and genLepFromTau)
+		Float_t evtgen_phi[200];
+		Float_t evtgen_eta[200];
+		Float_t evtPt[200];
+		Float_t evtm[200];
+		Int_t evtId[200];
+		Float_t evtcharge[200];
+		Int_t evtstatus[200];
+		Int_t evtGrMa[200];
+		Int_t evtngenPart;
+		Int_t evtsource[200];
+		Int_t evtfromTau;
+
+		for(int gen_i = 0; gen_i < ngenPart + tngenPart; ++gen_i){
+
+		  if(gen_i < ngenPart){
+
+		    evtgen_phi[gen_i] 	        = gen_phi[gen_i];
+		    evtgen_eta[gen_i]		= gen_eta[gen_i];
+		    evtPt[gen_i]		= Pt[gen_i];
+		    evtm[gen_i]			= m[gen_i];
+		    evtId[gen_i]            	= Id[gen_i];
+		    evtcharge[gen_i]        	= charge[gen_i];
+		    evtstatus[gen_i]        	= status[gen_i];
+		    evtGrMa[gen_i]          	= GrMa[gen_i];
+		    evtsource[gen_i]		= source[gen_i];
+		    evtfromTau           	= 0;
+
+		  }else if((gen_i >= ngenPart)&&(gen_i < ngenPart + tngenPart)){
+
+		    evtgen_phi[gen_i] 		= tgen_phi[gen_i-ngenPart];
+		    evtgen_eta[gen_i]		= tgen_eta[gen_i-ngenPart];
+		    evtPt[gen_i]		= tPt[gen_i-ngenPart];
+		    evtm[gen_i]			= tm[gen_i-ngenPart];
+		    evtId[gen_i]            	= tId[gen_i-ngenPart];
+		    evtcharge[gen_i]        	= tcharge[gen_i-ngenPart];
+		    evtstatus[gen_i]        	= tstatus[gen_i-ngenPart];
+		    evtGrMa[gen_i]          	= tGrMa[gen_i-ngenPart];
+		    evtsource[gen_i]		= tsource[gen_i-ngenPart];
+		    evtfromTau            	= 1;
+
+		  }
+
+		}
+
+
 		//loop over all generated particles to do the matching
-		for (int i = 0; i < ngenPart; ++i) {
-		  if((Id[i] == evtid[j])&&(abs(Mo[i]) != 15)){//the last condition remove the particles coming from tau
+		for (int i = 0; i < ngenPart+tngenPart; ++i) {
+		  if(evtId[i] == evtid[j]){ 
+
+		    cout<<"evt mo is "<<evtfromTau<<endl;
 
 		    //Electrons selection
-		    double R2 = DeltaR(gen_eta[i],evteta[j],gen_phi[i],evtphi[j] );
+		    double R2 = DeltaR(evtgen_eta[i],evteta[j],evtgen_phi[i],evtphi[j] );
 
 		    //Minimise DeltaR and Fill the other variables
 		    if (R > R2) {
 		      R = R2;
-		      delta_P = abs(evtpt[j]-Pt[i])/Pt[i];
-		      delta_charge = abs(evtq[j] - charge[i]);
+		      delta_P = abs(evtpt[j]-evtPt[i])/evtPt[i];
+		      delta_charge = abs(evtq[j] - evtcharge[i]);
 		    }
 		  }
 		}
@@ -484,8 +529,8 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 		else if(par_y == "phi"){par_2 = abs(evtphi[j]);}
 
 		//Fill Pt only for matched events
-		if(R<0.1){
-		  ++nlep;
+		if(((R<0.1)&&(delta_P < 0.2)&&(delta_charge < 0.5))||option.Contains(" unmatched ")){
+
 		  for(int ii = 0; ii < npar2bins; ++ii){
 		    if((par_2 > par2[ii])&&(par_2 <= par2[ii+1])){histo_den[ii]->Fill(par);histo_par1[ii]->Fill(par);
 
@@ -513,6 +558,7 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 		  if((sel_num == "dz")&&(abs(evtdz[j]) <= cut_num)){a = 7;}
 		  if((sel_num == "tightmva")&&(abs(evtid[j]) == 11)&&(evttight[j] == 1)){a = 9;}
 		  if((sel_num == "loose")&&(evtloose[j]) == 1){a = 8;}
+		  //if((sel_num == "mvaid")&&(abs(evtmvaid[j]) >= cut_num)){a = 9;}
 
 		  //Find the corresponding histogram for par2
 		  TH1D* hist;
@@ -568,16 +614,13 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 	    }
 	  }
 	}
-      }
+	}
+	}
+	//}
     }
-      histo_matched->Fill(nlep);
-      histo_reclep->Fill(Gn+On);
   }
 
-  cout<<"Debug 1"<<endl;
-
   mkdir(_path+_fname+"_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  cout<<"Debug 2"<<endl;
 
   ///////////////////
   //Draw histograms//
@@ -586,8 +629,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   //Canvas declaration
   for(int i = 0; i < npar2bins; ++i){
 
-    cout<<"Debug 3"<<endl;
-    cout<<"Debug 3.1"<<endl;
     ////////////////////
     //Build histograms//
     ////////////////////
@@ -620,7 +661,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     if(par_y == "Pt"){_parybin = Form("%0.f_Pt%0.f",par2[i],par2[i+1]);}
     else if(par_y == "eta"){_parybin = Form("%0.3f_eta%0.3f",par2[i],par2[i+1]);cout<<"it works !"<<endl;}
     else if(par_y == "phi"){_parybin = Form("%0.3f_phi%0.3f",par2[i],par2[i+1]);}
-    cout<<"Debug 5"<<endl;
 
     TString _parytitle;
 
@@ -628,7 +668,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     if(par_y == "Pt"){_parytitle = Form("%0.f #leq P_{t} #leq %0.f",par2[i],par2[i+1]);}
     else if(par_y == "eta"){_parytitle = Form("%0.3f #leq #||{#eta}  #leq %0.3f",par2[i],par2[i+1]);cout<<"it works !"<<endl;}
     else if(par_y == "phi"){_parytitle = Form("%0.3f #leq #||{#phi}  #leq %0.3f",par2[i],par2[i+1]);}
-    cout<<"Debug 6"<<endl;
 
     //Draw histograms
     TCanvas* c1 = new TCanvas("c1","c1");
@@ -684,7 +723,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     //cc->cd();
     //histo_counter[i]->Draw();
     //
-    cout<<"Debug 8"<<endl;
     histo_good_sel->Add(histo_other_sel);
     TCanvas* csel = new TCanvas("csel","csel");
     csel->cd();
@@ -693,7 +731,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     /////////////////////
     //Saving the output//
     /////////////////////
-    cout<<"Debug 4"<<endl;
 
     //Write pdf
     TString cname = "eff"+_filetag+_option+_pname+_par1range+"_"+_parybin+"_den_"+_sel_den+"_num_"+_sel_num;
@@ -710,8 +747,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     eff[i]->Write("eff"+_parybin);
     histo_par1[i]->Write("histo_par1_"+_parybin);
     histo_good_sel->Write("sel"+_parybin);
-    histo_matched->Write("nlepmatched");
-    histo_matched->Write("nreclep");
     //eff_O[i]->Write("eff_LepOther"+_parybin);
     //eff_G[i]->Write("eff_LepGood"+_parybin);
     //histo_counter_par1[i]->Write("counter_par"+_parybin);
@@ -731,181 +766,10 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     }
 
   }
-  cout<<"Debug 5"<<endl;
 
   file_out->Close();
 
-  cout<<"Debug 6"<<endl;
 
   return 0;
 
-}
-
-int MC_Ratio(TString _filetag, int leptonId, TString sel_den , TString sel_num, double cut_num, TString par_x, TString par_y, TString option){
-
-  if(leptonId == 11){
-    if((par_x == "Pt")&&(par_y == "eta")){
-      const int npar1bins = 18;
-      //Parameter 1
-      double* par1 = new double[npar1bins+1];
-
-      par1[0] = 7;
-      par1[1] = 10;
-      par1[2] = 15;
-      par1[3] = 20;
-      par1[4] = 25;
-      par1[5] = 30;
-      par1[6] = 35;
-      par1[7] = 40;
-      par1[8] = 45;
-      par1[9] = 50;
-      par1[10] = 60;
-      par1[11] = 70;
-      par1[12] = 80;
-      par1[13] = 90;
-      par1[14] = 100;
-      par1[15] = 120;
-      par1[16] = 140;
-      par1[17] = 200;
-      par1[18] = 250;
-      //Parameter 2
-      const int npar2bins = 3;
-      double par2[npar2bins+1];
-      par2[0] = 0;
-      par2[1] = 1.45;
-      par2[2] = 1.67;
-      par2[3] = 2.5;
-      return MC_Ratio(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
-
-    }else if((par_x == "eta")&&(par_y == "Pt")){
-
-      const int npar1bins = 29;
-      //Parameter 1
-      double* par1 = new double[npar1bins+1];
-
-      par1[0]  = -2.5;
-      par1[1]  = -2.4;
-      par1[2]  = -2.3;
-      par1[3]  = -2.2;
-      par1[4]  = -2.1;
-      par1[5]  = -1.9;
-      par1[6]  = -1.67; 
-      par1[7]  = -1.45;
-      par1[8]  = -1.3;
-      par1[9]  = -1.1;
-      par1[10] = -0.9;
-      par1[11] = -0.7;
-      par1[12] = -0.5;
-      par1[13] = -0.3;
-      par1[14] = -0.1;
-      par1[15] = 0.1;
-      par1[16] = 0.3;
-      par1[17] = 0.5;
-      par1[18] = 0.7;
-      par1[19] = 0.9;
-      par1[20] = 1.1;
-      par1[21] = 1.3;
-      par1[22] = 1.45;
-      par1[23] = 1.67;
-      par1[24] = 1.9;
-      par1[25] = 2.1;
-      par1[26] = 2.2;
-      par1[27] = 2.3;
-      par1[28] = 2.4;
-      par1[29] = 2.5;
-
-      //Parameter 2
-      const int npar2bins = 1;
-      double par2[npar2bins+1];
-      par2[0] = 7;
-      par2[1] = 250;
-
-	return MC_Ratio(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
-    }
-
-  }else if(leptonId == 13){
-
-    if((par_x == "Pt")&&(par_y == "eta")){
-      const int npar1bins = 18;
-      //Parameter 1
-      double* par1 = new double[npar1bins+1];
-
-      par1[0] = 7;
-      par1[1] = 10;
-      par1[2] = 15;
-      par1[3] = 20;
-      par1[4] = 25;
-      par1[5] = 30;
-      par1[6] = 35;
-      par1[7] = 40;
-      par1[8] = 45;
-      par1[9] = 50;
-      par1[10] = 60;
-      par1[11] = 70;
-      par1[12] = 80;
-      par1[13] = 90;
-      par1[14] = 100;
-      par1[15] = 120;
-      par1[16] = 140;
-      par1[17] = 200;
-      par1[18] = 250;
-
-      //Parameter 2
-      const int npar2bins = 3;
-      double par2[npar2bins+1];
-      par2[0] = 0;
-      par2[1] = 0.9;
-      par2[2] = 1.2;
-      par2[3] = 2.5;
-
-      return MC_Ratio(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
-
-    }else if((par_x == "eta")&&(par_y == "Pt")){
-
-      const int npar1bins = 31;
-      //Parameter 1
-      double* par1 = new double[npar1bins+1];
-
-      par1[0]  = -2.5;
-      par1[1]  = -2.4;
-      par1[2]  = -2.3;
-      par1[3]  = -2.2;
-      par1[4]  = -2.1;
-      par1[5]  = -1.9;
-      par1[6]  = -1.7; 
-      par1[7]  = -1.5;
-      par1[8]  = -1.3;
-      par1[9]  = -1.2;
-      par1[10] = -1.05;
-      par1[11] = -0.9;
-      par1[12] = -0.7;
-      par1[13] = -0.5;
-      par1[14] = -0.3;
-      par1[15] = -0.1;
-      par1[16] = 0.1;
-      par1[17] = 0.3;
-      par1[18] = 0.5;
-      par1[19] = 0.7;
-      par1[20] = 0.9;
-      par1[21] = 1.05;
-      par1[22] = 1.2;
-      par1[23] = 1.3;
-      par1[24] = 1.5;
-      par1[25] = 1.7;
-      par1[26] = 1.9;
-      par1[27] = 2.1;
-      par1[28] = 2.2;
-      par1[29] = 2.3;
-      par1[30] = 2.4;
-      par1[31] = 2.5;
-
-      //Parameter 2
-      const int npar2bins = 1;
-      double par2[npar2bins+1];
-      par2[0] = 7;
-      par2[1] = 250;
-
-	return MC_Ratio(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
-    }
-  }
 }

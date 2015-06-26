@@ -1,0 +1,307 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+The number of parameters are 8
+The 1th parameter is ResultCombi2
+The 2th parameter is 13
+The 3th parameter is tightcut
+The 4th parameter is chiso3
+The 5th parameter is 0.1
+The 6th parameter is eta
+The 7th parameter is Pt
+The 8th parameter is matching dyonly
+The entries of each tree are 2604973, 30511486, 14741566
+
+InvM is 1.76753
+tag indices is 1
+probe indices is 2
+the sample is 0
+the event is  18503
+pt probe is 6.66037
+eta probe is 1.02086
+phi probe is -1.79954
+m probe is 0.13957
+pt tag is 36.2931
+eta tag is 1.09668
+phi tag is -1.88038
+m tag is 0.13957
+
+InvM is 1.76753
+tag indices is 2
+probe indices is 1
+the sample is 0
+the event is  18503
+pt probe is 36.2931
+eta probe is 1.09668
+phi probe is -1.88038
+m probe is 0.13957
+pt tag is 6.66037
+eta tag is 1.02086
+phi tag is -1.79954
+m tag is 0.13957
+
+InvM is 1.07223
+tag indices is 1
+probe indices is 2
+the sample is 0
+the event is  264567
+pt probe is 5.48204
+eta probe is -1.2106
+phi probe is 1.52156
+m probe is 0.13957
+pt tag is 40.6384
+eta tag is -1.22049
+phi tag is 1.58655
+m tag is 0.13957
+
+InvM is 1.07223
+tag indices is 2
+probe indices is 1
+the sample is 0
+the event is  264567
+pt probe is 40.6384
+eta probe is -1.22049
+phi probe is 1.58655
+m probe is 0.13957
+pt tag is 5.48204
+eta tag is -1.2106
+phi tag is 1.52156
+m tag is 0.13957
+
+InvM is 0.407184
+tag indices is 1
+probe indices is 2
+the sample is 0
+the event is  549978
+pt probe is 7.98873
+eta probe is -1.28876
+phi probe is -1.73899
+m probe is 0.13957
+pt tag is 20.503
+eta tag is -1.30295
+phi tag is -1.75376
+m tag is 0.13957
+
+InvM is 0.407184
+tag indices is 2
+probe indices is 1
+the sample is 0
+the event is  549978
+pt probe is 20.503
+eta probe is -1.30295
+phi probe is -1.75376
+m probe is 0.13957
+pt tag is 7.98873
+eta tag is -1.28876
+phi tag is -1.73899
+m tag is 0.13957
+
+InvM is 1.08595
+tag indices is 0
+probe indices is 2
+the sample is 0
+the event is  889371
+pt probe is 4.73194
+eta probe is 0.575064
+phi probe is 2.39315
+m probe is 0.13957
+pt tag is 25.0308
+eta tag is 0.653604
+phi tag is 2.34296
+m tag is 0.13957
+
+InvM is 1.08595
+tag indices is 2
+probe indices is 0
+the sample is 0
+the event is  889371
+pt probe is 25.0308
+eta probe is 0.653604
+phi probe is 2.34296
+m probe is 0.13957
+pt tag is 4.73194
+eta tag is 0.575064
+phi tag is 2.39315
+m tag is 0.13957
+
+InvM is 0.722674
+tag indices is 0
+probe indices is 1
+the sample is 0
+the event is  1070155
+pt probe is 7.91191
+eta probe is 1.47079
+phi probe is -1.73623
+m probe is 0.13957
+pt tag is 45.037
+eta tag is 1.47059
+phi tag is -1.70405
+m tag is 0.13957
+
+InvM is 0.722674
+tag indices is 1
+probe indices is 0
+the sample is 0
+the event is  1070155
+pt probe is 45.037
+eta probe is 1.47059
+phi probe is -1.70405
+m probe is 0.13957
+pt tag is 7.91191
+eta tag is 1.47079
+phi tag is -1.73623
+m tag is 0.13957
+
+InvM is 1.83406
+tag indices is 1
+probe indices is 2
+the sample is 0
+the event is  1747623
+pt probe is 14.8566
+eta probe is 2.31086
+phi probe is -0.658593
+m probe is 0.13957
+pt tag is 25.5901
+eta tag is 2.35316
+phi tag is -0.74129
+m tag is 0.13957
+
+InvM is 1.83406
+tag indices is 2
+probe indices is 1
+the sample is 0
+the event is  1747623
+pt probe is 25.5901
+eta probe is 2.35316
+phi probe is -0.74129
+m probe is 0.13957
+pt tag is 14.8566
+eta tag is 2.31086
+phi tag is -0.658593
+m tag is 0.13957
+
+InvM is 0.921361
+tag indices is 1
+probe indices is 3
+the sample is 0
+the event is  1825729
+pt probe is 7.13683
+eta probe is -0.0247037
+phi probe is 1.3442
+m probe is 0.13957
+pt tag is 16.6009
+eta tag is 0.0411768
+phi tag is 1.38938
+m tag is 0.13957
+
+InvM is 0.921361
+tag indices is 3
+probe indices is 1
+the sample is 0
+the event is  1825729
+pt probe is 16.6009
+eta probe is 0.0411768
+phi probe is 1.38938
+m probe is 0.13957
+pt tag is 7.13683
+eta tag is -0.0247037
+phi tag is 1.3442
+m tag is 0.13957
+
+InvM is 1.24416
+tag indices is 0
+probe indices is 2
+the sample is 0
+the event is  1857753
+pt probe is 4.94128
+eta probe is -0.840823
+phi probe is 0.589357
+m probe is 0.13957
+pt tag is 46.3835
+eta tag is -0.913535
+phi tag is 0.568233
+m tag is 0.13957
+
+InvM is 0.755573
+tag indices is 1
+probe indices is 3
+the sample is 0
+the event is  2041373
+pt probe is 3.0266
+eta probe is 1.41396
+phi probe is -2.51021
+m probe is 0.13957
+pt tag is 25.7028
+eta tag is 1.37143
+phi tag is -2.45589
+m tag is 0.13957
+
+InvM is 0.755573
+tag indices is 3
+probe indices is 1
+the sample is 0
+the event is  2041373
+pt probe is 25.7028
+eta probe is 1.37143
+phi probe is -2.45589
+m probe is 0.13957
+pt tag is 3.0266
+eta tag is 1.41396
+phi tag is -2.51021
+m tag is 0.13957
+
+InvM is 1.32672
+tag indices is 1
+probe indices is 2
+the sample is 0
+the event is  2072822
+pt probe is 4.88471
+eta probe is -1.75038
+phi probe is -2.91858
+m probe is 0.13957
+pt tag is 54.6469
+eta tag is -1.73106
+phi tag is -2.99117
+m tag is 0.13957
+
+InvM is 1.32672
+tag indices is 2
+probe indices is 1
+the sample is 0
+the event is  2072822
+pt probe is 54.6469
+eta probe is -1.73106
+phi probe is -2.99117
+m probe is 0.13957
+pt tag is 4.88471
+eta tag is -1.75038
+phi tag is -2.91858
+m tag is 0.13957
+
+InvM is 1.3106
+tag indices is 0
+probe indices is 2
+the sample is 0
+the event is  2421727
+pt probe is 4.74112
+eta probe is 0.418732
+phi probe is 1.5486
+m probe is 0.13957
+pt tag is 53.3198
+eta tag is 0.408387
+phi tag is 1.47333
+m tag is 0.13957
+# ================================================================
+# JOB Live Resources USAGE for job 6895542: ( don't consider mem values, they are wrong )
+# usage    1:                 cpu=00:02:51, mem=456.00000 GBs, io=2.25502, vmem=3.000G, maxvmem=3.000G
+# 
+# JOB Historical Resources USAGE for job 6895542: you have to manually run
+# qacct -j 6895542 2&> /dev/null || qacct -f /gridware/sge/default/common/accounting.complete -j 6895542
+# 
+# JOB ran over queue@host = all.q@t3wn34.psi.ch
+# 
+# JOBs executed on t3wn[30-40] should run ~1.13 faster than t3wn[10-29]
+#
+# removing TMPDIR: /scratch/tmpdir-6895542.1.all.q
