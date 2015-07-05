@@ -1,8 +1,0 @@
-#!/bin/bash
-
-qsub job.sh "Result2" 11 10 250 24 "tightcut" "reliso3" 0.1 "Pt" "eta" "" "" 
-sleep 60 
-qsub job.sh "Result2" 13 10 250 24 "tightcut" "reliso3" 0.1 "Pt" "eta" "" "" 
-sleep 60 
-
-
