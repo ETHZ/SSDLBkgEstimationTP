@@ -48,13 +48,22 @@ int CompareMCvsTandP(TString _filetag, int leptonId, double par_low, double par_
   }
 
   //Parameter 2
-  const int npar2bins_eta = 2;
-  //const int npar2bins_pt = 19;
-  const int npar2bins_pt = 1;
+	const int npar2bins_eta = 3;
+	const int npar2bins_pt = 1;
 
-  double par2_eta[npar2bins_eta+1] = {0,1.2,2.5};
-  //double par2_pt[npar2bins_pt+1] = {10,20,30,40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200};
-  double par2_pt[npar2bins_pt+1] = {10,250};
+	double par2_eta[npar2bins_eta+1];
+	if(leptonId == 13){
+	par2_eta[0] = 0;
+	par2_eta[1] = 0.9;
+	par2_eta[2] = 1.2;
+	par2_eta[3] = 2.5;
+	}else if(leptonId == 11){
+	par2_eta[0] = 0;
+	par2_eta[1] = 1.45;
+	par2_eta[2] = 1.67;
+	par2_eta[3] = 2.5;
+	}
+	double par2_pt[npar2bins_pt+1] = {10,250};
 
   if(par_y == "eta"){
     return CompareMCvsTandP(_filetag, leptonId, par1, npar1bins, par2_eta, npar2bins_eta, sel_den, sel_num, cut_num, par_x, par_y, option_mc,option_tp, _sig);
@@ -70,11 +79,9 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
 
   //TString _filetag = "_newloose_neworder";
 
-  _filetag = ""+ _filetag;
-
   //output of the code
   TString _output ="Compare"+_filetag;
-  TString _outpath ="/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/MCvsTandP/";
+  TString _outpath = "/shome/gaperrin/plots_root/MCvsTandP/";
 
   //////////////////////////
   //Retrieve MC ratio file//
@@ -135,7 +142,7 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
 
   //MC input file
   //
-  TString _path_MC = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/MC_ratio/";
+  TString _path_MC = "/shome/gaperrin/plots_root/MC_eff/";
   TString _fname_MC = "eff"+_filetag+_option_mc+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
 
   cout<<"debug 1"<<endl;
@@ -155,11 +162,6 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   file_in_MC->GetListOfKeys()->ls();
 
 
-  //////////
-  //output// 
-  //////////
-
-  TFile* file_out = new TFile(_outpath+_output+_option_mc+_option_tp+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num+".root","recreate");
 
 
   ////////////////
@@ -210,7 +212,7 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
 
   //TP input file
   //
-  TString _path_TP = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/ZBkgInvM/";
+  TString _path_TP = "/shome/gaperrin/plots_root/ZBkgInvM/";
   TString _fname_TP = "InvM"+_filetag+_option_tp+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
   TFile* file_test_TP = new TFile(_path_TP+_fname_TP+"_FIT_eff"+".root","read");
   //Location of mass distribution
@@ -231,13 +233,17 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   cout<<"list of keys of the TP file"<<endl;
   file_in_TP->GetListOfKeys()->ls();
 
-  TString _path_invM  = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/ZBkgInvM/";
+  TString _path_invM = "/shome/gaperrin/plots_root/ZBkgInvM/";
   TString _fname_invM = "InvM"+_filetag+_optionInvM+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
   TFile* file_invM = new TFile(_path_invM+_fname_invM+".root","read");
   cout<<"The list of keys of the invM file"<<endl;
   file_invM->GetListOfKeys()->ls();
 
-  cout<<"debug 6"<<endl;
+  //////////
+  //output// 
+  //////////
+
+  TFile* file_out = new TFile(_outpath+_output+_option_mc+_option_tp+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num+".root","recreate");
 
   /////////////////
   //Get the plots//
@@ -388,19 +394,13 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
       cout<<"_i is "<<_i<<endl;
       //Retrieve par1 distribution per bin
       par1bin_MC[i][_i] = (TH1D*) file_in_MC->Get("histo_par1_"+_parxbin+"_"+_parybin);
-      cout<<"debug1"<<endl;
       par1bin_TP[i][_i] = (TH1D*) file_invM->Get("h_par1_"+_parxbin+"_"+_parybin);
-      cout<<"debug2"<<endl;
       par1bin_dy_TP[i][_i] = (TH1D*) file_invM->Get("h_par1_dyonly"+_parxbin+"_"+_parybin);
-      cout<<"debug3"<<endl;
 
       //normalise par1 distributions
       par1bin_MC[i][_i]->Scale(1./par1bin_MC[i][_i]->Integral());
-      cout<<"debug4"<<endl;
       par1bin_TP[i][_i]->Scale(1./par1bin_TP[i][_i]->Integral());
-      cout<<"debug5"<<endl;
       par1bin_dy_TP[i][_i]->Scale(1./par1bin_dy_TP[i][_i]->Integral());
-      cout<<"debug6"<<endl;
 
     //TCanvas* c3 = new TCanvas("c3","c3");
     c3[_i] = new TCanvas(Form("c3%i",_i),Form("c3%i",_i));
@@ -444,3 +444,4 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   return 0;
 
 }
+

@@ -26,6 +26,7 @@ _._._._._._._._._._._._._._._._._._._._._.*/
 #include "RooDataSet.h"
 #include "RooChebychev.h"
 #include "RooGaussian.h"
+#include "RooExponential.h"
 #include "RooVoigtian.h"
 #include "RooPlot.h"
 #include "fstream"
@@ -46,9 +47,13 @@ _._._._._._._._._._._._._._._._._._._._._.*/
 
 using namespace RooFit;
 
-double FitInvMassBkg(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TString _bkg = "Cheb", TString option = ""){
+double FitInvMassBkg(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW", TString _bkg = "Exp", TString option = ""){
+
+  option.Append(" ");
+  option.Prepend(" ");
 
   cout<<"start the fitting"<<endl;
+  RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 
 
 	//Set Style
@@ -88,13 +93,12 @@ double FitInvMassBkg(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 
 	//x.setRange("R0",0,200) ;
 	//x.setRange("R1",55,200) ;
-	x.setRange("R1",75,200) ;
-	x.setRange("D",55,120) ;
+	//x.setRange("R1",75,200) ;
+	//x.setRange("D",55,120) ;
 
         /////////////////////
 	//Define fit function 
 	/////////////////////
-	cout<<"Debug4"<<endl;
 	
 	//fsig for adding two funciton i.e. F(x) = fsig*sig(x) + (1-fsig)*bkg(x)
 	//RooRealVar fsig("fsig","sigal fraction",0.5, 0., 1.);
@@ -116,11 +120,11 @@ double FitInvMassBkg(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 	RooRealVar cb_bias("cb_bias","bias",0, -3.,3.);
 	RooRealVar cb_sigma("cb_sigma","response",1, 0.,5);
 	RooRealVar cb_alpha("cb_alpha","alpha",1.,0.,7);
-	RooRealVar cb_ncb("cb_ncb","ncb",2, 0.5, 5);
+	//RooRealVar cb_ncb("cb_ncb","ncb",2, 0.5, 5);
+	RooRealVar cb_ncb("cb_ncb","ncb",2, 1, 5);
 	//Gauss used for convolution
 	RooRealVar gau_bias("gau_bias","alpha",0, -3., 3.);
 	RooRealVar gau_sigma("gau_sigma","bias",1, 0., 7.);
-	cout<<"Debug5"<<endl;
 
 	mean.setRange(88,94);
 	width.setRange(0,20);
@@ -140,7 +144,6 @@ double FitInvMassBkg(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 	RooFFTConvPdf sig_bwgau("sig_bwgau","BWxGau",x,sig_bw,sig_gau_resp);
 
 	//NB: The CrystalBall shape is Gaussian that is 'connected' to an exponential taill at 'alpha' sigma of the Gaussian. The sign determines if it happens on the left or right side. The 'n' parameter control the slope of the exponential part. 
-	cout<<"Debug6"<<endl;
 
 	RooAbsPdf* sig;
 	if(signal == "Vo"){sig = &sig_bwgau;}
@@ -158,35 +161,62 @@ double FitInvMassBkg(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 	/////////////////////////////
 	
 	//Get the initial parameter of the background
-	//
+	//Bkg function
+	RooAbsPdf* bkg;
+	vector<double> vec;
 
+	if(option.Contains("bkg_Cheb")){
+	_bkg = "Cheb";
+	vec = FitBkg(histo_bkg,_bkg);
+	cout<<"Finished background fit !"<<endl;
+	}
+	if(option.Contains("bkg_Novo")){
+	_bkg = "Novo";
+	vec = FitBkg(histo_bkg,_bkg);
+	}
+	if(option.Contains("bkg_Exp")){
+	_bkg = "Exp";
+	vec = FitBkg(histo_bkg,_bkg);
+	}
 
-	cout<<"Debug7"<<endl;
-	vector<double> vec = FitBkg(histo_bkg,_bkg);
-
+	for(int i = 0; i < 10; ++i){vec.push_back(9999);}//Dirty solution to avoid segfault...
+	
 	//Chebychev
-	RooRealVar a0("a0","a0",vec[0],-5.,0.) ;
-	RooRealVar a1("a1","a1",vec[1],-2.5,1.2) ;
-	RooRealVar a2("a2","a2",vec[2],-1.5,1.) ;
-	RooRealVar a3("a3","a3",vec[3],-3,1.) ;
-	RooRealVar a4("a4","a4",vec[4],-1.5,1.) ;
-	RooRealVar a5("a5","a5",vec[5],-1.,1.) ;
-	RooRealVar a6("a6","a6",vec[6],-1.,1.) ;
-
-	RooChebychev bkg_cheb("bkg","Background",x,RooArgSet(a0,a1,a2,a3,a4,a5,a6));
+	 RooRealVar a0("a0","a0",vec[0],-5.,0.) ;
+	 RooRealVar a1("a1","a1",vec[1],-2.5,1.2) ;
+	 RooRealVar a2("a2","a2",vec[2],-1.5,1.) ;
+	 RooRealVar a3("a3","a3",vec[3],-3,1.) ;
+	 RooRealVar a4("a4","a4",vec[4],-1.5,1.) ;
+	 RooRealVar a5("a5","a5",vec[5],-1.,1.) ;
+	 RooRealVar a6("a6","a6",vec[6],-1.,1.) ;
+	 RooChebychev bkg_cheb("bkg","Background",x,RooArgSet(a0,a1,a2,a3,a4,a5,a6));
 
 	//Novo
-
 	RooRealVar peak_bkg("peak_bkg","peak",vec[0],0,250);
 	RooRealVar width_bkg("width_bkg","width",vec[1],0,1) ;
 	RooRealVar tail_bkg("tail_bkg","tail",vec[2],0,10) ;
-
 	RooNovosibirsk bkg_nov("bkg","Background",x,peak_bkg,width_bkg,tail_bkg);
 
-	RooAbsPdf* bkg;
+	//Expo
+	RooRealVar lambda("lambda", "slope", vec[0], -5., 0.);
+ 	RooExponential bkg_exp("bkg","Background",x,lambda);
+	
+	if(option.Contains("bkg_Cheb")){
+	bkg = &bkg_cheb;
+	}
+	if(option.Contains("bkg_Exp")){
+	bkg = &bkg_exp;
+	}
+	if(option.Contains("bkg_Novo")){
+	bkg = &bkg_cheb;
+	}
 
-	if(_bkg == "Cheb"){bkg = &bkg_cheb;}
-	if(_bkg == "Novo"){bkg = &bkg_nov;}
+	cout<<"Debugfuther"<<endl;
+
+	//Assign bkg
+	//if(_bkg == "Cheb"){bkg = &bkg_cheb;}
+	//if(_bkg == "Novo"){bkg = &bkg_nov;}
+	//if(_bkg == "Exp"){bkg = &bkg_exp;}
 
 
 	//////////////////////////
@@ -200,7 +230,14 @@ double FitInvMassBkg(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 	RooAbsPdf* fit_func;
 	fit_func = &model;
 	
-	RooFitResult* filters = fit_func->fitTo(dh,Range("R1"),"qr");
+	cout<<"The range of x is "<<hmin0<<"-"<<hmax0<<endl; 
+	//Reset the range to correct bug
+	x.setRange(75,200);
+	cout<<"Debugfuther2"<<endl;
+	//RooFitResult* filters = fit_func->fitTo(dh,Range("R1"),"qr");
+	//RooFitResult* filters = fit_func->fitTo(dh,Range(75,120),"qr");
+	RooFitResult* training= sig->fitTo(dh,Range(75,120),"qr");
+	RooFitResult* filters = fit_func->fitTo(dh,"qr");
 	fit_func->plotOn(frame);
 	fit_func->plotOn(frame,Components(*sig),LineStyle(kDashed),LineColor(kRed));
 	fit_func->plotOn(frame,Components(*bkg),LineStyle(kDashed),LineColor(kGreen));
@@ -221,28 +258,6 @@ double FitInvMassBkg(TH1D* histo, TH1D* histo_bkg, TString signal = "CBxBW",TStr
 	///////////////////////
 	//Plot the efficiency//
 	///////////////////////
-	
-	//Old stuff
-	
-	//ofstream myfile;
-	//myfile.open("/Users/GLP/Desktop/integrals.txt");
-	//This one doesn't take the normalisation into account !
-	//myfile<<"integral 1 "<<histo->GetName()<<endl;
-	////Integral of sig
-	//RooAbsReal* integral_sig = sig->createIntegral(x,x,"D") ;
-	//myfile<<fsig.getVal()*integral_sig->getVal()<<endl;
-	//Integral of sig+bkg
-	//RooAbsReal* total = fit_func->createIntegral(x, NormSet(x), Range("D")) ;
-	//Integral of sig only
-	//RooAbsReal* background = bkg->createIntegral(x, NormSet(x), Range("D"));
-	//cout<<"The total integral is"<<n*total->getVal();
-	//cout<<"The bkg integral is"<<n*bkg->getVal();
-	//cout<<"The bkg with the fsig is"<<fsig.getVal()*n*bkg->getVal();
-	//cout<<"The returned value is"<<n*(total->getVal()-fsig.getVal()*background->getVal());
-	//myfile<<"integral 2 "<<endl;
-	//myfile<<n*(total->getVal()-(1-fsig.getVal())*background->getVal())<<endl;
-	//myfile.close();
-	//return n*(total->getVal()-(1-fsig.getVal())*background->getVal());
 	
 	return nsig.getVal();
 	

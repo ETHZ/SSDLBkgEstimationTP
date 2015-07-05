@@ -25,6 +25,7 @@
 #include "RooNovosibirsk.h"
 #include "RooLandau.h"
 #include "RooGaussian.h"
+#include "RooExponential.h"
 #include "RooFFTConvPdf.h"
 #include "RooNumConvPdf.h"
 #include "RooBinning.h"
@@ -48,7 +49,9 @@
 
 using namespace RooFit;
 
-vector<double> FitBkg(TH1D* histo, TString _bkg = "Novo"){
+vector<double> FitBkg(TH1D* histo, TString _bkg = "Exp"){
+
+  cout<<"START BACKGROUND FIT"<<endl;
 
 	setTDRStyle();
 
@@ -69,11 +72,13 @@ vector<double> FitBkg(TH1D* histo, TString _bkg = "Novo"){
 	RooRealVar x("x","x",hmin0,hmax0) ;
 	RooDataHist dh("dh","dh",x,Import(*histo,kFALSE)) ;
 
+
 	frame = x.frame(Title(histo->GetName())) ;
 	dh.plotOn(frame,DataError(RooAbsData::SumW2), MarkerColor(1),MarkerSize(0.9),MarkerStyle(7)); 
 	dh.statOn(frame);  
 
 	x.setRange("R0",10,200) ;
+	x.setRange("R1",50,200) ;//For exponential
 
 	//Defining the fitting functions
 	if(_bkg == "Novo"){
@@ -122,6 +127,21 @@ vector<double> FitBkg(TH1D* histo, TString _bkg = "Novo"){
 		vec.push_back(a4.getVal());
 		vec.push_back(a5.getVal());
 		vec.push_back(a6.getVal());
+
+	}
+
+	if(_bkg == "Exp"){
+		//Chebychev
+
+	  RooRealVar lambda("lambda", "slope", -0.1, -5., 0.);
+
+		RooExponential bkg("bkg","Background",x,lambda);
+
+		//Fitting
+		RooFitResult* filters = bkg.fitTo(dh,Range("R1"),"qr");
+		bkg.plotOn(frame,LineColor(2));
+		bkg.paramOn(frame); 
+		vec.push_back(lambda.getVal());
 
 	}
 

@@ -19,7 +19,7 @@
 #include <cmath>
 
 #include "FitInvMassBkg.C"
-#include "DrawInvMassBkg_fast.C"
+#include "DrawInvMassBkg.C"
 
 //Helper functions
 #include "../tools/InvMass.C"
@@ -35,7 +35,9 @@ double BinomError(double Nt, double eff) {
 
 }
 
-int TandP(TString _giletag, int leptonId, double* par1, int npar1bins, double* par2, int npar2bins, TString sel_den = "tight", TString sel_num = "", double cut_num = 0.2, TString par_x = "Pt", TString par_y = "eta", TString option = "", TString _sig = "CBxBW");
+int TandP(TString _filetag, int leptonId, double* par1, int npar1bins, double* par2, int npar2bins, TString sel_den = "tight", TString sel_num = "", double cut_num = 0.2, TString par_x = "Pt", TString par_y = "eta", TString option = "", TString _sig = "CBxBW");
+
+int TandP(TString _filetag, int leptonId, TString sel_den = "tight", TString sel_num = "", double cut_num = 0.2, TString par_x = "Pt", TString par_y = "eta", TString option = "", TString _sig = "CBxBW");
 
 int TandP(TString _filetag, int leptonId, double par_low, double par_upp , int npar1bins, TString sel_den = "tight", TString sel_num = "", double cut_num = 0.2, TString par_x = "Pt", TString par_y = "eta", TString option = "", TString _sig = "CBxBW"){
 
@@ -48,13 +50,22 @@ int TandP(TString _filetag, int leptonId, double par_low, double par_upp , int n
   }
 
   //Parameter 2
-  const int npar2bins_eta = 2;
-  //const int npar2bins_pt = 19;
-  const int npar2bins_pt = 1;
+	const int npar2bins_eta = 3;
+	const int npar2bins_pt = 1;
 
-  double par2_eta[npar2bins_eta+1] = {0,1.2,2.5};
-  //double par2_pt[npar2bins_pt+1] = {10,20,30,40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200};
-  double par2_pt[npar2bins_pt+1] = {0,1000};//,30,40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200};
+	double par2_eta[npar2bins_eta+1];
+	if(leptonId == 13){
+	par2_eta[0] = 0;
+	par2_eta[1] = 0.9;
+	par2_eta[2] = 1.2;
+	par2_eta[3] = 2.5;
+	}else if(leptonId == 11){
+	par2_eta[0] = 0;
+	par2_eta[1] = 1.45;
+	par2_eta[2] = 1.67;
+	par2_eta[3] = 2.5;
+	}
+	double par2_pt[npar2bins_pt+1] = {10,250};
 
   if(par_y == "eta"){
     return TandP(_filetag, leptonId, par1, npar1bins, par2_eta, npar2bins_eta, sel_den, sel_num, cut_num, par_x, par_y, option, _sig);
@@ -69,7 +80,8 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
   gROOT->SetBatch(kTRUE); 
 
   //Path for input and output file.
-  TString _path = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/ZBkgInvM/";
+  //TString _path = "/shome/gaperrin/plots_root/ZBkgInvM/";
+  TString _path = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/ZBkgInvM/";
 
   //Some variables
   double Dpt = (par1[npar1bins]-par1[0])/npar1bins;
@@ -124,6 +136,9 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
   if(option.Contains(" nentries ")){_option += "_nentries";}
   if(option.Contains(" loose ")){_option += "_loose";_optionInvM += "_loose";}
   if(option.Contains(" oldtree ")){_option += "_oldtree";_optionInvM += "_oldtree";}
+  if(option.Contains("bkg_Cheb")){_option += "_bkg_cheb";}
+  if(option.Contains("bkg_Exp")){_option += "_bkg_exp";}
+  if(option.Contains("bkg_Novo")){_option += "_bkg_novo";}
   _option += "_";
   _optionInvM += "_";
   //parameter range string
@@ -138,6 +153,7 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
 
   TString _fname = "InvM"+_filetag+_option+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
   TString _fnameInvM = "InvM"+_filetag+_optionInvM+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
+  cout<<"FNAME IS "<<_fname<<endl;
 
   //Create folder to store background fitting
   mkdir(_path+_fname+"_FIT_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -158,6 +174,8 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
   TFile* file_in 	= new TFile(_path+_fnameInvM+".root","read");//rettrive the invM plot
   TFile* file_out 	= new TFile(_path+_fname+"_FIT"+".root","recreate");
   TFile* file_out2 	= new TFile(_path+_fname+"_FIT_eff"+".root","recreate");
+  cout<<"FILE OUT IS "<<file_out<<endl;
+  cout<<"FILE2 OUT IS "<<file_out2<<endl;
 
   /////////////////////////////////////////
   //Recover the invariant mass histograms//
@@ -165,6 +183,8 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
 
   //Declaration of the histograms
   //
+  
+cout<<"Debug1"<<endl;
 
   //Histo to recover
   TH1D ***histo_DY 	= new TH1D**[npar2bins];
@@ -185,7 +205,8 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
     histo_DY_fail[i] 	= new TH1D*[npar1bins];
     histo_BKG_fail[i]	= new TH1D*[npar1bins];
 
-    eff[i]			= new TH1D("eff_BKG_fail","eff",npar1bins,par1[0],par1[npar1bins]);
+    eff[i]			= new TH1D("eff_BKG_fail","eff",npar1bins,par1);
+    //eff[i]			= new TH1D("eff_BKG_fail","eff",npar1bins,par1[0],par1[npar1bins]);
 
     for(int j = 0; j < npar1bins; ++j){ 
 
@@ -197,6 +218,7 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
     }
 
   }
+cout<<"Debug2"<<endl;
 
   ////////////////////////////
   //Calculate the efficiency//
@@ -249,32 +271,45 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
       _DY_fail 	= "histo_M_DYJets_bkg_fail"+_parxbin+"_"+_parybin; 
       _BKG_fail 	= "histo_M_bkg_fail"+_parxbin+"_"+_parybin; 
 
+//file_in->GetListOfKeys()->ls();
+
+cout<<"Debug2.5"<<endl;
       histo_DY[j][i] 		 	= (TH1D*)file_in->Get(_DY);
+cout<<"want to retrieve "<< _DY<<endl;
+cout<<"Debug2.75"<<endl;
       histo_BKG[j][i] 		        = (TH1D*)file_in->Get(_BKG);
+cout<<"want to retrieve "<< _BKG<<endl;
       histo_DY_fail[j][i] 		= (TH1D*)file_in->Get(_DY_fail);
+cout<<"want to retrieve "<< _DY_fail<<endl;
       histo_BKG_fail[j][i] 		= (TH1D*)file_in->Get(_BKG_fail);
+cout<<"want to retrieve "<< _BKG_fail<<endl;
+cout<<"Debug2.8"<<endl;
 
       histo_DY[j][i]->SetName(_DY);
+cout<<"Debug2.9"<<endl;
       histo_BKG[j][i]->SetName(_BKG);
       histo_DY_fail[j][i]->SetName(_DY_fail);
       histo_BKG_fail[j][i]->SetName(_BKG_fail);
 
       //Fit the recovered histograms
       //
+cout<<"Debug3"<<endl;
 
       TCanvas* c1 = new TCanvas("c1","c1");
       c1->Divide(1,2);
       c1->cd(1);
       file_out->cd();
-      double pass = FitInvMassBkg(histo_DY[j][i],histo_BKG[j][i],_sig,"Cheb",option);
+      double pass = FitInvMassBkg(histo_DY[j][i],histo_BKG[j][i],_sig,"Exp",option);
       c1->cd(2);
-      double fail = FitInvMassBkg(histo_DY_fail[j][i],histo_BKG_fail[j][i],_sig,"Cheb",option);
+      double fail = FitInvMassBkg(histo_DY_fail[j][i],histo_BKG_fail[j][i],_sig,"Exp",option);
 
       //Compute and fill the efficiency
       //
 
-      Eff[j][i] = pass/(pass+fail);
-      error_eff[j][i] = BinomError(pass+fail,Eff[j][i]);
+      if(pass !=0){Eff[j][i] = pass/(pass+fail);}
+      else{Eff[j][i] = 0;}
+      if(pass != 0){error_eff[j][i] = BinomError(pass+fail,Eff[j][i]);}
+      else{error_eff[j][i] = 0;}
 
       PT[j][i] = (par1[i] + par1[i+1])/2.;
       error_par1[j][i] = (par1[i] - par1[i+1])/2.;
@@ -282,7 +317,6 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
       eff[j]->Fill(PT[j][i],Eff[j][i]);
       eff[j]->SetBinError(i+1,error_eff[j][i]);
 
-      //Save the Fit 
 
       TString _cname = _path+_fname+"_FIT_PDF/InvM"+_filetag+"_"+_parxbin+"_"+_parybin;
       _cname += "_"+sel_num+"_"+_pname;
@@ -328,4 +362,174 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
   file_out2->Close();
 
   return 0;
+}
+
+//Bin already filled in this function
+int TandP(TString _filetag, int leptonId, TString sel_den, TString sel_num, double cut_num, TString par_x, TString par_y, TString option, TString _sig){
+
+  if(leptonId == 11){
+    if((par_x == "Pt")&&(par_y == "eta")){
+      const int npar1bins = 18;
+      //Parameter 1
+      double* par1 = new double[npar1bins+1];
+
+      par1[0] = 7;
+      par1[1] = 10;
+      par1[2] = 15;
+      par1[3] = 20;
+      par1[4] = 25;
+      par1[5] = 30;
+      par1[6] = 35;
+      par1[7] = 40;
+      par1[8] = 45;
+      par1[9] = 50;
+      par1[10] = 60;
+      par1[11] = 70;
+      par1[12] = 80;
+      par1[13] = 90;
+      par1[14] = 100;
+      par1[15] = 120;
+      par1[16] = 140;
+      par1[17] = 200;
+      par1[18] = 250;
+      //Parameter 2
+      const int npar2bins = 3;
+      double par2[npar2bins+1];
+      par2[0] = 0;
+      par2[1] = 1.45;
+      par2[2] = 1.67;
+      par2[3] = 2.5;
+      return TandP(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option, _sig);
+
+    }else if((par_x == "eta")&&(par_y == "Pt")){
+
+      const int npar1bins = 29;
+      //Parameter 1
+      double* par1 = new double[npar1bins+1];
+
+      par1[0]  = -2.5;
+      par1[1]  = -2.4;
+      par1[2]  = -2.3;
+      par1[3]  = -2.2;
+      par1[4]  = -2.1;
+      par1[5]  = -1.9;
+      par1[6]  = -1.67; 
+      par1[7]  = -1.45;
+      par1[8]  = -1.3;
+      par1[9]  = -1.1;
+      par1[10] = -0.9;
+      par1[11] = -0.7;
+      par1[12] = -0.5;
+      par1[13] = -0.3;
+      par1[14] = -0.1;
+      par1[15] = 0.1;
+      par1[16] = 0.3;
+      par1[17] = 0.5;
+      par1[18] = 0.7;
+      par1[19] = 0.9;
+      par1[20] = 1.1;
+      par1[21] = 1.3;
+      par1[22] = 1.45;
+      par1[23] = 1.67;
+      par1[24] = 1.9;
+      par1[25] = 2.1;
+      par1[26] = 2.2;
+      par1[27] = 2.3;
+      par1[28] = 2.4;
+      par1[29] = 2.5;
+
+      //Parameter 2
+      const int npar2bins = 1;
+      double par2[npar2bins+1];
+      par2[0] = 7;
+      par2[1] = 250;
+
+	return TandP(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option, _sig);
+    }
+
+  }else if(leptonId == 13){
+
+    if((par_x == "Pt")&&(par_y == "eta")){
+      const int npar1bins = 18;
+      //Parameter 1
+      double* par1 = new double[npar1bins+1];
+
+      par1[0] = 7;
+      par1[1] = 10;
+      par1[2] = 15;
+      par1[3] = 20;
+      par1[4] = 25;
+      par1[5] = 30;
+      par1[6] = 35;
+      par1[7] = 40;
+      par1[8] = 45;
+      par1[9] = 50;
+      par1[10] = 60;
+      par1[11] = 70;
+      par1[12] = 80;
+      par1[13] = 90;
+      par1[14] = 100;
+      par1[15] = 120;
+      par1[16] = 140;
+      par1[17] = 200;
+      par1[18] = 250;
+
+      //Parameter 2
+      const int npar2bins = 3;
+      double par2[npar2bins+1];
+      par2[0] = 0;
+      par2[1] = 0.9;
+      par2[2] = 1.2;
+      par2[3] = 2.5;
+
+      return TandP(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option, _sig);
+
+    }else if((par_x == "eta")&&(par_y == "Pt")){
+
+      const int npar1bins = 31;
+      //Parameter 1
+      double* par1 = new double[npar1bins+1];
+
+      par1[0]  = -2.5;
+      par1[1]  = -2.4;
+      par1[2]  = -2.3;
+      par1[3]  = -2.2;
+      par1[4]  = -2.1;
+      par1[5]  = -1.9;
+      par1[6]  = -1.7; 
+      par1[7]  = -1.5;
+      par1[8]  = -1.3;
+      par1[9]  = -1.2;
+      par1[10] = -1.05;
+      par1[11] = -0.9;
+      par1[12] = -0.7;
+      par1[13] = -0.5;
+      par1[14] = -0.3;
+      par1[15] = -0.1;
+      par1[16] = 0.1;
+      par1[17] = 0.3;
+      par1[18] = 0.5;
+      par1[19] = 0.7;
+      par1[20] = 0.9;
+      par1[21] = 1.05;
+      par1[22] = 1.2;
+      par1[23] = 1.3;
+      par1[24] = 1.5;
+      par1[25] = 1.7;
+      par1[26] = 1.9;
+      par1[27] = 2.1;
+      par1[28] = 2.2;
+      par1[29] = 2.3;
+      par1[30] = 2.4;
+      par1[31] = 2.5;
+
+      //Parameter 2
+      const int npar2bins = 1;
+      double par2[npar2bins+1];
+      par2[0] = 7;
+      par2[1] = 250;
+
+	return TandP(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option, _sig);
+    }
+  }
 }
