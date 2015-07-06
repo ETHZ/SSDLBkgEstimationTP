@@ -75,11 +75,14 @@ int CompareMCvsTandP(TString _filetag, int leptonId, double par_low, double par_
 
 int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bins, double* par2, int npar2bins, TString sel_den, TString sel_num, double cut_num, TString par_x, TString par_y, TString option_mc, TString option_tp, TString _sig){
 
+  cout<<"DEBUG1"<<endl;
+
   setTDRStyle();
 
   //output of the code
   TString _output ="Compare"+_filetag;
-  TString _outpath ="/shome/gaperrin/tnp_fit/";
+  //TString _outpath ="/shome/gaperrin/tnp_fit/";
+  TString _outpath ="/shome/gaperrin/tnp_dir/tnp_compare/";
 
   //////////////////////////
   //Retrieve MC ratio file//
@@ -138,11 +141,13 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   TString _par2range;
   _par2range = Form("%0.3f_"+par_y+"%0.3f",par2[0],par2[npar2bins]);
 
+  cout<<"DEBUG2"<<endl;
   //MC input file
-  TString _path_MC = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/MC_eff/";
+  //TString _path_MC = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/MC_eff/";
+  TString _path_MC = "/shome/gaperrin/tnp_dir/tnp_mc/";
   TString _fname_MC = "eff"+_filetag+_option_mc+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
 
-
+  cout<<"DEBUG3"<<endl;
   //Check if file exits
   TFile* file_test_MC = new TFile(_path_MC+_fname_MC+".root");
   if(file_test_MC->IsZombie()){
@@ -152,11 +157,13 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
     MC_Ratio(_filetag, leptonId, sel_den,sel_num,cut_num,par_x, par_y,option_mc);
     cout<<"Done !"<<endl;
   }
+  cout<<"DEBUG4"<<endl;
 
   TFile* file_in_MC = new TFile(_path_MC+_fname_MC+".root", "read");
   delete file_test_MC;
   cout<<"list of keys of the MC file"<<endl;
   //file_in_MC->GetListOfKeys()->ls();
+  cout<<"DEBUG4a"<<endl;
 
 
   ////////////////
@@ -196,10 +203,10 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   option_tp.Prepend(" ");
   if(option_tp.Contains(" matching ")){_option_tp += "_Matched";_optionInvM += "_Matched";}
   if(option_tp.Contains(" nentries ")){_option_tp += "_nentries";}
-  if(option_tp.Contains(" short ")){_optionInvM += "_short";}
+  if(option_tp.Contains(" short ")){_optionInvM += "_short";cout<<"yes !"<<endl;}
   if(option_tp.Contains(" loose ")){_option_tp += "_loose";_optionInvM += "_loose";}
   if(option_tp.Contains(" oldtree ")){_option_tp += "_oldtree";_optionInvM += "_oldtree";}
-  if(option_tp.Contains(" dyonly ")){_option_tp += "_dyonly";_optionInvM += "_dyonly";}
+  if(option_tp.Contains(" dyonly ")){_option_tp += "_dyonly";_optionInvM += "_dyonly";cout<<"yes2 !"<<endl;}
   if(option_tp.Contains(" bkg_Cheb ")){_option_tp += "_bkg_cheb";}
   if(option_tp.Contains(" bkg_Exp ")){_option_tp += "_bkg_exp";}
   if(option_tp.Contains(" bkg_Novo ")){_option_tp += "_bkg_novo";}
@@ -209,11 +216,12 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   _par1range = Form("%0.3f_"+par_x+"%0.3f",par1[0],par1[npar1bins]);
   _par2range = Form("%0.3f_"+par_y+"%0.3f",par2[0],par2[npar2bins]);
 
+  cout<<"DEBUG 4b"<<endl;
   //TP input file
-  //
-  //TString _path_TP = "/shome/gaperrin/plots_root/ZBkgInvM/";
-  TString _path_TP = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/ZBkgInvM/";
+  //TString _path_TP = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/ZBkgInvM/";
+  TString _path_TP = "/shome/gaperrin/tnp_dir/InvMtnp/";
   TString _fname_TP = "InvM"+_filetag+_option_tp+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
+  cout<<"The file name TP is "<< _fname_TP <<endl;
   TFile* file_test_TP = new TFile(_path_TP+_fname_TP+"_FIT_eff"+".root","read");
   //Location of mass distribution
   cout<<"will check if file "<<_path_TP+_fname_TP+"_FIT_eff"+".root"<<" exists"<<endl;
@@ -236,7 +244,8 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   //file_in_TP->GetListOfKeys()->ls();
 
   //TString _path_invM = "/shome/gaperrin/plots_root/ZBkgInvM/";
-  TString _path_invM = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/ZBkgInvM/";
+  //TString _path_invM = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/ZBkgInvM/";
+  TString _path_invM = "/shome/gaperrin/tnp_dir/InvMtnp/";
   TString _fname_invM = "InvM"+_filetag+_optionInvM+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
   TFile* file_invM = new TFile(_path_invM+_fname_invM+".root","read");
   cout<<"The list of keys of the invM file"<<endl;
@@ -247,7 +256,6 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   //////////
 
   TFile* file_out = new TFile(_outpath+_output+_option_mc+_option_tp+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num+".root","recreate");
-
 
 
   /////////////////
@@ -656,10 +664,12 @@ int CompareMCvsTandP(TString _filetag, int leptonId, TString sel_den , TString s
       par1[31] = 2.5;
 
       //Parameter 2
-      const int npar2bins = 1;
+      const int npar2bins = 3;
       double par2[npar2bins+1];
       par2[0] = 7;
-      par2[1] = 250;
+      par2[1] = 20;
+      par2[2] = 60;
+      par2[3] = 250;
 
 	return CompareMCvsTandP(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option_mc, option_tp, _sig);
     }
