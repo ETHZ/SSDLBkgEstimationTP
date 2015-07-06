@@ -1,12 +1,8 @@
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
  * File Name : myfile.c
-
  * Purpose :
-
  * Creation Date : 20-12-2008
-
  * Last Modified : Sat 20 Dec 2008 09:37:30 AM PST
-
  * Created By :
  _._._._._._._._._._._._._._._._._._._._._.*/
 
@@ -81,12 +77,9 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
 
   setTDRStyle();
 
-  //TString _filetag = "_newloose_neworder";
-
   //output of the code
   TString _output ="Compare"+_filetag;
-  //TString _outpath = "/shome/gaperrin/plots_root/MCvsTandP/";
-  TString _outpath ="/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/MCvsTandP/";
+  TString _outpath ="/shome/gaperrin/tnp_fit/";
 
   //////////////////////////
   //Retrieve MC ratio file//
@@ -146,12 +139,9 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   _par2range = Form("%0.3f_"+par_y+"%0.3f",par2[0],par2[npar2bins]);
 
   //MC input file
-  //
-  //TString _path_MC = "/shome/gaperrin/plots_root/MC_eff/";
   TString _path_MC = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/MC_eff/";
   TString _fname_MC = "eff"+_filetag+_option_mc+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
 
-  cout<<"debug 1"<<endl;
 
   //Check if file exits
   TFile* file_test_MC = new TFile(_path_MC+_fname_MC+".root");
