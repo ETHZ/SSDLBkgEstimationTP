@@ -101,21 +101,22 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   ///////////////
 
   //Location of the .root file
-  TString location = "/shome/gaperrin/CERN_data/newcsasample/postprocessed/matched/";
+  //TString location = "/shome/gaperrin/CERN_data/newcsasample/postprocessed/matched/";
+  TString location = "/shome/gaperrin/tnp_dir/tnp_MiniAOD/DYJetsToLL_M50/";
 
   //Reading the tree 
   TChain* tree = new TChain("tree");
 
   //DY events
-  tree->Add(location+"DYJetsToLLM50_PU_S14_POSTLS170.root");
+  tree->Add(location+"tree.root");
 
   //Plot the result
 
   Long64_t n = tree->GetEntries();
 
-  //Path for input and output file. Written in FitDataPath.txt
   //TString _path = "/shome/gaperrin/plots_root/MC_eff/";
-  TString _path_MC = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/MC_eff/";
+  //TString _path = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/MC_eff/";
+  TString _path = "/shome/gaperrin/tnp_dir/tnp_mc/";
 
   //////////////////////
   //Name for the plots//
@@ -250,16 +251,16 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   }
 
   //Event variables
-  Int_t evt_id;
-  Double_t scale;
+  //Int_t evt_id;
+  Float_t scale;
   //Generated
-  Double_t gen_phi[200];
-  Double_t gen_eta[200];
-  Double_t Pt[200];
-  Double_t m[200];
+  Float_t gen_phi[200];
+  Float_t gen_eta[200];
+  Float_t Pt[200];
+  Float_t m[200];
   Int_t Id[200];
   Int_t Mo[200];
-  Double_t charge[200];
+  Float_t charge[200];
   Int_t status[200];
   Int_t GrMa[200];
   Int_t ngenPart;
@@ -268,46 +269,46 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   //not loose
   Int_t On;
   Int_t Oid[200];
-  Double_t Opt[200];
-  Double_t Om[200];
-  Double_t Oeta[200];
-  Double_t Ophi[200];
+  Float_t Opt[200];
+  Float_t Om[200];
+  Float_t Oeta[200];
+  Float_t Ophi[200];
   Int_t   Oq[200];
   Int_t Otight[200];
   Int_t Otighte[200];
-  //Double_t Omvaid[200];
+  //Float_t Omvaid[200];
   Int_t Oloose[200];
-  Double_t Oiso3[200];
-  Double_t Oiso4[200];
-  Double_t Ochiso3[200];
-  Double_t Ochiso4[200];
-  Double_t Odxy[200];
-  Double_t Odz[200];
+  Float_t Oiso3[200];
+  Float_t Oiso4[200];
+  Float_t Ochiso3[200];
+  Float_t Ochiso4[200];
+  Float_t Odxy[200];
+  Float_t Odz[200];
   Int_t Ofromtau[200];
-  Int_t Omatched[200];
+  //Int_t Omatched[200];
 
   //loose
   Int_t 	Gn;
   Int_t 	Gid[200];
-  Double_t 	Gpt[200];
-  Double_t 	Gm[200];
-  Double_t 	Geta[200];
-  Double_t 	Gphi[200];
+  Float_t 	Gpt[200];
+  Float_t 	Gm[200];
+  Float_t 	Geta[200];
+  Float_t 	Gphi[200];
   Int_t   	Gq[200];
   Int_t 	Gtight[200];
   Int_t 	Gtighte[200];
   Int_t 	Gloose[200];
-  Double_t 	Giso3[200];
-  Double_t 	Giso4[200];
-  Double_t 	Gchiso3[200];
-  Double_t 	Gchiso4[200];
-  Double_t 	Gdxy[200];
-  Double_t 	Gdz[200];
+  Float_t 	Giso3[200];
+  Float_t 	Giso4[200];
+  Float_t 	Gchiso3[200];
+  Float_t 	Gchiso4[200];
+  Float_t 	Gdxy[200];
+  Float_t 	Gdz[200];
   Int_t         Gfromtau[200];
-  Int_t         Gmatched[200];
+  //Int_t         Gmatched[200];
 
   //Assigne branches tree->SetBranchAddress("evt_scale1fb", &scale);
-  tree->SetBranchAddress("evt_id", &evt_id);
+  //tree->SetBranchAddress("evt_id", &evt_id);
   //generated
   tree->SetBranchAddress("nGenPart", &ngenPart);
   tree->SetBranchAddress("GenPart_pdgId", &Id);
@@ -336,7 +337,7 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   tree->SetBranchAddress("LepOther_dxy",&Odxy);
   tree->SetBranchAddress("LepOther_dz",&Odz);
   tree->SetBranchAddress("LepOther_mcMatchTau",&Ofromtau);
-  tree->SetBranchAddress("LepOther_matched",&Omatched);
+  //tree->SetBranchAddress("LepOther_matched",&Omatched);
   //Loose
   tree->SetBranchAddress("nLepGood",&Gn);
   tree->SetBranchAddress("LepGood_pdgId",&Gid);
@@ -354,7 +355,7 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   tree->SetBranchAddress("LepGood_dxy",&Gdxy);
   tree->SetBranchAddress("LepGood_dz",&Gdz);
   tree->SetBranchAddress("LepGood_mcMatchTau",&Gfromtau);
-  tree->SetBranchAddress("LepGood_matched",&Gmatched);
+  //tree->SetBranchAddress("LepGood_matched",&Gmatched);
 
   int count = 0;
 
@@ -374,20 +375,20 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     Int_t 	evtn;
     Int_t 	evtloose[200];
     Int_t 	evtid[200];
-    Double_t 	evtpt[200];
-    Double_t 	evtm[200];
-    Double_t 	evteta[200];
-    Double_t 	evtphi[200];
+    Float_t 	evtpt[200];
+    Float_t 	evtm[200];
+    Float_t 	evteta[200];
+    Float_t 	evtphi[200];
     Int_t   	evtq[200];
     Int_t 	evttight[200];
     Int_t 	evttighte[200];
-    Double_t 	evtiso3[200];
-    Double_t 	evtiso4[200];
-    Double_t 	evtchiso3[200];
-    Double_t 	evtchiso4[200];
-    Double_t 	evtdxy[200];
-    Double_t 	evtdz[200];
-    Double_t 	evtfromtau[200];
+    Float_t 	evtiso3[200];
+    Float_t 	evtiso4[200];
+    Float_t 	evtchiso3[200];
+    Float_t 	evtchiso4[200];
+    Float_t 	evtdxy[200];
+    Float_t 	evtdz[200];
+    Float_t 	evtfromtau[200];
     Int_t 	evtmatched[200];
 
     if( 100*(double)k/n> count){cout<<count<<endl;++count;}
@@ -418,7 +419,7 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 	evtdxy[j]                     = Odxy[j];
 	evtdz[j]                      = Odz[j];
 	evtfromtau[j]                 = Ofromtau[j];
-	evtmatched[j]                 = Omatched[j];
+	//evtmatched[j]                 = Omatched[j];
 
 
       }else if((j >=  On)&&(j < Gn+On)){
@@ -439,7 +440,7 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 	evtdxy[j]                  = Gdxy[j-On];
 	evtdz[j]                   = Gdz[j-On];
 	evtfromtau[j]              = Gfromtau[j-On];
-	evtmatched[j]              = Omatched[j-On];
+	//evtmatched[j]              = Omatched[j-On];
 
       }
 
@@ -596,24 +597,8 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     histo_den[i]->Sumw2();
     eff[i]->Divide(histo_num[i],histo_den[i],1,1,"B");
 
-    //histo_num_O[i]->Sumw2();
-    //histo_den_O[i]->Sumw2();
-    //eff_O[i]->Divide(histo_num_O[i],histo_den_O[i],1,1,"B");
-
-    //histo_num_G[i]->Sumw2();
-    //histo_den_G[i]->Sumw2();
-    //eff_G[i]->Divide(histo_num_G[i],histo_den_G[i],1,1,"B");
-
-    //histo_counter_G_par1[i]->Sumw2();
-    //histo_counter_O_par1[i]->Sumw2();
-    //histo_counter_par1[i]->Divide(histo_counter_O_par1[i],histo_counter_G_par1[i],1,1,"B");
-
-    //histo_counter[i]->Fill(0.5,goodcount);
-    //histo_counter[i]->Fill(1.5,othercount);
-
     //String for name of the ouput files and histograms titles
     //
-
     TString _parybin;
 
     //Parameter string
@@ -654,36 +639,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     histo_par1[i]->SetMarkerColor(4);
 
 
-    //TCanvas* cO = new TCanvas("cO","cO");
-    //cO->cd();
-    //eff_O[i]->Draw();
-    //eff_O[i]->GetYaxis()->SetTitle("#epsilon");
-    //eff_O[i]->GetXaxis()->SetTitle(_par);
-    //eff_O[i]->SetMarkerStyle(20);
-    //eff_O[i]->SetMarkerSize(1);
-    //eff_O[i]->SetMarkerColor(4);
-    //eff_O[i]->SetLineColor(4);
-    //eff_O[i]->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" "+_parytitle+" , LepOther");
-
-    //TCanvas* cG = new TCanvas("cG","cG");
-    //cG->cd();
-    //eff_G[i]->Draw();
-    //eff_G[i]->GetYaxis()->SetTitle("#epsilon");
-    //eff_G[i]->GetXaxis()->SetTitle(_par);
-    //eff_G[i]->SetMarkerStyle(20);
-    //eff_G[i]->SetMarkerSize(1);
-    //eff_G[i]->SetMarkerColor(4);
-    //eff_G[i]->SetLineColor(4);
-    //eff_G[i]->SetTitle(_sel_num+" for "+_sel_den+" "+pname+" "+_parytitle+" , LepGood");
-
-    //TCanvas* ccpar = new TCanvas("ccpar","ccpar");
-    //ccpar->cd();
-    //histo_counter_par1[i]->Draw();
-
-    //TCanvas* cc = new TCanvas("cc","cc");
-    //cc->cd();
-    //histo_counter[i]->Draw();
-    //
     cout<<"Debug 8"<<endl;
     histo_good_sel->Add(histo_other_sel);
     TCanvas* csel = new TCanvas("csel","csel");
@@ -900,10 +855,12 @@ int MC_Ratio(TString _filetag, int leptonId, TString sel_den , TString sel_num, 
       par1[31] = 2.5;
 
       //Parameter 2
-      const int npar2bins = 1;
+      const int npar2bins = 3;
       double par2[npar2bins+1];
       par2[0] = 7;
-      par2[1] = 250;
+      par2[1] = 20;
+      par2[2] = 60;
+      par2[3] = 250;
 
 	return MC_Ratio(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
     }

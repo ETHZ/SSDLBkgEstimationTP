@@ -77,11 +77,15 @@ int TandP(TString _filetag, int leptonId, double par_low, double par_upp , int n
 
 int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* par2 ,int npar2bins, TString sel_den, TString sel_num, double cut_num, TString par_x, TString par_y, TString option, TString _sig ){
 
+  cout<<"DEBUG tnp1"<<endl;
+
   gROOT->SetBatch(kTRUE); 
 
   //Path for input and output file.
   //TString _path = "/shome/gaperrin/plots_root/ZBkgInvM/";
-  TString _path = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/ZBkgInvM/";
+  //TString _path = "/Users/GLP/Dropbox/Physique/Master_Thesis/plots_root/plots_root_t3/ZBkgInvM/";
+  TString _path = "/shome/gaperrin/tnp_dir/InvMtnp/";
+  cout<<"DEBUG tnp1"<<endl;
 
   //Some variables
   double Dpt = (par1[npar1bins]-par1[0])/npar1bins;
@@ -136,6 +140,7 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
   if(option.Contains(" nentries ")){_option += "_nentries";}
   if(option.Contains(" loose ")){_option += "_loose";_optionInvM += "_loose";}
   if(option.Contains(" oldtree ")){_option += "_oldtree";_optionInvM += "_oldtree";}
+  if(option.Contains(" dyonly ")){_option += "_dyonly";_optionInvM += "_dyonly";cout<<"yes2 !"<<endl;}
   if(option.Contains("bkg_Cheb")){_option += "_bkg_cheb";}
   if(option.Contains("bkg_Exp")){_option += "_bkg_exp";}
   if(option.Contains("bkg_Novo")){_option += "_bkg_novo";}
@@ -154,6 +159,7 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
   TString _fname = "InvM"+_filetag+_option+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
   TString _fnameInvM = "InvM"+_filetag+_optionInvM+_pname+_par1range+"_"+_par2range+"_den_"+_sel_den+"_num_"+_sel_num;
   cout<<"FNAME IS "<<_fname<<endl;
+  cout<<"option is "<<option<<endl;
 
   //Create folder to store background fitting
   mkdir(_path+_fname+"_FIT_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -187,10 +193,12 @@ int TandP(TString _filetag, int leptonId, double* par1, int npar1bins , double* 
 cout<<"Debug1"<<endl;
 
   //Histo to recover
-  TH1D ***histo_DY 	= new TH1D**[npar2bins];
-  TH1D ***histo_BKG 	= new TH1D**[npar2bins];
-  TH1D ***histo_DY_fail 	= new TH1D**[npar2bins];
-  TH1D ***histo_BKG_fail 	= new TH1D**[npar2bins];
+  TH1D ***histo_M	= new TH1D**[npar2bins];
+  TH1D ***histo_M_fail	= new TH1D**[npar2bins];
+  //TH1D ***histo_DY 	= new TH1D**[npar2bins];
+  //TH1D ***histo_BKG 	= new TH1D**[npar2bins];
+  //TH1D ***histo_DY_fail 	= new TH1D**[npar2bins];
+  //TH1D ***histo_BKG_fail 	= new TH1D**[npar2bins];
 
   //Output histo
   TH1D **eff 		= new TH1D*[npar2bins];
@@ -200,20 +208,23 @@ cout<<"Debug1"<<endl;
   //Recover the histo
   for(int i = 0; i < npar2bins; ++i){ 
 
-    histo_DY[i]      	= new TH1D*[npar1bins];
-    histo_BKG[i]     	= new TH1D*[npar1bins];
-    histo_DY_fail[i] 	= new TH1D*[npar1bins];
-    histo_BKG_fail[i]	= new TH1D*[npar1bins];
+    histo_M[i]      	= new TH1D*[npar1bins];
+    histo_M_fail[i]     = new TH1D*[npar1bins];
+    //histo_DY[i]      	= new TH1D*[npar1bins];
+    //histo_BKG[i]     	= new TH1D*[npar1bins];
+    //histo_DY_fail[i] 	= new TH1D*[npar1bins];
+    //histo_BKG_fail[i]	= new TH1D*[npar1bins];
 
     eff[i]			= new TH1D("eff_BKG_fail","eff",npar1bins,par1);
-    //eff[i]			= new TH1D("eff_BKG_fail","eff",npar1bins,par1[0],par1[npar1bins]);
 
     for(int j = 0; j < npar1bins; ++j){ 
 
-      histo_DY[i][j] 		       	=  new TH1D("histo_M_DY","M",nbins,0,250);
-      histo_BKG[i][j]     		=  new TH1D("histo_M_BKG","M",nbins,0,250);
-      histo_DY_fail[i][j] 		=  new TH1D("histo_M_DY_fail","M",nbins,0,250);
-      histo_BKG_fail[i][j]		=  new TH1D("histo_M_BKG_fail","M",nbins,0,250);
+      histo_M[i][j] 		       	=  new TH1D("histo_M","M",nbins,0,250);
+      histo_M_fail[i][j]     		=  new TH1D("histo_M_fail","M",nbins,0,250);
+      //histo_DY[i][j] 		       	=  new TH1D("histo_M_DY","M",nbins,0,250);
+      //histo_BKG[i][j]     		=  new TH1D("histo_M_BKG","M",nbins,0,250);
+      //histo_DY_fail[i][j] 		=  new TH1D("histo_M_DY_fail","M",nbins,0,250);
+      //histo_BKG_fail[i][j]		=  new TH1D("histo_M_BKG_fail","M",nbins,0,250);
 
     }
 
@@ -261,50 +272,71 @@ cout<<"Debug2"<<endl;
       else if(par_y == "eta"){_parybin = Form("%0.3f_eta%0.3f",par2[j],par2[j+1]);}
       else if(par_y == "phi"){_parybin = Form("%0.3f_phi%0.3f",par2[j],par2[j+1]);}
 
-      TString _DY;
-      TString _BKG;
-      TString _DY_fail;
-      TString _BKG_fail;
+      TString _M;
+      TString _M_fail;
+      //TString _DY;
+      //TString _BKG;
+      //TString _DY_fail;
+      //TString _BKG_fail;
 
-      _DY 		= "histo_M_DYJets_bkg"+_parxbin+"_"+_parybin;
-      _BKG 		= "histo_M_bkg"+_parxbin+"_"+_parybin; 
-      _DY_fail 	= "histo_M_DYJets_bkg_fail"+_parxbin+"_"+_parybin; 
-      _BKG_fail 	= "histo_M_bkg_fail"+_parxbin+"_"+_parybin; 
+      _M		= "histo_M"+_parxbin+"_"+_parybin;
+      _M_fail 		= "histo_M_fail"+_parxbin+"_"+_parybin; 
+      //_DY 		= "histo_M_DYJets_bkg"+_parxbin+"_"+_parybin;
+      //_BKG 		= "histo_M_bkg"+_parxbin+"_"+_parybin; 
+      //_DY_fail 	= "histo_M_DYJets_bkg_fail"+_parxbin+"_"+_parybin; 
+      //_BKG_fail 	= "histo_M_bkg_fail"+_parxbin+"_"+_parybin; 
 
-//file_in->GetListOfKeys()->ls();
 
-cout<<"Debug2.5"<<endl;
-      histo_DY[j][i] 		 	= (TH1D*)file_in->Get(_DY);
-cout<<"want to retrieve "<< _DY<<endl;
-cout<<"Debug2.75"<<endl;
-      histo_BKG[j][i] 		        = (TH1D*)file_in->Get(_BKG);
-cout<<"want to retrieve "<< _BKG<<endl;
-      histo_DY_fail[j][i] 		= (TH1D*)file_in->Get(_DY_fail);
-cout<<"want to retrieve "<< _DY_fail<<endl;
-      histo_BKG_fail[j][i] 		= (TH1D*)file_in->Get(_BKG_fail);
-cout<<"want to retrieve "<< _BKG_fail<<endl;
-cout<<"Debug2.8"<<endl;
+      cout<<"list of keys"<<endl;
+      file_in->GetListOfKeys()->ls();
 
-      histo_DY[j][i]->SetName(_DY);
-cout<<"Debug2.9"<<endl;
-      histo_BKG[j][i]->SetName(_BKG);
-      histo_DY_fail[j][i]->SetName(_DY_fail);
-      histo_BKG_fail[j][i]->SetName(_BKG_fail);
+      cout<<"Debug2.5"<<endl;
+      histo_M[j][i] 		 	= (TH1D*)file_in->Get(_M);
+      cout<<"want to retrieve "<< _M<<endl;
+      histo_M[j][i]->GetEntries();
+      cout<<"Debug2.75"<<endl;
+      histo_M_fail[j][i] 		= (TH1D*)file_in->Get(_M_fail);
+      cout<<"want to retrieve "<< _M_fail<<endl;
+
+      //cout<<"Debug2.5"<<endl;
+      //histo_DY[j][i] 		 	= (TH1D*)file_in->Get(_DY);
+      //cout<<"want to retrieve "<< _DY<<endl;
+      //cout<<"Debug2.75"<<endl;
+      //histo_BKG[j][i] 		        = (TH1D*)file_in->Get(_BKG);
+      //cout<<"want to retrieve "<< _BKG<<endl;
+      //histo_DY_fail[j][i] 		= (TH1D*)file_in->Get(_DY_fail);
+      //cout<<"want to retrieve "<< _DY_fail<<endl;
+      //histo_BKG_fail[j][i] 		= (TH1D*)file_in->Get(_BKG_fail);
+      //cout<<"want to retrieve "<< _BKG_fail<<endl;
+      //cout<<"Debug2.8"<<endl;
+
+      //histo_DY[j][i]->SetName(_DY);
+      //cout<<"Debug2.9"<<endl;
+      //histo_BKG[j][i]->SetName(_BKG);
+      //histo_DY_fail[j][i]->SetName(_DY_fail);
+      //histo_BKG_fail[j][i]->SetName(_BKG_fail);
 
       //Fit the recovered histograms
       //
 cout<<"Debug3"<<endl;
 
+      //TCanvas* c1 = new TCanvas("c1","c1");
+      //c1->Divide(1,2);
+      //c1->cd(1);
+      //file_out->cd();
+      //double pass = fitinvmassbkg(histo_dy[j][i],histo_bkg[j][i],_sig,"exp",option);
+      //c1->cd(2);
+      //double fail = fitinvmassbkg(histo_dy_fail[j][i],histo_bkg_fail[j][i],_sig,"exp",option);
+
       TCanvas* c1 = new TCanvas("c1","c1");
       c1->Divide(1,2);
       c1->cd(1);
       file_out->cd();
-      double pass = FitInvMassBkg(histo_DY[j][i],histo_BKG[j][i],_sig,"Exp",option);
+      double pass = FitInvMassBkg(histo_M[j][i],_sig,"exp",option);
       c1->cd(2);
-      double fail = FitInvMassBkg(histo_DY_fail[j][i],histo_BKG_fail[j][i],_sig,"Exp",option);
-
+      double fail = FitInvMassBkg(histo_M_fail[j][i],_sig,"exp",option);
       //Compute and fill the efficiency
-      //
+      
 
       if(pass !=0){Eff[j][i] = pass/(pass+fail);}
       else{Eff[j][i] = 0;}
@@ -524,10 +556,12 @@ int TandP(TString _filetag, int leptonId, TString sel_den, TString sel_num, doub
       par1[31] = 2.5;
 
       //Parameter 2
-      const int npar2bins = 1;
+      const int npar2bins = 3;
       double par2[npar2bins+1];
       par2[0] = 7;
-      par2[1] = 250;
+      par2[1] = 20;
+      par2[2] = 60;
+      par2[3] = 250;
 
 	return TandP(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option, _sig);
     }
