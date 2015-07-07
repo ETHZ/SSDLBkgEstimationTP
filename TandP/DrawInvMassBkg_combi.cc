@@ -129,7 +129,7 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
   option.Append(" ");
   option.Prepend(" ");
 
-  TString _path = "/shome/gaperrin/InvMtnp/";
+  TString _path = "/shome/gaperrin/tnp_dir/InvMtnp/";
   cout<< "gonna write the files in"<<_path<<endl;
   cout<< "DEBUG1"<<endl;
 
