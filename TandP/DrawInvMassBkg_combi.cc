@@ -490,7 +490,6 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 	bool twolep(Gn+On > 1);
 
 	//Cut on tag
-	
 	bool tagtightid((abs(evttightid[i]) == 1 ));
 	bool tagptcut(evtpt[i] > 25 );
 	bool tageta(abs(evteta[i] < 2.1));
