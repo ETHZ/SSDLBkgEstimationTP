@@ -939,29 +939,26 @@ int     DrawInvMassBkg( TString _filetag, int leptonId, TString sel_den, TString
   }else if(leptonId == 13){
 
     if((par_x == "Pt")&&(par_y == "eta")){
-      const int npar1bins = 18;
+      const int npar1bins = 15;
       //Parameter 1
       double* par1 = new double[npar1bins+1];
 
-      par1[0] = 7;
-      par1[1] = 10;
-      par1[2] = 15;
-      par1[3] = 20;
-      par1[4] = 25;
-      par1[5] = 30;
-      par1[6] = 35;
-      par1[7] = 40;
-      par1[8] = 45;
-      par1[9] = 50;
-      par1[10] = 60;
-      par1[11] = 70;
-      par1[12] = 80;
-      par1[13] = 90;
-      par1[14] = 100;
-      par1[15] = 120;
-      par1[16] = 140;
-      par1[17] = 200;
-      par1[18] = 250;
+      par1[0] = 20;
+      par1[1] = 25;
+      par1[2] = 30;
+      par1[3] = 35;
+      par1[4] = 40;
+      par1[5] = 45;
+      par1[6] = 50;
+      par1[7] = 60;
+      par1[8] = 70;
+      par1[9] = 80;
+      par1[10] = 90;
+      par1[11] = 100;
+      par1[12] = 120;
+      par1[13] = 140;
+      par1[14] = 200;
+      par1[15] = 250;
 
       //Parameter 2
       const int npar2bins = 3;
@@ -1013,16 +1010,11 @@ int     DrawInvMassBkg( TString _filetag, int leptonId, TString sel_den, TString
       par1[31] = 2.5;
 
       //Parameter 2
-      //const int npar2bins = 1;
-      //double par2[npar2bins+1];
-      //par2[0] = 7;
-      //par2[1] = 250;
-      const int npar2bins = 3;
+      const int npar2bins = 2;
       double par2[npar2bins+1];
-      par2[0] = 7;
-      par2[1] = 20;
-      par2[2] = 60;
-      par2[3] = 250;
+      par2[0] = 20;
+      par2[1] = 60;
+      par2[2] = 250;
 
       return DrawInvMassBkg(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
     }

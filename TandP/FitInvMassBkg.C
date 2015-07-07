@@ -112,10 +112,13 @@ double FitInvMassBkg(TH1D* histo, TString signal = "CBxBW", TString _bkg = "Exp"
   x.setBins(10000,"cache");
   RooFFTConvPdf sig_cbbw("sig_cbbw","CBxBW",x,sig_cb_resp,sig_bw);
 
+  cout<<"Debug5"<<endl;
+
   //NB: The CrystalBall shape is Gaussian that is 'connected' to an exponential taill at 'alpha' sigma of the Gaussian. The sign determines if it happens on the left or right side. The 'n' parameter control the slope of the exponential part. 
 
   RooAbsPdf* sig;
-  sig = &sig_bw;
+
+  cout<<"Debug5"<<endl;
 
   /////////////////////////////
   //Background fitting function
@@ -136,6 +139,7 @@ double FitInvMassBkg(TH1D* histo, TString signal = "CBxBW", TString _bkg = "Exp"
   RooChebychev bkg_cheb("bkg","Background",x,RooArgSet(a0,a1,a2,a3,a4,a5,a6));
 
   bkg = &bkg_cheb;
+  cout<<"Debug6"<<endl;
 
   //////////////////////////
   //Adding the two functions
@@ -143,9 +147,12 @@ double FitInvMassBkg(TH1D* histo, TString signal = "CBxBW", TString _bkg = "Exp"
 
   RooAddPdf model("model","Signal+Background", RooArgList(*sig,*bkg),pdfval);
 
+  cout<<"Debug6a"<<endl;
   //Perform the fit
   RooAbsPdf* fit_func;
+  cout<<"Debug6b"<<endl;
   fit_func = &model;
+  cout<<"Debug7"<<endl;
 
   cout<<"The range of x is "<<xmin<<"-"<<xmax<<endl; 
   RooFitResult* filters = fit_func->fitTo(dh,Range("R"),"qr");
@@ -161,6 +168,7 @@ double FitInvMassBkg(TH1D* histo, TString signal = "CBxBW", TString _bkg = "Exp"
   frame->GetXaxis()->SetTitle("m (in GeV/c^{2})");  
   frame->GetXaxis()->SetTitleOffset(1.2);
   float binsize = histo->GetBinWidth(1); 
+  cout<<"Debug8"<<endl;
 
   //Store result in .root file
   frame->SetName(histo->GetName());

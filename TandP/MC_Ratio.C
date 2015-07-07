@@ -140,6 +140,10 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   //sel_den string
   if((sel_den == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
   if(sel_den == "tightcut"){_sel_den = "tightcut";}
+  else if(sel_den == "tightid"){_sel_den = "tightid";}
+  else if(sel_den == "mediumid"){_sel_den = "mediumid";}
+  else if(sel_den == "softid"){_sel_den = "softid";}
+  else if(sel_den == "pfid"){_sel_den = "pfid";}
   else if(sel_den == "tightmva"){_sel_den = "tightmva";}
   else if(sel_den == "loose"){_sel_den = "loose";}
   else if(sel_den == ""){_sel_den = "";}
@@ -147,6 +151,10 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   //sel_num string
   if((sel_num == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
   if(sel_num == "tightcut"){_sel_num = "tightcut";}
+  else if(sel_num == "tightid"){_sel_num = "tightid";}
+  else if(sel_num == "mediumid"){_sel_num = "mediumid";}
+  else if(sel_num == "softid"){_sel_num = "softid";}
+  else if(sel_num == "pfid"){_sel_num = "pfid";}
   else if(sel_num == "tightmva"){_sel_num = "tightmva";}
   else if(sel_num == ""){_sel_num = "";}
   else if(sel_num == "loose"){_sel_num = "loose";}
@@ -219,11 +227,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     histo_num[_i] = new TH1D("histo_num","Pt",npar1bins,par1);
     histo_den[_i] = new TH1D("histo_den","Pt",npar1bins,par1);
     eff[_i] = new TH1D("eff","Pt",npar1bins,par1);
-    //histo_num[_i] = new TH1D("histo_num","Pt",npar1bins,par1[0],par1[npar1bins]);
-    //histo_den[_i] = new TH1D("histo_den","Pt",npar1bins,par1[0],par1[npar1bins]);
-    //eff[_i] = new TH1D("eff","Pt",npar1bins,par1[0],par1[npar1bins]);
-
-    //
     histo_par1[_i] = new TH1D("histo_par1","par1",npar1bins*25,par1[0],par1[npar1bins]);
     h_par1[_i] = new TH1D*[npar1bins];
 
@@ -276,6 +279,10 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   Int_t   Oq[200];
   Int_t Otight[200];
   Int_t Otighte[200];
+  Int_t Otightid[200];
+  Int_t Omediumid[200];
+  Int_t Osoftid[200];
+  Int_t Opfid[200];
   //Float_t Omvaid[200];
   Int_t Oloose[200];
   Float_t Oiso3[200];
@@ -297,6 +304,10 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   Int_t   	Gq[200];
   Int_t 	Gtight[200];
   Int_t 	Gtighte[200];
+  Int_t 	Gtightid[200];
+  Int_t 	Gmediumid[200];
+  Int_t 	Gsoftid[200];
+  Int_t 	Gpfid[200];
   Int_t 	Gloose[200];
   Float_t 	Giso3[200];
   Float_t 	Giso4[200];
@@ -330,6 +341,10 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   tree->SetBranchAddress("LepOther_charge",&Oq);
   tree->SetBranchAddress("LepOther_tightId",&Otight);
   tree->SetBranchAddress("LepOther_eleCutIdCSA14_50ns_v1",&Otighte);
+  tree->SetBranchAddress("LepOther_tightId",&Otightid);
+  tree->SetBranchAddress("LepOther_mediumMuonId",&Omediumid);
+  tree->SetBranchAddress("LepOther_softMuonId",&Osoftid);
+  tree->SetBranchAddress("LepOther_pfMuonId",&Opfid);
   tree->SetBranchAddress("LepOther_relIso03",&Oiso3);
   tree->SetBranchAddress("LepOther_relIso04",&Oiso4);
   tree->SetBranchAddress("LepOther_chargedHadRelIso03",&Ochiso3);
@@ -348,6 +363,10 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   tree->SetBranchAddress("LepGood_charge",&Gq);
   tree->SetBranchAddress("LepGood_tightId",&Gtight);
   tree->SetBranchAddress("LepGood_eleCutIdCSA14_50ns_v1",&Gtighte);
+  tree->SetBranchAddress("LepOther_tightId",&Gtightid);
+  tree->SetBranchAddress("LepOther_mediumMuonId",&Gmediumid);
+  tree->SetBranchAddress("LepOther_softMuonId",&Gsoftid);
+  tree->SetBranchAddress("LepOther_pfMuonId",&Gpfid);
   tree->SetBranchAddress("LepGood_relIso03",&Giso3);
   tree->SetBranchAddress("LepGood_relIso04",&Giso4);
   tree->SetBranchAddress("LepGood_chargedHadRelIso03",&Gchiso3);
@@ -382,6 +401,10 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     Int_t   	evtq[200];
     Int_t 	evttight[200];
     Int_t 	evttighte[200];
+    Int_t 	evttightid[200];
+    Int_t 	evtmediumid[200];
+    Int_t 	evtsoftid[200];
+    Int_t 	evtpfid[200];
     Float_t 	evtiso3[200];
     Float_t 	evtiso4[200];
     Float_t 	evtchiso3[200];
@@ -412,6 +435,10 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 	evtq[j]                       = Oq[j];
 	evttight[j]                   = Otight[j];
 	evttighte[j]                  = Otighte[j];
+	evttightid[j]                 = Otightid[j];
+	evtmediumid[j]                = Omediumid[j];
+	evtsoftid[j]                  = Osoftid[j];
+	evtpfid[j]                    = Opfid[j];
 	evtiso3[j]                    = Oiso3[j];
 	evtiso4[j]                    = Oiso4[j];
 	evtchiso3[j]                  = Ochiso3[j];
@@ -433,6 +460,10 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 	evtq[j]                    = Gq[j-On];
 	evttight[j]                = Gtight[j-On];
 	evttighte[j]               = Gtighte[j-On];
+	evttightid[j]              = Gtightid[j-On];
+	evtmediumid[j]             = Gmediumid[j-On];
+	evtsoftid[j]               = Gsoftid[j-On];
+	evtpfid[j]                 = Gpfid[j-On];
 	evtiso3[j]                 = Giso3[j-On];
 	evtiso4[j]                 = Giso4[j-On];
 	evtchiso3[j]               = Gchiso3[j-On];
@@ -444,11 +475,24 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 
       }
 
+
+	//////////////////
+	//Denominator cuts
+	//////////////////
+
+	bool dentight((sel_den != "tightcut")||(((abs(evtid[j]) == 13)&&(sel_den == "tightcut")&&(evttight[j] == 1))||((abs(evtid[j]) == 11)&&(sel_den == "tightcut")&&(evttighte[j] >= 3)))); 
+	bool dentightmva((sel_den != "tightmva")||((abs(evtid[j]) == 11)&&(sel_den == "tightmva")&&(evttight[j] == 1)));             
+	bool dentightid((sel_den != "tightid")||((sel_den == "tightid")&&(abs(evttightid[j]) == 1)));
+	bool denmediumid((sel_den != "mediumid")||((sel_den == "mediumid")&&(abs(evtmediumid[j]) == 1 )));
+	bool densoftid((sel_den != "softid")||((sel_den == "softid")&&(abs(evtsoftid[j]) == 1 )));
+	bool denpfid((sel_den != "pfid")||((sel_den == "pfid")&&(abs(evtpfid[j]) == 1 )));
+
       if((!option.Contains(" ll "))||((option.Contains(" ll "))&&(Gn+On == 2)&&(evtq[0] == -evtq[1]))){
 	if(abs(evtid[j]) == leptonId){
 	  if((!option.Contains("loose"))||((option.Contains("loose"))&&(evtloose[j] == 1))){
-	    if((sel_den != "tightcut")||(((abs(evtid[j]) == 13)&&(sel_den == "tightcut")&&(evttight[j] == 1 ))||((abs(evtid[j]) == 11)&&(sel_den == "tightcut")&&(evttighte[j] >= 3)))){
-	      if((sel_den != "tightmva")||((abs(evtid[j]) == 11)&&(sel_den == "tightmva")&&(evttight[j] == 1))){
+	    //if((sel_den != "tightcut")||(((abs(evtid[j]) == 13)&&(sel_den == "tightcut")&&(evttight[j] == 1 ))||((abs(evtid[j]) == 11)&&(sel_den == "tightcut")&&(evttighte[j] >= 3)))){
+	      //if((sel_den != "tightmva")||((abs(evtid[j]) == 11)&&(sel_den == "tightmva")&&(evttight[j] == 1))){
+	      if(dentight && dentightmva && dentightid && denmediumid && densoftid && denpfid){
 
 		//Variable for matching
 		double R = 999;
@@ -565,7 +609,6 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 		      break;
 		  }
 		}
-	      }
 	    }
 	  }
 	}
@@ -781,29 +824,26 @@ int MC_Ratio(TString _filetag, int leptonId, TString sel_den , TString sel_num, 
   }else if(leptonId == 13){
 
     if((par_x == "Pt")&&(par_y == "eta")){
-      const int npar1bins = 18;
+      const int npar1bins = 15;
       //Parameter 1
       double* par1 = new double[npar1bins+1];
 
-      par1[0] = 7;
-      par1[1] = 10;
-      par1[2] = 15;
-      par1[3] = 20;
-      par1[4] = 25;
-      par1[5] = 30;
-      par1[6] = 35;
-      par1[7] = 40;
-      par1[8] = 45;
-      par1[9] = 50;
-      par1[10] = 60;
-      par1[11] = 70;
-      par1[12] = 80;
-      par1[13] = 90;
-      par1[14] = 100;
-      par1[15] = 120;
-      par1[16] = 140;
-      par1[17] = 200;
-      par1[18] = 250;
+      par1[0] = 20;
+      par1[1] = 25;
+      par1[2] = 30;
+      par1[3] = 35;
+      par1[4] = 40;
+      par1[5] = 45;
+      par1[6] = 50;
+      par1[7] = 60;
+      par1[8] = 70;
+      par1[9] = 80;
+      par1[10] = 90;
+      par1[11] = 100;
+      par1[12] = 120;
+      par1[13] = 140;
+      par1[14] = 200;
+      par1[15] = 250;
 
       //Parameter 2
       const int npar2bins = 3;
@@ -855,12 +895,11 @@ int MC_Ratio(TString _filetag, int leptonId, TString sel_den , TString sel_num, 
       par1[31] = 2.5;
 
       //Parameter 2
-      const int npar2bins = 3;
+      const int npar2bins = 2;
       double par2[npar2bins+1];
-      par2[0] = 7;
-      par2[1] = 20;
-      par2[2] = 60;
-      par2[3] = 250;
+      par2[0] = 20;
+      par2[1] = 60;
+      par2[2] = 250;
 
 	return MC_Ratio(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option );
     }

@@ -108,6 +108,10 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   //sel_den string
   if((sel_den == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
   if(sel_den == "tightcut"){_sel_den = "tightcut";}
+  else if(sel_den == "tightid"){_sel_den = "tightid";}
+  else if(sel_den == "mediumid"){_sel_den = "mediumid";}
+  else if(sel_den == "softid"){_sel_den = "softid";}
+  else if(sel_den == "pfid"){_sel_den = "pfid";}
   else if(sel_den == "tightmva"){_sel_den = "tightmva";}
   else if(sel_den == "loose"){_sel_den = "loose";}
   else if(sel_den == ""){_sel_den = "";}
@@ -115,6 +119,10 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   //sel_num string
   if((sel_num == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
   if(sel_num == "tightcut"){_sel_num = "tightcut";}
+  else if(sel_num == "tightid"){_sel_num = "tightid";}
+  else if(sel_num == "mediumid"){_sel_num = "mediumid";}
+  else if(sel_num == "softid"){_sel_num = "softid";}
+  else if(sel_num == "pfid"){_sel_num = "pfid";}
   else if(sel_num == "tightmva"){_sel_num = "tightmva";}
   else if(sel_num == ""){_sel_num = "";}
   else if(sel_num == "loose"){_sel_num = "loose";}
@@ -181,6 +189,10 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   //sel_den string
   if((sel_den == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
   if(sel_den == "tightcut"){_sel_den = "tightcut";}
+  else if(sel_den == "tightid"){_sel_den = "tightid";}
+  else if(sel_den == "mediumid"){_sel_den = "mediumid";}
+  else if(sel_den == "softid"){_sel_den = "softid";}
+  else if(sel_den == "pfid"){_sel_den = "pfid";}
   else if(sel_den == "tightmva"){_sel_den = "tightmva";}
   else if(sel_den == "loose"){_sel_den = "loose";}
   else if(sel_den == ""){_sel_den = "";}
@@ -188,6 +200,10 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   //sel_num string
   if((sel_num == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
   if(sel_num == "tightcut"){_sel_num = "tightcut";}
+  else if(sel_num == "tightid"){_sel_num = "tightid";}
+  else if(sel_num == "mediumid"){_sel_num = "mediumid";}
+  else if(sel_num == "softid"){_sel_num = "softid";}
+  else if(sel_num == "pfid"){_sel_num = "pfid";}
   else if(sel_num == "tightmva"){_sel_num = "tightmva";}
   else if(sel_num == ""){_sel_num = "";}
   else if(sel_num == "loose"){_sel_num = "loose";}
@@ -275,7 +291,7 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
   //Par1 distribution per bin
   TH1D*** par1bin_MC = new TH1D**[npar2bins];
   TH1D*** par1bin_TP = new TH1D**[npar2bins];
-  TH1D*** par1bin_dy_TP = new TH1D**[npar2bins];
+  //TH1D*** par1bin_dy_TP = new TH1D**[npar2bins];
 
   for(int i = 0; i < npar2bins; ++i){
 
@@ -298,16 +314,17 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
     cout<<"par1_MC want to retrieve "<<"histo_par1_"+_parybin<<endl;
     par1_MC[i] = (TH1D*) file_in_MC->Get("histo_par1_"+_parybin);
     cout<<"par1_TP want to retrieve "<<"histo_par1_"+_parybin<<endl;
-    cout<<"par1_dy_TP want to retrieve "<<"histo_par1_dyonly"+_parybin<<endl;
+    //cout<<"par1_dy_TP want to retrieve "<<"histo_par1_dyonly"+_parybin<<endl;
     par1_TP[i] = (TH1D*) file_invM->Get("histo_par1_"+_parybin);
     cout<<"debug"<<endl;
-    par1_dy_TP[i] = (TH1D*) file_invM->Get("histo_par1_dyonly"+_parybin);
+    //par1_dy_TP[i] = (TH1D*) file_invM->Get("histo_par1_dyonly"+_parybin);
     cout<<"debug1"<<endl;
 
     //normalise par1 distributions
     par1_MC[i]->Scale(1./par1_MC[i]->Integral());
     par1_TP[i]->Scale(1./par1_TP[i]->Integral());
-    par1_dy_TP[i]->Scale(1./par1_dy_TP[i]->Integral());
+    //par1_dy_TP[i]->Scale(1./par1_dy_TP[i]->Integral());
+    cout<<"debug3"<<endl;
 
 
     TCanvas* c1 = new TCanvas("c1","c1");
@@ -352,46 +369,18 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
     ratio[i]->GetXaxis()->SetRangeUser(eff_MC[i]->GetXaxis()->GetXmin(),eff_MC[i]->GetXaxis()->GetXmin());
     ratio[i]->GetXaxis()->SetTitle("");
     ratio[i]->Draw();
-
-    TCanvas* c2 = new TCanvas("c2","c2");
-    par1_MC[i]->Draw(); 
-    par1_MC[i]->SetLineColor(4);
-    par1_MC[i]->SetLineWidth(3);
-    par1_MC[i]->SetMarkerColor(4);
-    par1_MC[i]->SetMarkerStyle(1);
-    par1_MC[i]->GetYaxis()->SetTitle("par1");
-    par1_MC[i]->SetTitle(par_x+" distribution for "+_sel_den+" "+pname+ _parybin);
-    par1_MC[i]->GetYaxis()->SetRangeUser(0,getmaxallhist(par1_MC[i],par1_TP[i],par1_dy_TP[i]));
-    par1_TP[i]->Draw("same"); 
-    par1_TP[i]->SetLineColor(2);
-    par1_TP[i]->SetLineWidth(3);
-    par1_TP[i]->SetMarkerColor(2);
-    par1_TP[i]->SetMarkerStyle(1);
-    par1_dy_TP[i]->Draw("same");    
-    par1_dy_TP[i]->SetLineColor(1);
-    par1_dy_TP[i]->SetLineWidth(3);
-    par1_dy_TP[i]->SetMarkerColor(1);
-    par1_dy_TP[i]->SetMarkerStyle(1);
-
-    TLegend* leg2 = new TLegend(0.3, 0.3, 0.6 , 0.5);
-    leg2->AddEntry(par1_MC[i], "MC Ratio");
-    leg2->AddEntry(par1_TP[i], "T&P","LP");
-    leg2->AddEntry(par1_dy_TP[i], "T&P DY only","LP");
-    leg2->SetBorderSize(0.);
-    leg2->SetTextFont(43);
-    leg2->SetTextSize(25);
-    leg2->Draw();
+    cout<<"debug4"<<endl;
 
     file_out->cd();
     c1->Write("eff"+_parybin);
     c1->SaveAs(_outpath+"PDF/"+_output+"_"+_option_mc+"_"+_option_tp+_pname+"_den_"+_sel_den+"_num_"+_sel_num+"_"+_parybin+".pdf");
-    c2->Write("par1_distr"+_parybin);
+    //c2->Write("par1_distr"+_parybin);
 
     //binned par1
 
     par1bin_MC[i] 			= new TH1D*[npar1bins];
     par1bin_TP[i] 			= new TH1D*[npar1bins];
-    par1bin_dy_TP[i] 			= new TH1D*[npar1bins];
+    //par1bin_dy_TP[i] 			= new TH1D*[npar1bins];
 
     TCanvas** c3 = new TCanvas*[npar1bins];
     
@@ -410,7 +399,7 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
       cout<<"debug1"<<endl;
       par1bin_TP[i][_i] = (TH1D*) file_invM->Get("h_par1_"+_parxbin+"_"+_parybin);
       cout<<"debug2"<<endl;
-      par1bin_dy_TP[i][_i] = (TH1D*) file_invM->Get("h_par1_dyonly"+_parxbin+"_"+_parybin);
+      //par1bin_dy_TP[i][_i] = (TH1D*) file_invM->Get("h_par1_dyonly"+_parxbin+"_"+_parybin);
       cout<<"debug3"<<endl;
 
       //normalise par1 distributions
@@ -418,7 +407,7 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
       cout<<"debug4"<<endl;
       par1bin_TP[i][_i]->Scale(1./par1bin_TP[i][_i]->Integral());
       cout<<"debug5"<<endl;
-      par1bin_dy_TP[i][_i]->Scale(1./par1bin_dy_TP[i][_i]->Integral());
+      //par1bin_dy_TP[i][_i]->Scale(1./par1bin_dy_TP[i][_i]->Integral());
       cout<<"debug6"<<endl;
 
     //TCanvas* c3 = new TCanvas("c3","c3");
@@ -430,22 +419,17 @@ int CompareMCvsTandP( TString _filetag, int leptonId, double* par1, int npar1bin
     par1bin_MC[i][_i]->SetMarkerStyle(1);
     par1bin_MC[i][_i]->GetYaxis()->SetTitle("par1");
     par1bin_MC[i][_i]->SetTitle(par_x+" distribution for "+_sel_den+" "+pname+ _parybin);
-    par1bin_MC[i][_i]->GetYaxis()->SetRangeUser(0,getmaxallhist(par1bin_MC[i][_i],par1bin_TP[i][_i],par1bin_dy_TP[i][_i]));
+    par1bin_MC[i][_i]->GetYaxis()->SetRangeUser(0,getmaxallhist(par1bin_MC[i][_i],par1bin_TP[i][_i]));
     par1bin_TP[i][_i]->Draw("same"); 
     par1bin_TP[i][_i]->SetLineColor(2);
     par1bin_TP[i][_i]->SetLineWidth(3);
     par1bin_TP[i][_i]->SetMarkerColor(2);
     par1bin_TP[i][_i]->SetMarkerStyle(1);
-    par1bin_dy_TP[i][_i]->Draw("same");    
-    par1bin_dy_TP[i][_i]->SetLineColor(1);
-    par1bin_dy_TP[i][_i]->SetLineWidth(3);
-    par1bin_dy_TP[i][_i]->SetMarkerColor(1);
-    par1bin_dy_TP[i][_i]->SetMarkerStyle(1);
 
     TLegend* leg3 = new TLegend(0.3, 0.3, 0.6 , 0.5);
     leg3->AddEntry(par1bin_MC[i][_i], "MC Ratio");
     leg3->AddEntry(par1bin_TP[i][_i], "T&P","LP");
-    leg3->AddEntry(par1bin_dy_TP[i][_i], "T&P DY only","LP");
+    //leg3->AddEntry(par1bin_dy_TP[i][_i], "T&P DY only","LP");
     leg3->SetBorderSize(0.);
     leg3->SetTextFont(43);
     leg3->SetTextSize(25);
@@ -590,29 +574,26 @@ int CompareMCvsTandP(TString _filetag, int leptonId, TString sel_den , TString s
   }else if(leptonId == 13){
 
     if((par_x == "Pt")&&(par_y == "eta")){
-      const int npar1bins = 18;
+      const int npar1bins = 15;
       //Parameter 1
       double* par1 = new double[npar1bins+1];
 
-      par1[0] = 7;
-      par1[1] = 10;
-      par1[2] = 15;
-      par1[3] = 20;
-      par1[4] = 25;
-      par1[5] = 30;
-      par1[6] = 35;
-      par1[7] = 40;
-      par1[8] = 45;
-      par1[9] = 50;
-      par1[10] = 60;
-      par1[11] = 70;
-      par1[12] = 80;
-      par1[13] = 90;
-      par1[14] = 100;
-      par1[15] = 120;
-      par1[16] = 140;
-      par1[17] = 200;
-      par1[18] = 250;
+      par1[0] = 20;
+      par1[1] = 25;
+      par1[2] = 30;
+      par1[3] = 35;
+      par1[4] = 40;
+      par1[5] = 45;
+      par1[6] = 50;
+      par1[7] = 60;
+      par1[8] = 70;
+      par1[9] = 80;
+      par1[10] = 90;
+      par1[11] = 100;
+      par1[12] = 120;
+      par1[13] = 140;
+      par1[14] = 200;
+      par1[15] = 250;
 
       //Parameter 2
       const int npar2bins = 3;
@@ -664,12 +645,11 @@ int CompareMCvsTandP(TString _filetag, int leptonId, TString sel_den , TString s
       par1[31] = 2.5;
 
       //Parameter 2
-      const int npar2bins = 3;
+      const int npar2bins = 2;
       double par2[npar2bins+1];
-      par2[0] = 7;
-      par2[1] = 20;
-      par2[2] = 60;
-      par2[3] = 250;
+      par2[0] = 20;
+      par2[1] = 60;
+      par2[2] = 250;
 
 	return CompareMCvsTandP(_filetag, leptonId, par1, npar1bins, par2, npar2bins, sel_den, sel_num, cut_num, par_x, par_y, option_mc, option_tp, _sig);
     }
