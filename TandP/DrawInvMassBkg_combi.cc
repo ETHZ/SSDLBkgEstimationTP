@@ -63,7 +63,7 @@ int     DrawInvMassBkg(TString _filetag, int leptonId, double* par1, int npar1bi
 
   //Location of the .root file
   //TString location = "/shome/gaperrin/CERN_data/newcsasample/postprocessed/";//csa14
-  TString location = "/shome/gaperrin/tnp_MiniAOD/DYJetsToLL_M50/";//csa14
+  TString location = "/shome/gaperrin/tnp_dir/tnp_MiniAOD/DYJetsToLL_M50/";//csa14
 
   vector< TTree* > tree;
 
@@ -74,6 +74,7 @@ int     DrawInvMassBkg(TString _filetag, int leptonId, double* par1, int npar1bi
   //For csa14
   //DY events
   //tree_dy->Add(location+"/matched/DYJetsToLLM50_PU_S14_POSTLS170.root");
+  cout<<"DEBUG!!!"<<endl;
   cout<<"DEBUG!!!"<<endl;
   tree_dy->Add(location+"tree.root");
   cout<<"Try to read the file"<< location+"tree.root" <<endl;
