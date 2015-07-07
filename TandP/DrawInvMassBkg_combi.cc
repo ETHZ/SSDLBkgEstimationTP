@@ -32,17 +32,18 @@ using namespace std;
 #include "../tools/setTDRStyle.C"
 #include "../tools/getmaxallhist.C"
 
-Int_t 	Gtight[200];
-Int_t 	Gtighte[200];
-Int_t 	Gloose[200];
-Float_t 	Giso3[200];
-Float_t 	Giso4[200];
-Float_t 	Gchiso3[200];
-Float_t 	Gchiso4[200];
-Float_t 	Gdxy[200];
-Float_t 	Gdz[200];
-Int_t         Gfromtau[200];
-Int_t         Gmatched[200];
+
+//Int_t 	Gtight[200];
+//Int_t 	Gtighte[200];
+//Int_t 	Gloose[200];
+//Float_t 	Giso3[200];
+//Float_t 	Giso4[200];
+//Float_t 	Gchiso3[200];
+//Float_t 	Gchiso4[200];
+//Float_t 	Gdxy[200];
+//Float_t 	Gdz[200];
+//Int_t         Gfromtau[200];
+//Int_t         Gmatched[200];
 
 ////////////////////////
 //Variable description//
@@ -74,7 +75,6 @@ int     DrawInvMassBkg(TString _filetag, int leptonId, double* par1, int npar1bi
   //For csa14
   //DY events
   //tree_dy->Add(location+"/matched/DYJetsToLLM50_PU_S14_POSTLS170.root");
-  cout<<"DEBUG!!!"<<endl;
   cout<<"DEBUG!!!"<<endl;
   tree_dy->Add(location+"tree.root");
   cout<<"Try to read the file"<< location+"tree.root" <<endl;
@@ -145,10 +145,8 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
   /////////////////////
   //Name of the files//
   /////////////////////
-  cout<< "DEBUG2"<<endl;
 
   //Declare Strings
-
   TString pname;
   TString _pname;
   TString _par;
@@ -166,6 +164,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
   //sel_den string
   if((sel_den == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
   if(sel_den == "tightcut"){_sel_den = "tightcut";}
+  else if(sel_den == "tightid"){_sel_den = "tightid";}
+  else if(sel_den == "mediumid"){_sel_den = "mediumid";}
+  else if(sel_den == "softid"){_sel_den = "softid";}
+  else if(sel_den == "pfid"){_sel_den = "pfid";}
   else if(sel_den == "tightmva"){_sel_den = "tightmva";}
   else if(sel_den == "loose"){_sel_den = "loose";}
   else if(sel_den == ""){_sel_den = "";}
@@ -173,6 +175,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
   //sel_num string
   if((sel_num == "tightmva")&&(leptonId == 13)){cout<<"ERROR: no tightId MVA defined for the muon !"<<endl;return 1;}
   if(sel_num == "tightcut"){_sel_num = "tightcut";}
+  else if(sel_num == "tightid"){_sel_num = "tightid";}
+  else if(sel_num == "mediumid"){_sel_num = "mediumid";}
+  else if(sel_num == "softid"){_sel_num = "softid";}
+  else if(sel_num == "pfid"){_sel_num = "pfid";}
   else if(sel_num == "tightmva"){_sel_num = "tightmva";}
   else if(sel_num == ""){_sel_num = "";}
   else if(sel_num == "loose"){_sel_num = "loose";}
@@ -210,23 +216,11 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 
   TH1D*** histo_M  = new TH1D**[npar2bins];
   TH1D*** histo_M_fail  = new TH1D**[npar2bins];
-  //TH1D*** histo_M_DYJets_bkg  = new TH1D**[npar2bins];
-  //TH1D*** histo_M_DYJets  = new TH1D**[npar2bins];
-  //TH1D*** histo_M_bkg  = new TH1D**[npar2bins];
-  //TH1D*** histo_M_WJets  = new TH1D**[npar2bins];
-  //TH1D*** histo_M_TTJets  = new TH1D**[npar2bins];
-  //TH1D*** histo_M_DYJets_bkg_fail  = new TH1D**[npar2bins];
-  //TH1D*** histo_M_DYJets_fail  = new TH1D**[npar2bins];
-  //TH1D*** histo_M_bkg_fail  = new TH1D**[npar2bins];
-  //TH1D*** histo_M_WJets_fail  = new TH1D**[npar2bins];
-  //TH1D*** histo_M_TTJets_fail  = new TH1D**[npar2bins];
 
   //Histogram for the par1 bin distribution
   TH1D** histo_par1 = new TH1D*[npar2bins];
-  TH1D** histo_par1_dyonly = new TH1D*[npar2bins];//This histograms takes the par1 of the prob that are coming from the dy sample only
   //Paramter for each bin
   TH1D*** h_par1 = new TH1D**[npar2bins];
-  TH1D*** h_par1_dyonly = new TH1D**[npar2bins];//This histograms takes the par1 of the prob that are coming from the dy sample only
 
   //Histogram to count the total number of tag and prob per event
 
@@ -243,47 +237,20 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 
     histo_M[i]  		= new TH1D*[npar1bins];
     histo_M_fail[i]  		= new TH1D*[npar1bins];
-    //histo_M_DYJets_bkg[i]  		= new TH1D*[npar1bins];
-    //histo_M_DYJets[i]  			= new TH1D*[npar1bins];
-    //histo_M_bkg[i]  			= new TH1D*[npar1bins];
-    //histo_M_WJets[i]  			= new TH1D*[npar1bins];
-    //histo_M_TTJets[i]  			= new TH1D*[npar1bins];
-    //histo_M_DYJets_bkg_fail[i] 		= new TH1D*[npar1bins];
-    //histo_M_DYJets_fail[i]     		= new TH1D*[npar1bins];
-    //histo_M_bkg_fail[i]  		= new TH1D*[npar1bins];
-    //histo_M_WJets_fail[i]  		= new TH1D*[npar1bins];
-    //histo_M_TTJets_fail[i]  		= new TH1D*[npar1bins];
-
     h_tag_bin[i] 			= new TH1D*[npar1bins];
     h_prob_bin[i] 			= new TH1D*[npar1bins];
-
     histo_par1[i] 			= new TH1D(Form("histo_par1_par2bin_%i",i),"par1",npar1bins*25,par1[0],par1[npar1bins]);
-    histo_par1_dyonly[i] 		= new TH1D(Form("histo_par1_dyonly_par2bin_%i",i),"par1",npar1bins*25,par1[0],par1[npar1bins]);
-
     h_par1[i] 				= new TH1D*[npar1bins];
-    h_par1_dyonly[i] 			= new TH1D*[npar1bins];
 
     for(int j = 0; j < npar1bins; ++j){ 
 
       histo_M[i][j]  		=  new TH1D(Form("histo_M_DYJets_bkg_par2bin_%i_%i",i,j),"M",nbins,0,250);
       histo_M_fail[i][j]  		=  new TH1D(Form("histo_M_DYJets_bkg_par2bin_%i_%i",i,j),"M",nbins,0,250);
-      //histo_M_DYJets_bkg[i][j]  		=  new TH1D(Form("histo_M_DYJets_bkg_par2bin_%i_%i",i,j),"M",nbins,0,250);
-      //histo_M_DYJets[i][j]  			=  new TH1D(Form("histo_M_DYJets_par2bin_%i_%i",i,j),"M",nbins,0,250);
-      //histo_M_bkg[i][j]  			=  new TH1D(Form("histo_M_bkg_par2bin_%i_%i",i,j),"M",nbins,0,250);
-      //histo_M_WJets[i][j]  			=  new TH1D(Form("histo_M_WYJets_par2bin_%i_%i",i,j),"M",nbins,0,250);
-      //histo_M_TTJets[i][j]  			=  new TH1D(Form("histo_M_TTJets_par2bin_%i_%i",i,j),"M",nbins,0,250);
-      //histo_M_DYJets_bkg_fail[i][j]	 	=  new TH1D(Form("histo_M_DYJets_bkg_fail_par2bin_%i_%i",i,j),"M",nbins,0,250);
-      //histo_M_DYJets_fail[i][j]     		=  new TH1D(Form("histo_M_DYJets_fail_par2bin_%i_%i",i,j),"M",nbins,0,250);
-      //histo_M_bkg_fail[i][j]  			=  new TH1D(Form("histo_M_bkg_fail_par2bin_%i_%i",i,j),"M",nbins,0,250);
-      //histo_M_WJets_fail[i][j]  		=  new TH1D(Form("histo_M_WJets_fail_par2bin_%i_%i",i,j),"M",nbins,0,250);
-      //histo_M_TTJets_fail[i][j]  		=  new TH1D(Form("histo_M_TTJets_fail_par2bin_%i_%i",i,j),"M",nbins,0,250);
-
       h_tag_bin[i][j] 				= new TH1D(Form("h_tag_bin_par2bin_%i_%i",i,j),"tag",10,0,10);
       h_prob_bin[i][j] 				= new TH1D(Form("h_prob_bin_par2bin_%i_%i",i,j),"prob",10,0,10);
 
       //Par1 distribution
       h_par1[i][j] 				= new TH1D(Form("h_par1_par2bin_%i_%i",i,j),"par1",25,par1[j],par1[j+1]);
-      h_par1_dyonly[i][j] 			= new TH1D(Form("h_par1_dyonly_par2bin_%i_%i",i,j),"par1",25,par1[j],par1[j+1]);
 
     }
 
@@ -314,7 +281,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
   Int_t   Oq[200];
   Int_t Otight[200];
   Int_t Otighte[200];
-  //Float_t Omvaid[200];
+  Int_t Otightid[200];
+  Int_t Omediumid[200];
+  Int_t Osoftid[200];
+  Int_t Opfid[200];
   Int_t Oloose[200];
   Float_t Oiso3[200];
   Float_t Oiso4[200];
@@ -335,6 +305,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
   Int_t   	Gq[200];
   Int_t 	Gtight[200];
   Int_t 	Gtighte[200];
+  Int_t 	Gtightid[200];
+  Int_t 	Gmediumid[200];
+  Int_t 	Gsoftid[200];
+  Int_t 	Gpfid[200];
   Int_t 	Gloose[200];
   Float_t 	Giso3[200];
   Float_t 	Giso4[200];
@@ -353,7 +327,7 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
   for(int tree_i = 0; tree_i < nsample; ++ tree_i){
 
     //Assigne branches tree->SetBranchAddress("evt_scale1fb", &scale);
-  cout<< "DEBUG5"<<endl;
+    cout<< "DEBUG5"<<endl;
     tree[tree_i]->SetBranchAddress("evt_id", &evt_id);
     //generated
     tree[tree_i]->SetBranchAddress("nGenPart", &ngenPart);
@@ -376,6 +350,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
     tree[tree_i]->SetBranchAddress("LepOther_charge",&Oq);
     tree[tree_i]->SetBranchAddress("LepOther_tightId",&Otight);
     tree[tree_i]->SetBranchAddress("LepOther_eleCutIdCSA14_50ns_v1",&Otighte);
+    tree[tree_i]->SetBranchAddress("LepOther_tightId",&Otightid);
+    tree[tree_i]->SetBranchAddress("LepOther_mediumMuonId",&Omediumid);
+    tree[tree_i]->SetBranchAddress("LepOther_softMuonId",&Osoftid);
+    tree[tree_i]->SetBranchAddress("LepOther_pfMuonId",&Opfid);
     tree[tree_i]->SetBranchAddress("LepOther_relIso03",&Oiso3);
     tree[tree_i]->SetBranchAddress("LepOther_relIso04",&Oiso4);
     tree[tree_i]->SetBranchAddress("LepOther_chargedHadRelIso03",&Ochiso3);
@@ -394,6 +372,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
     tree[tree_i]->SetBranchAddress("LepGood_charge",&Gq);
     tree[tree_i]->SetBranchAddress("LepGood_tightId",&Gtight);
     tree[tree_i]->SetBranchAddress("LepGood_eleCutIdCSA14_50ns_v1",&Gtighte);
+    tree[tree_i]->SetBranchAddress("LepOther_tightId",&Gtightid);
+    tree[tree_i]->SetBranchAddress("LepOther_mediumMuonId",&Gmediumid);
+    tree[tree_i]->SetBranchAddress("LepOther_softMuonId",&Gsoftid);
+    tree[tree_i]->SetBranchAddress("LepOther_pfMuonId",&Gpfid);
     tree[tree_i]->SetBranchAddress("LepGood_relIso03",&Giso3);
     tree[tree_i]->SetBranchAddress("LepGood_relIso04",&Giso4);
     tree[tree_i]->SetBranchAddress("LepGood_chargedHadRelIso03",&Gchiso3);
@@ -402,7 +384,7 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
     tree[tree_i]->SetBranchAddress("LepGood_dz",&Gdz);
     tree[tree_i]->SetBranchAddress("LepGood_mcMatchTau",&Gfromtau);
     if(tree_i == 0)tree[tree_i]->SetBranchAddress("LepGood_matched",&Gmatched);
-  cout<< "DEBUG7"<<endl;
+    cout<< "DEBUG7"<<endl;
 
     int count = 0;
 
@@ -423,6 +405,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
       Int_t   	evtq[200];
       Int_t 	evttight[200];
       Int_t 	evttighte[200];
+      Int_t 	evttightid[200];
+      Int_t 	evtmediumid[200];
+      Int_t 	evtsoftid[200];
+      Int_t 	evtpfid[200];
       Float_t 	evtiso3[200];
       Float_t 	evtiso4[200];
       Float_t 	evtchiso3[200];
@@ -456,6 +442,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 	  evtq[i]                       = Gq[i];
 	  evttight[i]                   = Gtight[i];
 	  evttighte[i]                  = Gtighte[i];
+	  evttightid[i]                 = Gtightid[i];
+	  evtmediumid[i]                = Gmediumid[i];
+	  evtsoftid[i]                  = Gsoftid[i];
+	  evtpfid[i]                    = Gpfid[i];
 	  evtiso3[i]                    = Giso3[i];
 	  evtiso4[i]                    = Giso4[i];
 	  evtchiso3[i]                  = Gchiso3[i];
@@ -476,6 +466,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 	  evtq[i]                    = Oq[i-Gn];
 	  evttight[i]                = Otight[i-Gn];
 	  evttighte[i]               = Otighte[i-Gn];
+	  evttightid[i]              = Otightid[i-Gn];
+	  evtmediumid[i]             = Omediumid[i-Gn];
+	  evtsoftid[i]               = Osoftid[i-Gn];
+	  evtpfid[i]                 = Opfid[i-Gn];
 	  evtiso3[i]                 = Oiso3[i-Gn];
 	  evtiso4[i]                 = Oiso4[i-Gn];
 	  evtchiso3[i]               = Ochiso3[i-Gn];
@@ -487,83 +481,111 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 
 	}
 
-	//define sel_den using bools
+	////////////
+	//Set cuts//
+	////////////
+
+	//TnP cuts
+	bool lepton(abs(evtid[i]) == leptonId);
+	bool twolep(Gn+On > 1);
+
+	//Cut on tag
+	
+	bool tagtightid((abs(evttightid[i]) == 1 ));
+	bool tagptcut(evtpt[i] > 25 );
+	bool tageta(abs(evteta[i] < 2.1));
+	bool tagselection = tagtightid && tagptcut && tageta;
+
+	////////////////
+	//Numerator cuts
+	////////////////
+
+	//Variable cuts
 	bool reliso3((sel_num != "reliso3")||((sel_num == "reliso3")&&(evtiso3[i] < cut_num )));
 	bool reliso4((sel_num != "reliso4")||((sel_num == "reliso4")&&(evtiso4[i] < cut_num )));
 	bool chiso3((sel_num != "chiso3")||((sel_num == "chiso3")&&(evtchiso3[i] < cut_num )));
 	bool chiso4((sel_num != "chiso4")||((sel_num == "chiso4")&&(evtchiso4[i] < cut_num )));
 	bool dxy((sel_num != "dxy")||((sel_num == "dxy")&&(abs(evtdxy[i])< cut_num )));
 	bool dz((sel_num != "dz")||((sel_num == "dz")&&(abs(evtdz[i])< cut_num )));
+
+	//ID cuts
 	bool tight((sel_num != "tightcut")||(((abs(evtid[i]) == 13)&&(sel_num == "tightcut")&&(evttight[i] == 1))||((abs(evtid[i]) == 11)&&(sel_num == "tightcut")&&(evttighte[i] >= 3))));
+	bool tightid((sel_num != "tightid")||((sel_num == "tightid")&&(abs(evttightid[i]) == 1)));
+	bool mediumid((sel_num != "mediumid")||((sel_num == "mediumid")&&(abs(evtmediumid[i]) == 1 )));
+	bool softid((sel_num != "softid")||((sel_num == "softid")&&(abs(evtsoftid[i]) == 1 )));
+	bool pfid((sel_num != "pfid")||((sel_num == "pfid")&&(abs(evtpfid[i]) == 1 )));
 	bool tightmva((sel_num != "tightmva")||((abs(evtid[i]) == 11)&&(sel_num == "tightmva")&&(evttight[i] == 1)));
+	bool loose((!option.Contains("loose"))||((option.Contains("loose"))&&(evtloose[i] == 1)));
 
-	//Count the number of tag/prob
-	//Store the values from both the loose and tight in the same variable
-	//Prob sel_denion cut
-	if(abs(evtid[i]) == leptonId){
-	  if((!option.Contains("loose"))||((option.Contains("loose"))&&(evtloose[i] == 1))){
-	    if(Gn+On > 1){//Need at least two leptons to do the TandP. Should look at it after the selection
-	      if((sel_den != "tightcut")||(((abs(evtid[i]) == 13)&&(sel_den == "tightcut")&&(evttight[i] == 1))||((abs(evtid[i]) == 11)&&(sel_den == "tightcut")&&(evttighte[i] >= 3)))){ 
-		if((sel_den != "tightmva")||((abs(evtid[i]) == 11)&&(sel_den == "tightmva")&&(evttight[i] == 1))){ 
-		  if( (!option.Contains("matching")) || ((option.Contains("matching"))&&(((tree_i == 0)&&(evtmatched[i] == 1)) || (tree_i > 0)))){ 
-    cout<<"DEBUG10"<<endl;
+	//////////////////
+	//Denominator cuts
+	//////////////////
 
-		    if(evt_id == 701){++nprob;};
+	//ID cuts
+	bool dentight((sel_den != "tightcut")||(((abs(evtid[i]) == 13)&&(sel_den == "tightcut")&&(evttight[i] == 1))||((abs(evtid[i]) == 11)&&(sel_den == "tightcut")&&(evttighte[i] >= 3)))); 
+	bool dentightmva((sel_den != "tightmva")||((abs(evtid[i]) == 11)&&(sel_den == "tightmva")&&(evttight[i] == 1)));             
+	bool dentightid((sel_den != "tightid")||((sel_den == "tightid")&&(abs(evttightid[i]) == 1)));
+	bool denmediumid((sel_den != "mediumid")||((sel_den == "mediumid")&&(abs(evtmediumid[i]) == 1 )));
+	bool densoftid((sel_den != "softid")||((sel_den == "softid")&&(abs(evtsoftid[i]) == 1 )));
+	bool denpfid((sel_den != "pfid")||((sel_den == "pfid")&&(abs(evtpfid[i]) == 1 )));
+	bool match (!option.Contains("matching") || ((option.Contains("matching"))&&(((tree_i == 0)&&(evtmatched[i] == 1)) || (tree_i > 0))));
 
-		    //Define and fil the prob
-		    Probe prob;
-		    prob.I = i;
-		    prob.PT = evtpt[i];
-		    prob.ETA = evteta[i];
-		    prob.PHI = evtphi[i];
-		    prob.M = evtm[i];
-		    prob.ID = evtid[i];
-		    prob.Q = evtq[i];
-		    prob.TIGHT = evttight[i];
-		    prob.LOOSE = evtloose[i];
-		    prob.RELISO3 = evtiso3[i];
-		    prob.RELISO4 = evtiso4[i];
-		    prob.DXY= evtdxy[i];
-		    prob.DZ = evtdz[i];
-		    prob.FROMTAU= evtfromtau[i];
-		    prob.MATCHED= evtmatched[i];
+	//Denominator cuts
+	if( lepton && denpfid && dentight && dentightmva && match && twolep){
+	  //Need at least two leptons to do the TandP. Should look at it after the selection
 
-		    vec_probe.push_back(prob);
+	  //Define and fil the prob
+	  Probe prob;
+	  prob.I = i;
+	  prob.PT = evtpt[i];
+	  prob.ETA = evteta[i];
+	  prob.PHI = evtphi[i];
+	  prob.Q = evtq[i];
+	  prob.TIGHT = evttight[i];
+	  prob.TIGHTID = evttightid[i];
+	  prob.MEDIUMID = evtmediumid[i];
+	  prob.SOFTID = evtsoftid[i];
+	  prob.PFID = evtpfid[i];
+	  prob.LOOSE = evtloose[i];
+	  prob.RELISO3 = evtiso3[i];
+	  prob.RELISO4 = evtiso4[i];
+	  prob.DXY= evtdxy[i];
+	  prob.DZ = evtdz[i];
+	  prob.FROMTAU= evtfromtau[i];
+	  prob.MATCHED= evtmatched[i];
 
-		    //Selection cut for Tag only
-		    if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva){
+	  vec_probe.push_back(prob);
 
-		      if(evt_id == 701){++ntag;}
+	  //Selection cut for Tag only
+	  if(tagselection && reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightid && mediumid && softid && pfid && tightmva){
 
-		      Tag tag;
-		      tag.I = i;
-		      tag.PT = evtpt[i];
-		      tag.ETA = evteta[i];
-		      tag.PHI = evtphi[i];
-		      tag.M = evtm[i];
-		      tag.ID = evtid[i];
-		      tag.Q = evtq[i];
-		      tag.TIGHT = evttight[i];
-		      tag.LOOSE = evtloose[i];
-		      tag.RELISO3 = evtiso3[i];
-		      tag.RELISO4 = evtiso4[i];
-		      tag.DXY= evtdxy[i];
-		      tag.DZ = evtdz[i];
-		      tag.FROMTAU= evtfromtau[i];
-		      tag.MATCHED= evtmatched[i];
+	    Tag tag;
+	    tag.I = i;
+	    tag.PT = evtpt[i];
+	    tag.ETA = evteta[i];
+	    tag.PHI = evtphi[i];
+	    tag.M = evtm[i];
+	    tag.ID = evtid[i];
+	    tag.Q = evtq[i];
+	    tag.TIGHT = evttight[i];
+	    tag.TIGHTID = evttightid[i];
+	    tag.MEDIUMID = evtmediumid[i];
+	    tag.SOFTID = evtsoftid[i];
+	    tag.PFID = evtpfid[i];
+	    tag.LOOSE = evtloose[i];
+	    tag.RELISO3 = evtiso3[i];
+	    tag.RELISO4 = evtiso4[i];
+	    tag.DXY= evtdxy[i];
+	    tag.DZ = evtdz[i];
+	    tag.FROMTAU= evtfromtau[i];
+	    tag.MATCHED= evtmatched[i];
 
-		      vec_tag.push_back(tag);
-
-		    }
-		  }
-		}
-	      }
-	    }
+	    vec_tag.push_back(tag);
 	  }
 	}
       }
-    cout<<"DEBUG10a"<<endl;
-    cout<<"The size of the Prob vector is "<<vec_probe.size()<<endl;
+
+      cout<<"The size of the Prob vector is "<<vec_probe.size()<<endl;
       //end of reclep loop
 
       //need at least two leptons
@@ -573,16 +595,17 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 
       //do the loop on all the Tags
       for(int t = 0; t < vec_tag.size(); ++t){
-    cout<<"DEBUG10b"<<endl;
 
-        //add list of probes in each tag
+	//Cuts on the tag
+	cout<<"DEBUG10b"<<endl;
+
+	//add list of probes in each tag
 	vec_tag[t].PROBE = vec_probe;
 	//Define the final Tag and Probe using the combinatorics
 	Tag _tag = combine(vec_tag[t],option); 
 
 	//do the loop on all the probes for the corresponding Tag
 	for(int p = 0; p < _tag.PROBE.size(); ++p){
-	  //combinatorics should be done by now 
 
 	  //retrieve the indices of the tag and the probe
 	  int l2 = _tag.I;
@@ -591,26 +614,6 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 	  if(l1 == l2){cout<<"ERROR: tag and probe are the same !"<<endl;return 1;}
 
 	  double M = InvMass(evtpt[l1],evteta[l1],evtphi[l1],evtm[l1],evtpt[l2],evteta[l2],evtphi[l2],evtm[l2]);
-	  //Debuging
-
-	  if(M <2){
-	    cout<<""<<endl;
-	    cout<<"InvM is "<<M<<endl;
-	    cout<<"tag indices is "<<l2<<endl;
-	    cout<<"probe indices is "<<l1<<endl;
-	    cout<<"the sample is "<<tree_i<<endl;
-	    cout<<"the event is  "<<k<<endl;
-	    cout<<"pt probe is "<<evtpt[l1]<<endl;
-	    cout<<"eta probe is "<<evteta[l1]<<endl;
-	    cout<<"phi probe is "<<evtphi[l1]<<endl;
-	    cout<<"m probe is "<<evtm[l1]<<endl;
-	    cout<<"pt tag is "<<evtpt[l2]<<endl;
-	    cout<<"eta tag is "<<evteta[l2]<<endl;
-	    cout<<"phi tag is "<<evtphi[l2]<<endl;
-	    cout<<"m tag is "<<evtm[l2]<<endl;
-
-	      }
-    cout<<"DEBUG11"<<endl;
 
 	  //Parameter on the xaxis
 
@@ -636,6 +639,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 	      bool dxy((sel_num != "dxy")||((sel_num == "dxy")&&(abs(evtdxy[l1])< cut_num )));
 	      bool dz((sel_num != "dz")||((sel_num == "dz")&&(abs(evtdz[l1])< cut_num )));
 	      bool tight((sel_num != "tightcut")||(((abs(evtid[l1]) == 13)&&(sel_num == "tightcut")&&(evttight[l1] == 1))||((abs(evtid[l1]) == 11)&&(sel_num == "tightcut")&&(evttighte[l1] >= 3))));
+	      bool tightid((sel_num != "tightid")||((sel_num == "tightid")&&(abs(evttightid[l1]) == 1 )));
+	      bool mediumid((sel_num != "mediumid")||((sel_num == "mediumid")&&(abs(evtmediumid[l1]) == 1 )));
+	      bool softid((sel_num != "softid")||((sel_num == "softid")&&(abs(evtsoftid[l1]) == 1 )));
+	      bool pfid((sel_num != "pfid")||((sel_num == "pfid")&&(abs(evtpfid[l1]) == 1 )));
 	      bool tightmva((sel_num != "tightmva")||((abs(evtid[l1]) == 11)&&(sel_num == "tightmva")&&(evttight[l1] == 1)));
 
 	      //Find the corresponding histogram for par2
@@ -646,42 +653,13 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 
 	      //Fill the par1 distribution histogram
 	      if(kk != -1){histo_par1[kk]->Fill(par_1);}
-	      if((kk != -1)&&(evt_id == 701)){histo_par1_dyonly[kk]->Fill(par_1);h_prob_bin[kk][ii]->Fill(nprob);h_tag_bin[kk][ii]->Fill(ntag);}
 	      if(kk != -1){h_par1[kk][ii]->Fill(par_1);}
-	      if((kk != -1)&&(evt_id == 701)){h_par1_dyonly[kk][ii]->Fill(par_1);}
 
 	      //Efficiency cut
-	      if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva && (kk != -1)){
+	      if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightid && mediumid && softid && pfid && tightmva && (kk != -1)){
 
-		  histo_M[kk][ii]->Fill(M);
-		  cout<<"Filling the tree !"<<endl;
-		/*
-		histo_M_DYJets_bkg[kk][ii]->Fill(M,scale);
-
-		//Fill bkg
-		if ((evt_id == 500)||(evt_id == 300)){
-
-		  histo_M_bkg[kk][ii]->Fill(M,scale);
-
-
-		  //Just the Wjets bkg
-		  if (evt_id == 500){
-
-		    histo_M_WJets[kk][ii]->Fill(M,scale);
-
-
-		  }else if (evt_id == 300){
-
-		    histo_M_TTJets[kk][ii]->Fill(M,scale);
-
-		  }
-
-		}else if(evt_id == 701){
-
-		  histo_M_DYJets[kk][ii]->Fill(M,scale);
-
-		}
-		*/
+		histo_M[kk][ii]->Fill(M);
+		cout<<"Filling the tree !"<<endl;
 
 	      }
 
@@ -692,48 +670,30 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
 	      dxy = ((sel_num != "dxy")||((sel_num == "dxy")&&(abs(evtdxy[l1]) >= cut_num )));
 	      dz = ((sel_num != "dz")||((sel_num == "dz")&&(abs(evtdz[l1]) >= cut_num )));
 	      tight = ((sel_num != "tightcut")||(((abs(evtid[l1]) == 13)&&(sel_num == "tightcut")&&(evttight[l1] != 1))||((abs(evtid[l1]) == 11)&&(sel_num == "tightcut")&&(evttighte[l1] < 3))));
+	      tightid = ((sel_num != "tightid")||((sel_num == "tightid")&&(abs(evttightid[l1]) != 1)));
+	      mediumid = ((sel_num != "mediumid")||((sel_num == "mediumid")&&(abs(evtmediumid[l1]) != 1)));
+	      softid = ((sel_num != "softid")||((sel_num == "softid")&&(abs(evtsoftid[l1]) != 1)));
+	      pfid = ((sel_num != "pfid")||((sel_num == "pfid")&&(abs(evtpfid[l1]) != 1)));
 	      tightmva = ((sel_num != "tightmva")||((abs(evtid[l1]) == 11)&&(sel_num == "tightmva")&&(evttight[l1] != 1)));
 
-	      if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightmva && (kk != -1)){
+	      if(reliso3 && reliso4 && chiso3 && chiso4 && dxy && dz && tight && tightid && mediumid && softid && pfid && tightmva && (kk != -1)){
 
 		histo_M_fail[kk][ii]->Fill(M);
-		/*
-		histo_M_DYJets_bkg_fail[kk][ii]->Fill(M,scale);
-		
-		//Fill bkg
-		if ((evt_id == 500)||(evt_id == 300)){
-
-		  histo_M_bkg_fail[kk][ii]->Fill(M,scale);
-
-		  if (evt_id == 500){
-
-		    histo_M_WJets_fail[kk][ii]->Fill(M,scale);
-
-		  }else if (evt_id == 300){
-
-		    histo_M_TTJets_fail[kk][ii]->Fill(M,scale);
-
-		  }
-
-		}else if(evt_id == 701){
-
-		  histo_M_DYJets_fail[kk][ii]->Fill(M,scale);
-		}
-		*/
 	      }
 	    }
 	  }
 	}
       }
 
-    h_prob->Fill(nprob);
-    h_tag->Fill(ntag);
+      h_prob->Fill(nprob);
+      h_tag->Fill(ntag);
 
-    //loop over all the rec particles to find the isolation
-    //We requiere one tag at least 
-    
     }
   }
+
+  /////////////////////////////
+  //Build and plot histograms//
+  /////////////////////////////
 
   mkdir(_path+_fname+"_PDF/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
@@ -750,10 +710,6 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
     TString _pary;
 
     for(int j = 0; j < npar1bins; ++j){ 
-
-      ////////////////////
-      //Build histograms//
-      ////////////////////
 
       //String for name of the ouput files and histograms titles
       //Parameter string
@@ -786,55 +742,6 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
       TString _stitle = (TString)"Invariant mass for "+pname+" "+_parxtitle+", "+_parytitle+", "+sel_num+" pass";
       TString _stitlefail = (TString)"Invariant mass for "+pname+" "+_parxtitle+", "+_parytitle+", "+sel_num+" fail";
 
-      /*
-      histo_M_DYJets_bkg[i][j]->Draw();
-      histo_M_DYJets_bkg[i][j]->SetTitle(_stitle);
-      histo_M_DYJets_bkg[i][j]->GetXaxis()->SetTitle("m [GeV]");
-      histo_M_DYJets_bkg[i][j]->SetLineWidth(2);
-      histo_M_DYJets_bkg[i][j]->SetLineColor(4);
-      histo_M_DYJets_bkg[i][j]->SetMarkerColor(4);
-      histo_M_bkg[i][j]->Draw("same");
-      histo_M_bkg[i][j]->SetLineWidth(2);
-      histo_M_bkg[i][j]->SetMarkerColor(2);
-      histo_M_bkg[i][j]->SetLineColor(2);
-      histo_M_WJets[i][j]->Draw("same");
-      histo_M_WJets[i][j]->SetLineWidth(3);
-      histo_M_WJets[i][j]->SetLineColor(3);
-      histo_M_WJets[i][j]->SetMarkerColor(3);
-      histo_M_TTJets[i][j]->Draw("same");
-      histo_M_TTJets[i][j]->SetLineWidth(3);
-      histo_M_TTJets[i][j]->SetLineColor(6);
-      histo_M_TTJets[i][j]->SetMarkerColor(6);
-      TLegend* leg = new TLegend(0.6, 0.65,0.89,0.89);
-      leg->AddEntry(histo_M_DYJets_bkg[i][j], "Z + bkg");
-      leg->SetTextFont(43);
-      leg->SetTextSize(25);
-      leg->AddEntry(histo_M_bkg[i][j], "TTJets + WJets");
-      leg->AddEntry(histo_M_WJets[i][j], "WJets");
-      leg->AddEntry(histo_M_TTJets[i][j], "TTJets");
-      leg->SetBorderSize(0);
-      leg->Draw();
-
-      c1->cd(2);
-      histo_M_DYJets_bkg_fail[i][j]->Draw();
-      histo_M_DYJets_bkg_fail[i][j]->SetTitle(_stitlefail);
-      histo_M_DYJets_bkg_fail[i][j]->GetXaxis()->SetTitle("m [GeV]");
-      histo_M_DYJets_bkg_fail[i][j]->SetLineWidth(2);
-      histo_M_DYJets_bkg_fail[i][j]->SetLineColor(4);
-      histo_M_DYJets_bkg_fail[i][j]->SetMarkerColor(4);
-      histo_M_bkg_fail[i][j]->Draw("same");
-      histo_M_bkg_fail[i][j]->SetLineWidth(2);
-      histo_M_bkg_fail[i][j]->SetMarkerColor(2);
-      histo_M_bkg_fail[i][j]->SetLineColor(2);
-      histo_M_WJets_fail[i][j]->Draw("same");
-      histo_M_WJets_fail[i][j]->SetLineWidth(3);
-      histo_M_WJets_fail[i][j]->SetLineColor(3);
-      histo_M_WJets_fail[i][j]->SetMarkerColor(3);
-      histo_M_TTJets_fail[i][j]->Draw("same");
-      histo_M_TTJets_fail[i][j]->SetLineWidth(3);
-      histo_M_TTJets_fail[i][j]->SetLineColor(6);
-      histo_M_TTJets_fail[i][j]->SetMarkerColor(6);
-      */
 
       //Z pass 
       c2->cd(1);
@@ -844,21 +751,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
       histo_M[i][j]->SetLineWidth(2);
       histo_M[i][j]->SetLineColor(4);
       histo_M[i][j]->SetMarkerColor(4);
-      //histo_M_DYJets[i][j]->Draw();
-      //histo_M_DYJets[i][j]->SetTitle(_stitle);
-      //histo_M_DYJets[i][j]->GetXaxis()->SetTitle("m [GeV]");
-      //histo_M_DYJets[i][j]->SetLineWidth(2);
-      //histo_M_DYJets[i][j]->SetLineColor(4);
-      //histo_M_DYJets[i][j]->SetMarkerColor(4);
-      //histo_M_bkg[i][j]->Draw("same");
-      //histo_M_bkg[i][j]->SetLineWidth(2);
-      //histo_M_bkg[i][j]->SetMarkerColor(2);
-      //histo_M_bkg[i][j]->SetLineColor(2);
       TLegend* leg2 = new TLegend(0.6, 0.65,0.89,0.89);
       leg2->SetTextFont(43);
       leg2->SetTextSize(25);
       leg2->AddEntry(histo_M[i][j], "Z");
-      //leg2->AddEntry(histo_M_bkg[i][j], "TTJets + WJets");
       leg2->SetBorderSize(0);
       leg2->Draw();
 
@@ -870,16 +766,6 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
       histo_M_fail[i][j]->SetLineWidth(2);
       histo_M_fail[i][j]->SetLineColor(4);
       histo_M_fail[i][j]->SetMarkerColor(4);
-      //histo_M_DYJets_fail[i][j]->Draw();
-      //histo_M_DYJets_fail[i][j]->SetTitle(_stitlefail);
-      //histo_M_DYJets_fail[i][j]->GetXaxis()->SetTitle("m [GeV]");
-      //histo_M_DYJets_fail[i][j]->SetLineWidth(2);
-      //histo_M_DYJets_fail[i][j]->SetLineColor(4);
-      //histo_M_DYJets_fail[i][j]->SetMarkerColor(4);
-      //histo_M_bkg_fail[i][j]->Draw("same");
-      //histo_M_bkg_fail[i][j]->SetLineWidth(2);
-      //histo_M_bkg_fail[i][j]->SetMarkerColor(2);
-      //histo_M_bkg_fail[i][j]->SetLineColor(2);
 
       /////////////////////
       //Saving the output//
@@ -903,25 +789,13 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
       file_out->cd();
       histo_M[i][j]->Write("histo_M"+_parxbin+"_"+_parybin);
       histo_M_fail[i][j]->Write("histo_M_fail"+_parxbin+"_"+_parybin); 
-      //histo_M_DYJets_bkg[i][j]->Write("histo_M_DYJets_bkg"+_parxbin+"_"+_parybin);
-      //histo_M_DYJets[i][j]->Write("histo_M_DYJets"+_parxbin+"_"+_parybin); 
-      //histo_M_bkg[i][j]->Write("histo_M_bkg"+_parxbin+"_"+_parybin); 
-      //histo_M_WJets[i][j]->Write("histo_M_WJets"+_parxbin+"_"+_parybin); 
-      //histo_M_TTJets[i][j]->Write("histo_M_TTJets"+_parxbin+"_"+_parybin); 
-      //histo_M_DYJets_bkg_fail[i][j]->Write("histo_M_DYJets_bkg_fail"+_parxbin+"_"+_parybin); 
-      //histo_M_DYJets_fail[i][j]->Write("histo_M_DYJets_fail"+_parxbin+"_"+_parybin); 
-      //histo_M_bkg_fail[i][j]->Write("histo_M_bkg_fail"+_parxbin+"_"+_parybin); 
-      //histo_M_WJets_fail[i][j]->Write("histo_M_WJets_fail"+_parxbin+"_"+_parybin); 
-      //histo_M_TTJets_fail[i][j]->Write("histo_M_TTJets_fail"+_parxbin+"_"+_parybin); 
 
       h_par1[i][j]->Write("h_par1_"+_parxbin+"_"+_parybin);
-      h_par1_dyonly[i][j]->Write("h_par1_dyonly"+_parxbin+"_"+_parybin);
 
     }                    
 
     file_out->cd();
     histo_par1[i]->Write("histo_par1_"+_parybin);
-    histo_par1_dyonly[i]->Write("histo_par1_dyonly"+_parybin);
 
   }
 
@@ -940,8 +814,6 @@ int main(int argc, char** argv){
   cout<<"FUUUUUUUUUUUUUUUUCK"<<endl;
 
   cout<<"The number of parameters are "<<argc-1<<endl;
-
-  //if(argc-1 < 10){cout<<"ERROR: need to have at least 10 arguments but "<<argc-1<<" where provided !"<<endl; return 1;}
 
   if(argc-1 == 8){
 
