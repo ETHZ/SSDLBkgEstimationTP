@@ -85,6 +85,7 @@ double FitInvMassBkg(TH1D* histo, TString signal = "CBxBW", TString _bkg = "Exp"
   /////////////////////////
 
   //fsig for adding two funciton i.e. F(x) = fsig*sig(x) + (1-fsig)*bkg(x)
+    cout<<"The number of entries is"<<histo->GetEntries()<<endl;
   RooRealVar nsig("nsig","signal events",histo->GetEntries()/2., 1,histo->GetEntries());
   RooRealVar nbkg("nbkg","background events",histo->GetEntries()/2.,1,histo->GetEntries());
   RooArgList pdfval(nsig,nbkg);
@@ -117,6 +118,7 @@ double FitInvMassBkg(TH1D* histo, TString signal = "CBxBW", TString _bkg = "Exp"
   //NB: The CrystalBall shape is Gaussian that is 'connected' to an exponential taill at 'alpha' sigma of the Gaussian. The sign determines if it happens on the left or right side. The 'n' parameter control the slope of the exponential part. 
 
   RooAbsPdf* sig;
+  sig = &sig_bw;
 
   cout<<"Debug5"<<endl;
 

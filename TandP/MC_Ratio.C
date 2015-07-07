@@ -361,12 +361,12 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
   tree->SetBranchAddress("LepGood_eta",&Geta);
   tree->SetBranchAddress("LepGood_phi",&Gphi);
   tree->SetBranchAddress("LepGood_charge",&Gq);
-  tree->SetBranchAddress("LepGood_tightId",&Gtight);
+  tree->SetBranchAddress("LepGood_tightId",&Gtightid);
   tree->SetBranchAddress("LepGood_eleCutIdCSA14_50ns_v1",&Gtighte);
-  tree->SetBranchAddress("LepOther_tightId",&Gtightid);
-  tree->SetBranchAddress("LepOther_mediumMuonId",&Gmediumid);
-  tree->SetBranchAddress("LepOther_softMuonId",&Gsoftid);
-  tree->SetBranchAddress("LepOther_pfMuonId",&Gpfid);
+  tree->SetBranchAddress("LepGood_tightId",&Gtightid);
+  tree->SetBranchAddress("LepGood_mediumMuonId",&Gmediumid);
+  tree->SetBranchAddress("LepGood_softMuonId",&Gsoftid);
+  tree->SetBranchAddress("LepGood_pfMuonId",&Gpfid);
   tree->SetBranchAddress("LepGood_relIso03",&Giso3);
   tree->SetBranchAddress("LepGood_relIso04",&Giso4);
   tree->SetBranchAddress("LepGood_chargedHadRelIso03",&Gchiso3);
@@ -556,8 +556,12 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 		  if((sel_num == "chiso4")&&(evtchiso4[j] <= cut_num)){a = 5;}
 		  if((sel_num == "dxy")&&(abs(evtdxy[j]) <= cut_num)){a = 6;}
 		  if((sel_num == "dz")&&(abs(evtdz[j]) <= cut_num)){a = 7;}
-		  if((sel_num == "tightmva")&&(abs(evtid[j]) == 11)&&(evttight[j] == 1)){a = 9;}
 		  if((sel_num == "loose")&&(evtloose[j]) == 1){a = 8;}
+		  if((sel_num == "tightmva")&&(abs(evtid[j]) == 11)&&(evttight[j] == 1)){a = 9;}
+		  if((sel_num == "tightid")&&(evttightid[j]) == 1){a = 10;}
+		  if((sel_num == "mediumid")&&(evtmediumid[j]) == 1){a = 11;}
+		  if((sel_num == "softid")&&(evtsoftid[j]) == 1){a = 12;}
+		  if((sel_num == "pfid")&&(evtpfid[j]) == 1){a = 13;}
 
 		  //Find the corresponding histogram for par2
 		  TH1D* hist;
@@ -605,6 +609,22 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
 		      break;
 
 		    case 9:
+		      hist->Fill(par);
+		      break;
+
+		    case 10:
+		      hist->Fill(par);
+		      break;
+
+		    case 11:
+		      hist->Fill(par);
+		      break;
+
+		    case 12:
+		      hist->Fill(par);
+		      break;
+
+		    case 13:
 		      hist->Fill(par);
 		      break;
 		  }
@@ -697,7 +717,7 @@ int MC_Ratio(TString _filetag,int leptonId, double* par1, int npar1bins, double*
     TString cname = "eff"+_filetag+_option+_pname+_par1range+"_"+_parybin+"_den_"+_sel_den+"_num_"+_sel_num;
     c1->SaveAs(_path+_fname+"_PDF/"+cname+".pdf");
     //c_par1->SaveAs(_path+_fname+"_PDF/"+cname+"par_distr.pdf");
-    csel->SaveAs(_path+_fname+"_PDF/"+cname+"sel.pdf");
+    //csel->SaveAs(_path+_fname+"_PDF/"+cname+"sel.pdf");
     //cO->SaveAs(_path+_fname+"_PDF/"+cname+"_LepOther.pdf");
     //cG->SaveAs(_path+_fname+"_PDF/"+cname+"_LepGood.pdf");
     //ccpar->SaveAs(_path+_fname+"_PDF/"+cname+"_counter_par.pdf");

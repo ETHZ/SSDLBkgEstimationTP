@@ -32,19 +32,6 @@ using namespace std;
 #include "../tools/setTDRStyle.C"
 #include "../tools/getmaxallhist.C"
 
-
-//Int_t 	Gtight[200];
-//Int_t 	Gtighte[200];
-//Int_t 	Gloose[200];
-//Float_t 	Giso3[200];
-//Float_t 	Giso4[200];
-//Float_t 	Gchiso3[200];
-//Float_t 	Gchiso4[200];
-//Float_t 	Gdxy[200];
-//Float_t 	Gdz[200];
-//Int_t         Gfromtau[200];
-//Int_t         Gmatched[200];
-
 ////////////////////////
 //Variable description//
 ////////////////////////
@@ -372,10 +359,10 @@ int     DrawInvMassBkgMain(TString _filetag, vector< TTree* > tree, int leptonId
     tree[tree_i]->SetBranchAddress("LepGood_charge",&Gq);
     tree[tree_i]->SetBranchAddress("LepGood_tightId",&Gtight);
     tree[tree_i]->SetBranchAddress("LepGood_eleCutIdCSA14_50ns_v1",&Gtighte);
-    tree[tree_i]->SetBranchAddress("LepOther_tightId",&Gtightid);
-    tree[tree_i]->SetBranchAddress("LepOther_mediumMuonId",&Gmediumid);
-    tree[tree_i]->SetBranchAddress("LepOther_softMuonId",&Gsoftid);
-    tree[tree_i]->SetBranchAddress("LepOther_pfMuonId",&Gpfid);
+    tree[tree_i]->SetBranchAddress("LepGood_tightId",&Gtightid);
+    tree[tree_i]->SetBranchAddress("LepGood_mediumMuonId",&Gmediumid);
+    tree[tree_i]->SetBranchAddress("LepGood_softMuonId",&Gsoftid);
+    tree[tree_i]->SetBranchAddress("LepGood_pfMuonId",&Gpfid);
     tree[tree_i]->SetBranchAddress("LepGood_relIso03",&Giso3);
     tree[tree_i]->SetBranchAddress("LepGood_relIso04",&Giso4);
     tree[tree_i]->SetBranchAddress("LepGood_chargedHadRelIso03",&Gchiso3);
